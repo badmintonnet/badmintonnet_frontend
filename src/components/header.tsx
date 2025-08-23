@@ -2,14 +2,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { ModeToggle } from "@/components/dark-toggle";
-
-export default function Header() {
+import { cookies } from "next/headers";
+import LogoutButton from "@/components/button-logout";
+export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
     { name: "Sự kiện", href: "/events" },
     { name: "Về chúng tôi", href: "/about" },
     { name: "Liên hệ", href: "/contact" },
   ];
+
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken");
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow-md z-50 transition-colors duration-300">
@@ -48,24 +52,29 @@ export default function Header() {
             </Link>
           </Button>
 
-          {/* Login/Signup Buttons */}
-          <div className="hidden md:flex space-x-2">
-            <Button
-              asChild
-              variant="outline"
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/50"
-            >
-              <Link href="/login">Đăng nhập</Link>
-            </Button>
-            <Button
-              asChild
-              className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-400 dark:hover:bg-blue-500"
-            >
-              <Link href="/signup">Đăng ký</Link>
-            </Button>
-          </div>
+          {/* Nếu chưa login */}
+          {!accessToken && (
+            <div className="hidden md:flex space-x-2">
+              <Button
+                asChild
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/50"
+              >
+                <Link href="/login">Đăng nhập</Link>
+              </Button>
+              <Button
+                asChild
+                className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-400 dark:hover:bg-blue-500"
+              >
+                <Link href="/signup">Đăng ký</Link>
+              </Button>
+            </div>
+          )}
 
-          {/* Hamburger Menu Placeholder (Mobile) */}
+          {/* Nếu đã login */}
+          {accessToken && <LogoutButton />}
+
+          {/* Hamburger Menu (Mobile) */}
           <Button
             asChild
             variant="ghost"

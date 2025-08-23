@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
-import ClientLayout from "./client-layout"; // tách phần có hook ra
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -24,13 +24,14 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
+        <Toaster />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <ClientLayout>{children}</ClientLayout>
+          <>{children}</>
         </ThemeProvider>
       </body>
     </html>

@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import authApiRequest from "@/apiRequest/auth";
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -51,7 +52,7 @@ const RegisterForm = () => {
     setLoading(true);
     try {
       // Giả lập API call
-      // const result = await authApiRequest.register(values);
+      await authApiRequest.register(values);
       // await authApiRequest.auth({
       //   sessionToken: result.payload.data.token,
       //   expiresAt: result.payload.data.expiresAt,
@@ -59,7 +60,7 @@ const RegisterForm = () => {
       toast.success("Đăng ký thành công", {
         description: "Tài khoản của bạn đã được tạo thành công!",
       });
-      router.push("/me");
+      router.push("/");
     } catch (error: unknown) {
       // handleErrorApi({
       //   error,

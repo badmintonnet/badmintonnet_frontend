@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import authApiRequest from "@/apiRequest/auth";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -33,18 +34,19 @@ const LoginForm = () => {
   // Xử lý submit
   async function onSubmit(values: LoginBodyType) {
     if (loading) return;
+    console.log(values);
     setLoading(true);
     try {
-      // const result = await authApiRequest.login(values);
-      // await authApiRequest.auth({
-      //   sessionToken: result.payload.data.token,
-      //   expiresAt: result.payload.data.expiresAt,
-      // });
+      await authApiRequest.login(values);
+
       toast.success("Đăng nhập thành công", {
         // description: result.payload.message,
       });
-      router.push("/me");
+      router.push("/");
     } catch (error: unknown) {
+      toast.error("Đăng nhập thất bại", {
+        description: "Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
+      });
       // handleErrorApi({
       //   error,
       //   setError: form.setError,
