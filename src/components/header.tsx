@@ -7,7 +7,7 @@ import LogoutButton from "@/components/button-logout";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
-    { name: "Sự kiện", href: "/events" },
+    { name: "Sự kiện", href: "/events/create" },
     { name: "Về chúng tôi", href: "/about" },
     { name: "Liên hệ", href: "/contact" },
   ];

@@ -98,16 +98,28 @@ const request = async <Response>(
   url: string,
   options?: CustomOptions | undefined
 ): Promise<{ status: number; payload: Response }> => {
-  const body = options?.body ? JSON.stringify(options.body) : undefined;
-
-  const baseHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
-    Authorization: clientSessionToken.value
-      ? `Bearer ${clientSessionToken.value}`
-      : "",
-    "X-Device-Id": clientSessionToken.deviceIdValue || "",
-    refreshToken: clientSessionToken.refreshValue || "",
-  };
+  const body = options?.body
+    ? options.body instanceof FormData
+      ? options.body
+      : JSON.stringify(options.body)
+    : undefined;
+  const baseHeaders: Record<string, string> =
+    body instanceof FormData
+      ? {
+          Authorization: clientSessionToken.value
+            ? `Bearer ${clientSessionToken.value}`
+            : "",
+          "X-Device-Id": clientSessionToken.deviceIdValue || "",
+          refreshToken: clientSessionToken.refreshValue || "",
+        }
+      : {
+          "Content-Type": "application/json",
+          Authorization: clientSessionToken.value
+            ? `Bearer ${clientSessionToken.value}`
+            : "",
+          "X-Device-Id": clientSessionToken.deviceIdValue || "",
+          refreshToken: clientSessionToken.refreshValue || "",
+        };
 
   const baseUrl =
     options?.baseUrl === undefined
@@ -132,6 +144,7 @@ const request = async <Response>(
   // Nếu accessToken hết hạn → gọi refresh
   if (res.status === AUTHENTICATION_ERROR_STATUS) {
     if (typeof window !== "undefined") {
+      // 👉 Client side: gọi API backend để refresh
       try {
         const refreshRes = await fetch(
           `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/refresh`,
@@ -148,23 +161,20 @@ const request = async <Response>(
 
         if (refreshRes.ok) {
           const refreshData = await refreshRes.json();
-          const newAccessToken = refreshData.data.accessToken;
-          const newRefreshToken = refreshData.data.refreshToken;
-          const newDeviceId = refreshData.data.deviceId;
+          const { accessToken, refreshToken, deviceId } = refreshData.data;
 
-          // Cập nhật lại session token
-          clientSessionToken.value = newAccessToken;
-          clientSessionToken.refreshValue = newRefreshToken;
-          clientSessionToken.deviceIdValue = newDeviceId;
+          clientSessionToken.value = accessToken;
+          clientSessionToken.refreshValue = refreshToken;
+          clientSessionToken.deviceIdValue = deviceId;
 
-          // Retry request gốc
+          // retry request gốc
           res = await fetch(fullUrl, {
             ...options,
             headers: {
               ...baseHeaders,
-              Authorization: `Bearer ${newAccessToken}`,
-              "X-Device-Id": newDeviceId,
-              refreshToken: newRefreshToken,
+              Authorization: `Bearer ${accessToken}`,
+              "X-Device-Id": deviceId,
+              refreshToken,
             },
             body,
             method,
@@ -178,7 +188,42 @@ const request = async <Response>(
         location.href = "/login";
       }
     } else {
-      redirect("/login");
+      // 👉 Server side: gọi API nội bộ của Next.js server
+      try {
+        const refreshRes = await fetch(
+          `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/refresh`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            cache: "no-store",
+          }
+        );
+
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          const { accessToken, refreshToken, deviceId } = refreshData.data;
+
+          // retry request gốc với token mới
+          res = await fetch(fullUrl, {
+            ...options,
+            headers: {
+              ...baseHeaders,
+              Authorization: `Bearer ${accessToken}`,
+              "X-Device-Id": deviceId,
+              refreshToken,
+            },
+            body,
+            method,
+          });
+        } else {
+          redirect("/login");
+        }
+      } catch (err) {
+        console.error("Server refresh token failed:", err);
+        redirect("/login");
+      }
     }
   }
 

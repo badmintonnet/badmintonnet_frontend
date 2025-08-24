@@ -5,6 +5,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import { Toaster } from "sonner";
+import { cookies } from "next/headers";
+import { clientSessionToken } from "@/lib/http";
+import AppProvider from "@/app/app-provider";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -16,14 +19,18 @@ export const metadata: Metadata = {
   description: "Ứng dụng kết nối người hâm mộ thể thao",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value || "";
+  const refreshToken = cookieStore.get("refreshToken")?.value || "";
+  const deviceId = cookieStore.get("deviceId")?.value || "";
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased  pt-16`}>
         <Toaster />
         <ThemeProvider
           attribute="class"
@@ -31,7 +38,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <>{children}</>
+          <AppProvider
+            inititalAccessToken={accessToken}
+            inititalRefreshToken={refreshToken}
+            inititalDeviceId={deviceId}
+          >
+            {children}
+          </AppProvider>
         </ThemeProvider>
       </body>
     </html>
