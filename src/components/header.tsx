@@ -5,6 +5,7 @@ import { ModeToggle } from "@/components/dark-toggle";
 import { cookies } from "next/headers";
 import LogoutButton from "@/components/button-logout";
 import MobileMenu from "@/components/mobile-menu";
+import UserMenu from "@/components/user-menu";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
@@ -73,9 +74,6 @@ export default async function Header() {
             </div>
           )}
 
-          {/* Nếu đã login */}
-          {accessToken && <LogoutButton />}
-
           {/* Hamburger Menu (Mobile) */}
           <Button
             asChild
@@ -83,6 +81,7 @@ export default async function Header() {
             size="icon"
             className="md:hidden text-gray-700 dark:text-gray-200"
           ></Button>
+          {accessToken && <UserMenu />}
           <div className="md:hidden">
             <MobileMenu navItems={navItems} accessToken={!!accessToken} />
           </div>
