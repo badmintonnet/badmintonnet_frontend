@@ -1,5 +1,5 @@
 import eventClubApiRequest from "@/apiRequest/club.event";
-import { EventClubList } from "../_components/event-club-list";
+import { EventClubList } from "../../_components/event-club-list";
 import { cookies } from "next/headers";
 
 interface EventsPageProps {
@@ -12,7 +12,7 @@ interface EventsPageProps {
   }>;
 }
 
-export default async function EventsPage({ searchParams }: EventsPageProps) {
+export default async function ClubEvents({ searchParams }: EventsPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 

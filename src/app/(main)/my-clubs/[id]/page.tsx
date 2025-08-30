@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, MapPin, Users, Edit, Plus } from "lucide-react";
+import { Calendar, MapPin, Users, Edit, Plus, Club } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,10 +10,12 @@ import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
 import ClubMembers from "@/app/(main)/my-clubs/_components/member";
 import { CreateEventClubButton } from "@/app/(main)/my-clubs/_components/create-event-club-button";
+import ClubEvents from "@/app/(main)/my-clubs/[id]/events/ClubEvents";
 
 interface ClubDetailPageProps {
   params: Promise<{ id: string }>;
 }
+
 export default async function MyClubDetail({ params }: ClubDetailPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
@@ -36,15 +38,17 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6">
+      {/* Combined Main Content and Sidebar */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-10 gap-6 items-stretch">
         {/* Main Content */}
-        <div className="lg:col-span-7 space-y-6">
-          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <div className="lg:col-span-7 space-y-6 flex flex-col h-full">
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex-1">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Image
-                src={clubDetail.logoUrl || ""}
+                src={clubDetail. logoUrl || ""}
                 alt={`${clubDetail.name} logo`}
                 width={80}
                 height={80}
@@ -115,7 +119,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
         </div>
 
         {/* Sidebar */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 space-y-6 flex flex-col h-full">
           <ClubMembers
             id={clubDetail.id}
             accessToken={accessToken?.value || ""}
@@ -123,7 +127,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
           />
           
           {/* Danh sách hoạt động gần đây */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Hoạt động gần đây
@@ -155,6 +159,8 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
           </div>
         </div>
       </div>
+      {/* Full-screen component */}
+      <ClubEvents searchParams={{ clubId: clubDetail.id }} />
     </div>
   );
 }
