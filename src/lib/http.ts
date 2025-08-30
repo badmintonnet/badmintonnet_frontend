@@ -10,6 +10,8 @@ type CustomOptions = Omit<RequestInit, "method"> & {
 
 const ENTITY_ERROR_STATUS = 422;
 const AUTHENTICATION_ERROR_STATUS = 401;
+const CONFLICT_ERROR_STATUS = 409;
+const SERVER_ERROR_STATUS = 500;
 
 type EntityErrorPayload = {
   message: string;
@@ -40,6 +42,22 @@ export class EntityError extends HttpError {
     payload,
   }: {
     status: 422;
+    payload: EntityErrorPayload;
+  }) {
+    super({ status, payload });
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+export class ConflictError extends HttpError {
+  status: 409;
+  payload: EntityErrorPayload;
+  constructor({
+    status,
+    payload,
+  }: {
+    status: 409;
     payload: EntityErrorPayload;
   }) {
     super({ status, payload });
@@ -88,7 +106,6 @@ class SessionToken {
 }
 
 export const clientSessionToken = new SessionToken();
-// let clientLogoutRequest: null | Promise<any> = null;
 
 /**
  * Hàm gọi API
@@ -103,6 +120,7 @@ const request = async <Response>(
       ? options.body
       : JSON.stringify(options.body)
     : undefined;
+
   const baseHeaders: Record<string, string> =
     body instanceof FormData
       ? {
@@ -188,7 +206,7 @@ const request = async <Response>(
         location.href = "/login";
       }
     } else {
-      // 👉 Server side: gọi API nội bộ của Next.js server
+      // 👉 Server side
       try {
         const refreshRes = await fetch(
           `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/refresh`,
@@ -205,7 +223,7 @@ const request = async <Response>(
           const refreshData = await refreshRes.json();
           const { accessToken, refreshToken, deviceId } = refreshData.data;
 
-          // retry request gốc với token mới
+          // retry request gốc
           res = await fetch(fullUrl, {
             ...options,
             headers: {
@@ -227,7 +245,13 @@ const request = async <Response>(
     }
   }
 
-  const payload: Response = await res.json();
+  let payload: Response;
+  try {
+    payload = await res.json();
+  } catch {
+    payload = {} as Response;
+  }
+
   const data = {
     status: res.status,
     payload,
@@ -241,6 +265,23 @@ const request = async <Response>(
           payload: EntityErrorPayload;
         }
       );
+    }
+
+    if (res.status === CONFLICT_ERROR_STATUS) {
+      throw new ConflictError(
+        data as {
+          status: 409;
+          payload: EntityErrorPayload;
+        }
+      );
+    }
+
+    if (res.status >= SERVER_ERROR_STATUS) {
+      // 👉 Quăng lỗi 500 để try/catch xử lý ở ngoài
+      throw new HttpError({
+        status: res.status,
+        payload: payload || { message: "Internal server error" },
+      });
     }
   }
 

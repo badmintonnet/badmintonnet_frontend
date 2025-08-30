@@ -24,8 +24,9 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import clubServiceApi from "@/apiRequest/club";
 import authApiRequest from "@/apiRequest/auth";
-
+import { useRouter } from "next/navigation";
 const CreateClubForm = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentTag, setCurrentTag] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -91,7 +92,7 @@ const CreateClubForm = () => {
       }
       const uploadRes = await clubServiceApi.uploadImage(formData);
       const uploadedImageUrl = uploadRes.payload.data.fileName;
-      await clubServiceApi.createClub({
+      const club = await clubServiceApi.createClub({
         ...values,
         logoUrl: uploadedImageUrl || "",
       });
@@ -100,6 +101,7 @@ const CreateClubForm = () => {
       form.reset();
       setLogoFile(null);
       setLogoPreview("");
+      router.push(`/my-clubs/${club.payload.data.id}`);
     } catch (error) {
       toast.error("Tạo thất bại", {
         description: "Có lỗi xảy ra, vui lòng thử lại",
