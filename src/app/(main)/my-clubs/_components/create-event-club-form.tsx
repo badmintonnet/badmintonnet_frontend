@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
@@ -54,6 +54,15 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       clubId: clubId,
     },
   });
+
+  const { watch, setValue } = form;
+  const maxClubMembers = watch("maxClubMembers");
+  const maxOutsideMembers = watch("maxOutsideMembers");
+
+  useEffect(() => {
+    const total = (maxClubMembers || 0) + (maxOutsideMembers || 0);
+    setValue("totalMember", total, { shouldValidate: true });
+  }, [maxClubMembers, maxOutsideMembers, setValue]);
 
   // Upload Image
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -292,6 +301,88 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
           />
         </div>
 
+{/* Mở cho thành viên ngoài */}
+        <FormField
+          control={form.control}
+          name="openForOutside"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                Mở cho thành viên ngoài CLB
+              </FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={(value) => field.onChange(value === "true")}
+                  defaultValue={field.value ? "true" : "false"}
+                  className="flex gap-4"
+                >
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <RadioGroupItem value="true" />
+                    </FormControl>
+                    <FormLabel className="text-sm font-normal">Có</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <RadioGroupItem value="false" />
+                    </FormControl>
+                    <FormLabel className="text-sm font-normal">Không</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Số thành viên CLB tối đa */}
+        <FormField
+          control={form.control}
+          name="maxClubMembers"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                Số thành viên CLB tối đa
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="Ví dụ: 2"
+                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Số thành viên ngoài tối đa */}
+        <FormField
+          control={form.control}
+          name="maxOutsideMembers"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                Số thành viên ngoài tối đa
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="Ví dụ: 2"
+                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Tổng số thành viên */}
         <FormField
           control={form.control}
@@ -304,10 +395,9 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="Ví dụ: 4"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value}
+                  readOnly
+                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
                 />
               </FormControl>
               <FormMessage />
@@ -411,86 +501,6 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
                   type="datetime-local"
                   className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Mở cho thành viên ngoài */}
-        <FormField
-          control={form.control}
-          name="openForOutside"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Mở cho thành viên ngoài CLB
-              </FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={(value) => field.onChange(value === "true")}
-                  defaultValue={field.value ? "true" : "false"}
-                  className="flex gap-4"
-                >
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <RadioGroupItem value="true" />
-                    </FormControl>
-                    <FormLabel className="text-sm font-normal">Có</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <RadioGroupItem value="false" />
-                    </FormControl>
-                    <FormLabel className="text-sm font-normal">Không</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Số thành viên CLB tối đa */}
-        <FormField
-          control={form.control}
-          name="maxClubMembers"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Số thành viên CLB tối đa
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Ví dụ: 2"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Số thành viên ngoài tối đa */}
-        <FormField
-          control={form.control}
-          name="maxOutsideMembers"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Số thành viên ngoài tối đa
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Ví dụ: 2"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
