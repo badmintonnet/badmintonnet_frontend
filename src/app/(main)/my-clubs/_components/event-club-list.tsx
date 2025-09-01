@@ -18,6 +18,7 @@ interface EventClubListProps {
   currentPage: number;
   clubId?: string;
   accessToken: string;
+  owner?: boolean;
 }
 
 export const EventClubList = ({
@@ -26,7 +27,9 @@ export const EventClubList = ({
   currentPage,
   clubId,
   accessToken,
+  owner,
 }: EventClubListProps) => {
+  if (owner) console.log("Owner view enabled");
   return (
     <div className="space-y-6">
       {/* Header với thống kê */}
@@ -41,7 +44,7 @@ export const EventClubList = ({
         </div>
 
         {/* Nút tạo hoạt động mới */}
-        {clubId && (
+        {owner && (
           <Link href={`/my-clubs/create-event?clubId=${clubId}`}>
             <Button className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white">
               <Calendar className="w-4 h-4 mr-2" />
@@ -128,14 +131,6 @@ export const EventClubList = ({
               ? "Hãy tạo hoạt động đầu tiên cho câu lạc bộ của bạn"
               : "Chưa có hoạt động nào được tổ chức"}
           </p>
-          {clubId && (
-            <Link href={`/my-clubs/create-event?clubId=${clubId}`}>
-              <Button className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white">
-                <Calendar className="w-4 h-4 mr-2" />
-                Tạo hoạt động đầu tiên
-              </Button>
-            </Link>
-          )}
         </div>
       )}
 

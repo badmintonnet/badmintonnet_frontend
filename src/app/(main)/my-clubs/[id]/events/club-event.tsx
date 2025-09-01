@@ -10,9 +10,13 @@ interface EventsPageProps {
     type?: string;
     search?: string;
   }>;
+  owner?: boolean;
 }
 
-export default async function ClubEvents({ searchParams }: EventsPageProps) {
+export default async function ClubEvents({
+  searchParams,
+  owner,
+}: EventsPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 
@@ -48,7 +52,6 @@ export default async function ClubEvents({ searchParams }: EventsPageProps) {
       size,
       accessToken?.value || ""
     );
-    console.log("Fetched events response:", response);
     events = response.payload.data.content || [];
     totalPages = response.payload.data.totalPages || 0;
     currentPage = response.payload.data.page || 0;
@@ -75,6 +78,7 @@ export default async function ClubEvents({ searchParams }: EventsPageProps) {
           currentPage={currentPage}
           clubId={clubId}
           accessToken={accessToken?.value || ""}
+          owner={owner}
         />
       </div>
     </div>

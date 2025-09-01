@@ -3,6 +3,7 @@ import http from "@/lib/http";
 import { FileResType } from "@/schemaValidations/common.schema";
 import {
   CreateEventClubBodyType,
+  EventDetailResponseType,
   PagedEventResponseType,
 } from "@/schemaValidations/event.schema";
 
@@ -11,7 +12,7 @@ const eventClubApiRequest = {
     http.post<FileResType>("/club-event/upload", body),
 
   createEventClub: (body: CreateEventClubBodyType) =>
-    http.post("/club-event", body),
+    http.post<EventDetailResponseType>("/club-event", body),
 
   // Lấy danh sách event clubs theo club ID
   getEventClubsByClubId: (
@@ -28,5 +29,11 @@ const eventClubApiRequest = {
         },
       }
     ),
+  getEventById: (id: string, accessToken: string) =>
+    http.get<EventDetailResponseType>(`/club-event/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
 };
 export default eventClubApiRequest;

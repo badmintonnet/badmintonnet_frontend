@@ -21,6 +21,7 @@ const EventStatusEnum = z.enum([
   "CANCELLED",
 ]);
 
+export const ParticipantRoleEnum = z.enum(["OWNER", "MEMBER", "GUEST"]);
 // Schema for file uploads (MultipartFile in Java)
 const FileSchema = z
   .any()
@@ -150,3 +151,45 @@ export const PagedEventResponse = z.object({
 
 export type EventType = z.infer<typeof EventSchema>;
 export type PagedEventResponseType = z.infer<typeof PagedEventResponse>;
+
+export const EventDetailSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(), // có thể null
+  image: z.string().url().optional(),
+  location: z.string(),
+
+  requirements: z.string().nullable(), // người dùng nhập tay có thể null
+
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
+  deadline: z.coerce.date(),
+
+  totalMember: z.number().int(),
+  joinedMember: z.number().int(),
+
+  fee: z.number().nullable().default(0),
+
+  categories: z.array(BadmintonCategoryEnum).optional(),
+  status: EventStatusEnum,
+
+  clubId: z.string(),
+
+  openForOutside: z.boolean(),
+  maxClubMembers: z.number().int(),
+  maxOutsideMembers: z.number().int(),
+
+  createdAt: z.coerce.date(),
+  createdBy: z.string().nullable(),
+
+  participantRole: ParticipantRoleEnum,
+});
+
+export const EventDetailResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: EventDetailSchema,
+});
+
+export type EventDetailType = z.infer<typeof EventDetailSchema>;
+export type EventDetailResponseType = z.infer<typeof EventDetailResponse>;

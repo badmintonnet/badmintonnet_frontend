@@ -1,7 +1,10 @@
 import http from "@/lib/http";
 
 import { FileResType } from "@/schemaValidations/common.schema";
-import { CreateEventBodyType } from "@/schemaValidations/event.schema";
+import {
+  CreateEventBodyType,
+  EventDetailResponseType,
+} from "@/schemaValidations/event.schema";
 const eventApiRequest = {
   uploadImage: (body: FormData) =>
     http.post<FileResType>("/event/upload", body),

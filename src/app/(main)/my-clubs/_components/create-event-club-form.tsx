@@ -94,7 +94,7 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       form.reset();
       setImageFile(null);
       setImagePreview("");
-      router.push(`/my-clubs/${clubId}`);
+      router.push(`/events/${eventClub.payload.data.id}`);
     } catch (error) {
       toast.error("Tạo thất bại", {
         description: "Có lỗi xảy ra, vui lòng thử lại",
@@ -301,7 +301,7 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
           />
         </div>
 
-{/* Mở cho thành viên ngoài */}
+        {/* Mở cho thành viên ngoài */}
         <FormField
           control={form.control}
           name="openForOutside"
