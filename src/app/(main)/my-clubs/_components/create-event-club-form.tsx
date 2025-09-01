@@ -44,13 +44,13 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       requirements: "",
       startTime: "",
       endTime: "",
-      totalMember: 4,
+      totalMember: 0,
       type: [],
       fee: 0,
       deadline: "",
       openForOutside: false,
-      maxClubMembers: 2,
-      maxOutsideMembers: 2,
+      maxClubMembers: 0,
+      maxOutsideMembers: 0,
       clubId: clubId,
     },
   });
@@ -58,11 +58,16 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
   const { watch, setValue } = form;
   const maxClubMembers = watch("maxClubMembers");
   const maxOutsideMembers = watch("maxOutsideMembers");
+  const openForOutside = watch("openForOutside");
 
   useEffect(() => {
-    const total = (maxClubMembers || 0) + (maxOutsideMembers || 0);
+    if (!openForOutside) {
+      setValue("maxOutsideMembers", 0, { shouldValidate: true });
+    }
+    const total =
+      (maxClubMembers || 0) + (openForOutside ? maxOutsideMembers || 0 : 0);
     setValue("totalMember", total, { shouldValidate: true });
-  }, [maxClubMembers, maxOutsideMembers, setValue]);
+  }, [maxClubMembers, maxOutsideMembers, openForOutside, setValue]);
 
   // Upload Image
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -359,29 +364,31 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
           )}
         />
 
-        {/* Số thành viên ngoài tối đa */}
-        <FormField
-          control={form.control}
-          name="maxOutsideMembers"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Số thành viên ngoài tối đa
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="Ví dụ: 2"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Số thành viên ngoài tối đa - Conditionally rendered */}
+        {openForOutside && (
+          <FormField
+            control={form.control}
+            name="maxOutsideMembers"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                  Số thành viên ngoài tối đa
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="Ví dụ: 2"
+                    className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Tổng số thành viên */}
         <FormField

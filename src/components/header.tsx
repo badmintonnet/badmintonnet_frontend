@@ -6,6 +6,18 @@ import { cookies } from "next/headers";
 import LogoutButton from "@/components/button-logout";
 import MobileMenu from "@/components/mobile-menu";
 import UserMenu from "@/components/user-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { ActiveNavigationLink } from "@/components/active-navigation-link";
+
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
@@ -28,17 +40,19 @@ export default async function Header() {
           </span>
         </Link>
 
-        {/* Menu Desktop */}
-        <nav className="hidden md:flex space-x-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {item.name}
-            </Link>
-          ))}
+        {/* Menu Desktop với NavigationMenu */}
+        <nav className="hidden md:block">
+          <NavigationMenu>
+            <NavigationMenuList>
+              {navItems.map((item) => (
+                <NavigationMenuItem key={item.name}>
+                  <ActiveNavigationLink href={item.href}>
+                    {item.name}
+                  </ActiveNavigationLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
         </nav>
 
         {/* Actions */}
@@ -74,17 +88,14 @@ export default async function Header() {
             </div>
           )}
 
-          {/* Hamburger Menu (Mobile) */}
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-gray-700 dark:text-gray-200"
-          ></Button>
+          {/* Nếu đã login */}
           {accessToken && <UserMenu />}
+
+          {/* Mobile Menu */}
           <div className="md:hidden">
             <MobileMenu navItems={navItems} accessToken={!!accessToken} />
           </div>
+
           <ModeToggle />
         </div>
       </div>
