@@ -61,7 +61,7 @@ export default function ApprovedMembers({
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto flex flex-col justify-center items-center">
+        <div className="flex-1 overflow-y-auto">
           {loadingApproved ? (
             <MemberSkeleton />
           ) : approvedMembers.length > 0 ? (
@@ -84,9 +84,11 @@ export default function ApprovedMembers({
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500">
-              Không có thành viên đã duyệt
-            </p>
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm text-gray-500">
+                Không có thành viên đã duyệt
+              </p>
+            </div>
           )}
         </div>
         {totalPagesApproved > 1 && (
