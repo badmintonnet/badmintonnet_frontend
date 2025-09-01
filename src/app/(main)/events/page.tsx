@@ -1,260 +1,363 @@
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Lock,
-  Image as ImageIcon,
-} from "lucide-react";
 import Image from "next/image";
-interface Event {
-  id: number;
-  title: string;
-  club: string;
-  type: string;
-  date: string;
-  location: string;
-  participants: number;
-  maxParticipants: number;
-  isPublic: boolean;
-  imageUrl: string;
+import Link from "next/link";
+import { Calendar, MapPin, Users, DollarSign, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import eventClubApiRequest from "@/apiRequest/club.event";
+
+interface ClubEventsProps {
+  searchParams: Promise<{ page?: string }>;
 }
 
-const ClubEvents = () => {
-  const events: Event[] = [
-    {
-      id: 1,
-      title: "Giải Cầu lông mùa xuân 2025",
-      club: "CLB Cầu lông Thanh Xuân",
-      type: "Đơn nam",
-      date: "2025-09-15 09:00",
-      location: "Sân cầu lông Hà Nội",
-      participants: 24,
-      maxParticipants: 32,
-      isPublic: true,
-      imageUrl:
-        "https://images.unsplash.com/photo-1611250188496-e966746f6bc7?w=400&h=200&fit=crop",
-    },
-    {
-      id: 2,
-      title: "Giải Tennis nữ nghiệp dư",
-      club: "Tennis Club Saigon",
-      type: "Đôi nữ",
-      date: "2025-09-20 14:00",
-      location: "Sân tennis Landmark 81",
-      participants: 16,
-      maxParticipants: 20,
-      isPublic: false,
-      imageUrl:
-        "https://images.unsplash.com/photo-1544717684-20a7a0b36c77?w=400&h=200&fit=crop",
-    },
-    {
-      id: 3,
-      title: "Giao hữu Bóng bàn cuối tuần",
-      club: "CLB Bóng bàn Việt Nam",
-      type: "Đôi nam nữ",
-      date: "2025-09-18 10:30",
-      location: "Nhà thi đấu Phan Đình Phùng",
-      participants: 30,
-      maxParticipants: 30,
-      isPublic: true,
-      imageUrl:
-        "https://images.unsplash.com/photo-1609710461115-46c0a5d7b45a?w=400&h=200&fit=crop",
-    },
-    {
-      id: 4,
-      title: "Giải Pickleball mở rộng",
-      club: "Pickleball Hanoi",
-      type: "Vãng lai",
-      date: "2025-09-25 08:00",
-      location: "Sân thể thao Mỹ Đình",
-      participants: 45,
-      maxParticipants: 64,
-      isPublic: true,
-      imageUrl:
-        "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=200&fit=crop",
-    },
-    {
-      id: 5,
-      title: "Tập luyện Cầu lông nội bộ",
-      club: "CLB Cầu lông Thanh Xuân",
-      type: "Đơn nữ",
-      date: "2025-09-12 19:00",
-      location: "Sân cầu lông Hà Nội",
-      participants: 8,
-      maxParticipants: 16,
-      isPublic: false,
-      imageUrl:
-        "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=200&fit=crop",
-    },
-    {
-      id: 6,
-      title: "Giải Squash phong trào",
-      club: "Squash Elite Club",
-      type: "Đôi nam",
-      date: "2025-09-28 16:00",
-      location: "Squash Center TPHCM",
-      participants: 12,
-      maxParticipants: 24,
-      isPublic: true,
-      imageUrl:
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=200&fit=crop",
-    },
-  ];
+// Map loại hoạt động sang tiếng Việt
+const categoryMapVN: Record<string, string> = {
+  MEN_SINGLE: "Đơn Nam",
+  WOMEN_SINGLE: "Đơn Nữ",
+  MEN_DOUBLE: "Đôi Nam",
+  WOMEN_DOUBLE: "Đôi Nữ",
+  MIXED_DOUBLE: "Đôi Nam Nữ",
+};
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return (
-      date.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }) +
-      " - " +
-      date.toLocaleTimeString("vi-VN", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+// Màu sắc badge cho từng loại - sử dụng gradient xanh lá và xanh dương
+function getCategoryGradient(category: string) {
+  const gradients: Record<string, string> = {
+    MEN_SINGLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
+    WOMEN_SINGLE: "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white",
+    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-emerald-500 text-white",
+    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-blue-500 text-white",
+    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-emerald-600 text-white",
+  };
+  return (
+    gradients[category] ||
+    "bg-gradient-to-r from-gray-500 to-gray-600 text-white"
+  );
+}
+
+// Hàm định dạng ngày
+function formatDate(date: string | Date) {
+  return new Date(date).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+// Hàm định dạng thời gian - chỉ hiển thị giờ:phút
+function formatTime(date: string | Date) {
+  return new Date(date).toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+// Hàm định dạng tiền tệ
+function formatCurrency(amount: number) {
+  return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+}
+
+// Info item component - tối ưu cho layout mới
+const InfoItem = ({
+  icon: Icon,
+  label,
+  value,
+  className = "",
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string | React.ReactNode;
+  className?: string;
+}) => (
+  <div className={`flex items-center gap-2 ${className}`}>
+    <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+      <Icon className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+        {label}:{" "}
+      </span>
+      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+        {value}
+      </span>
+    </div>
+  </div>
+);
+
+// Skeleton UI
+const ClubEventsSkeleton = () => (
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-emerald-50 to-blue-50 dark:from-blue-900 dark:via-emerald-900 dark:to-blue-900">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8 text-center">
+        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mb-2 animate-pulse" />
+        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[...Array(8)].map((_, i) => (
+          <Card
+            key={i}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border-none animate-pulse flex flex-col"
+          >
+            <div className="relative h-40 bg-gray-200 dark:bg-gray-700" />
+            <CardContent className="p-4 flex-1">
+              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3" />
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+              </div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg mt-4" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+export default async function ClubEvents({ searchParams }: ClubEventsProps) {
+  const params = await searchParams;
+  const page = parseInt(params.page || "0", 10);
+  const size = 8;
+
+  let events = [];
+  let totalPages = 1;
+  let currentPage = 0;
+  let last = true;
+
+  try {
+    const response = await eventClubApiRequest.getAllPublicEventClubs(
+      page,
+      size
     );
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "Đơn nam":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-      case "Đơn nữ":
-        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300";
-      case "Đôi nam":
-        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300";
-      case "Đôi nữ":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
-      case "Đôi nam nữ":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "Vãng lai":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-    }
-  };
+    events = response.payload.data.content || [];
+    ({ totalPages, page: currentPage, last } = response.payload.data);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-emerald-50 to-blue-50 dark:from-blue-900 dark:via-emerald-900 dark:to-blue-900">
+        <Card className="p-6 max-w-md w-full text-center bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-blue-200 dark:border-emerald-800">
+          <div className="w-16 h-16 bg-blue-100/50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Calendar className="w-8 h-8 text-blue-600 dark:text-emerald-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-blue-600 dark:text-emerald-300 mb-3">
+            Lỗi tải dữ liệu
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm">
+            Đã có lỗi xảy ra khi tải danh sách hoạt động. Vui lòng thử lại sau.
+          </p>
+          <Button
+            asChild
+            variant="outline"
+            className="rounded-xl border-blue-300 dark:border-emerald-700 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20"
+          >
+            <Link href="/">Quay lại trang chủ</Link>
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Sự kiện Câu lạc bộ
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Khám phá và tham gia các sự kiện thể thao hấp dẫn
-        </p>
-      </div>
+    <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          {/* Tiêu đề gradient */}
+          <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+            Hoạt động của các CLB
+          </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {events.map((event) => {
-          const isFull = event.participants >= event.maxParticipants;
+          {/* Mô tả */}
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+            Khám phá và tham gia các hoạt động thể thao sôi động
+          </p>
+        </div>
 
-          return (
-            <div
-              key={event.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full flex flex-col"
-            >
-              {/* Header Image */}
-              <div className="relative h-48 bg-gradient-to-r from-blue-500 to-green-500 overflow-hidden">
-                <Image
-                  src={event.imageUrl || "/fallback.jpg"}
-                  alt={event.title}
-                  width={400}
-                  height={250}
-                  className="w-full h-48 object-cover rounded-md"
-                />
-                <div className="hidden absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center">
-                  <ImageIcon className="w-16 h-16 text-white opacity-50" />
-                </div>
+        {/* Events Grid */}
+        {events.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-blue-100/50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="w-10 h-10 text-blue-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-blue-600 dark:text-emerald-300 mb-2">
+              Chưa có hoạt động nào
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Hãy quay lại sau để khám phá các hoạt động mới!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {events.map((event) => {
+              const isFull = event.joinedMember >= event.totalMember;
+              const fillPercentage =
+                (event.joinedMember / event.totalMember) * 100;
 
-                {/* Public/Private Badge */}
-                <div className="absolute top-3 right-3">
-                  {event.isPublic ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">
-                      Public
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white">
-                      <Lock className="w-3 h-3" />
-                      Private
-                    </span>
-                  )}
-                </div>
+              return (
+                <Card
+                  key={event.id}
+                  className="group bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg border border-blue-100 dark:border-emerald-900 hover:border-blue-300 dark:hover:border-emerald-700 transition-all duration-300 overflow-hidden flex flex-col"
+                >
+                  {/* Event Image */}
+                  <div className="relative h-40 w-full">
+                    <Image
+                      src={event.image || "/api/placeholder/400/160"}
+                      alt={event.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      className="object-cover  transition-transform duration-500"
+                    />
 
-                {/* Type Badge */}
-                <div className="absolute top-3 left-3">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                      event.type
-                    )}`}
-                  >
-                    {event.type}
-                  </span>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4 flex-1 flex flex-col">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
-                    {event.title}
-                  </h3>
-
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-3">
-                    {event.club}
-                  </p>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <Calendar className="w-4 h-4 mr-2 text-blue-500" />
-                      {formatDate(event.date)}
+                    {/* Categories */}
+                    <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5">
+                      {event.categories?.map((cat) => (
+                        <Badge
+                          key={cat}
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
+                            cat
+                          )}`}
+                        >
+                          {categoryMapVN[cat] || cat}
+                        </Badge>
+                      ))}
                     </div>
 
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <MapPin className="w-4 h-4 mr-2 text-green-500" />
-                      <span className="truncate">{event.location}</span>
-                    </div>
-
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <Users className="w-4 h-4 mr-2 text-purple-500" />
-                      <span
-                        className={`${
-                          isFull ? "text-red-500 font-medium" : ""
-                        }`}
-                      >
-                        {event.participants}/{event.maxParticipants} người
-                      </span>
+                    {/* Progress Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/50 dark:bg-gray-700/50">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500"
+                        style={{ width: `${fillPercentage}%` }}
+                      />
                     </div>
                   </div>
-                </div>
 
-                {/* Action Button */}
-                <button
-                  disabled={isFull}
-                  className={`w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
-                    isFull
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                      : "bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700 hover:shadow-lg transform hover:scale-105 active:scale-95"
+                  {/* Card Content */}
+                  <CardContent className="p-4 flex flex-col flex-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 ">
+                      {event.title}
+                    </h3>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                      </div>
+                      <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
+                        {event.location}
+                      </p>
+                    </div>
+
+                    {/* Date and Time Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg p-3 mb-3">
+                      <InfoItem
+                        icon={Calendar}
+                        label="Ngày"
+                        value={formatDate(event.startTime)}
+                        className="mb-2"
+                      />
+                      <InfoItem
+                        icon={Clock}
+                        label="Giờ"
+                        value={`${formatTime(event.startTime)} - ${formatTime(
+                          event.endTime
+                        )}`}
+                      />
+                    </div>
+
+                    {/* Members and Fee */}
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                          <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                        </div>
+                        <span
+                          className={`text-sm font-semibold ${
+                            isFull
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                        >
+                          {event.joinedMember}/{event.totalMember} người
+                        </span>
+                      </div>
+
+                      {event.fee != null && event.fee > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                            <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                          </div>
+                          <span className="text-sm text-blue-600 dark:text-emerald-400 font-semibold">
+                            {formatCurrency(event.fee)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Button */}
+                    <Button
+                      asChild
+                      disabled={isFull}
+                      className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
+                        isFull
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
+                          : "bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 hover:shadow-md transform hover:scale-105 active:scale-95"
+                      }`}
+                    >
+                      <Link href={`/club-events/${event.id}`}>
+                        {isFull ? "Đã đầy" : "Đăng ký ngay"}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {events.length > 0 && (
+          <div className="flex justify-center items-center mt-10 gap-2 flex-wrap">
+            {currentPage > 0 && (
+              <Button
+                asChild
+                variant="outline"
+                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
+              >
+                <Link href={`?page=${currentPage - 1}`}>← Trước</Link>
+              </Button>
+            )}
+            {[...Array(Math.min(totalPages, 5))].map((_, idx) => {
+              const pageIndex = Math.max(
+                0,
+                Math.min(currentPage - 2 + idx, totalPages - 1)
+              );
+              return (
+                <Button
+                  key={pageIndex}
+                  asChild
+                  variant={pageIndex === currentPage ? "default" : "outline"}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                    pageIndex === currentPage
+                      ? "bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md"
+                      : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                   }`}
                 >
-                  {isFull ? "Đã đầy" : "Đăng ký"}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-12 text-center">
-        <p className="text-gray-600 dark:text-gray-400 text-sm">
-          Tổng cộng {events.length} sự kiện đang diễn ra
-        </p>
+                  <Link href={`?page=${pageIndex}`}>{pageIndex + 1}</Link>
+                </Button>
+              );
+            })}
+            {!last && (
+              <Button
+                asChild
+                variant="outline"
+                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
+              >
+                <Link href={`?page=${currentPage + 1}`}>Sau →</Link>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default ClubEvents;
+}

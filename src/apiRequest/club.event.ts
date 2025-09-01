@@ -29,6 +29,11 @@ const eventClubApiRequest = {
         },
       }
     ),
+  //Lấy danh sách event clubs tất cả
+  getAllPublicEventClubs: (page: number, size: number) =>
+    http.get<PagedEventResponseType>(
+      `/club-event/all/public?page=${page}&size=${size}`
+    ),
   getEventById: (id: string, accessToken: string) =>
     http.get<EventDetailResponseType>(`/club-event/${id}`, {
       headers: {

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { ModeToggle } from "@/components/dark-toggle";
 import { cookies } from "next/headers";
-import LogoutButton from "@/components/button-logout";
 import MobileMenu from "@/components/mobile-menu";
 import UserMenu from "@/components/user-menu";
 import {
@@ -21,7 +20,7 @@ import { ActiveNavigationLink } from "@/components/active-navigation-link";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
-    { name: "Sự kiện", href: "/events" },
+    { name: "Hoạt động", href: "/events" },
     { name: "Câu lạc bộ", href: "/clubs" },
     { name: "Về chúng tôi", href: "/about" },
     { name: "Liên hệ", href: "/contact" },
