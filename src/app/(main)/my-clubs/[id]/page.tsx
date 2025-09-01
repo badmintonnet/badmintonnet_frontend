@@ -1,5 +1,16 @@
 import React from "react";
-import { Calendar, MapPin, Users, Edit, Plus, Club, Activity, BarChart3, Clock, Settings  } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Edit,
+  Plus,
+  Club,
+  Activity,
+  BarChart3,
+  Clock,
+  Settings,
+} from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,28 +108,28 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
         {/* Tab Navigation */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-4 w-full lg:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <TabsTrigger 
-              value="overview" 
+            <TabsTrigger
+              value="overview"
               className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300"
             >
               <Club className="h-4 w-4" />
               <span className="hidden sm:inline">Tổng quan</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="members"
               className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-600 dark:data-[state=active]:bg-green-900 dark:data-[state=active]:text-green-300"
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Thành viên</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="activity"
               className="flex items-center gap-2 data-[state=active]:bg-purple-50 data-[state=active]:text-purple-600 dark:data-[state=active]:bg-purple-900 dark:data-[state=active]:text-purple-300"
             >
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">Hoạt động</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="stats"
               className="flex items-center gap-2 data-[state=active]:bg-orange-50 data-[state=active]:text-orange-600 dark:data-[state=active]:bg-orange-900 dark:data-[state=active]:text-orange-300"
             >
@@ -309,18 +320,28 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
                         Tỷ lệ tham gia sự kiện
                       </h4>
                       <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: "85%" }}
+                        ></div>
                       </div>
-                      <span className="text-sm text-gray-600 dark:text-gray-300">85% tham gia</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        85% tham gia
+                      </span>
                     </div>
                     <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                         Mức độ hoạt động
                       </h4>
                       <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                        <div className="bg-green-600 h-2 rounded-full" style={{ width: '92%' }}></div>
+                        <div
+                          className="bg-green-600 h-2 rounded-full"
+                          style={{ width: "92%" }}
+                        ></div>
                       </div>
-                      <span className="text-sm text-gray-600 dark:text-gray-300">Rất tích cực</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        Rất tích cực
+                      </span>
                     </div>
                   </div>
                 </div>

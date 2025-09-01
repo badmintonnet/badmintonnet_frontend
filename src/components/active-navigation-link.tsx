@@ -24,7 +24,7 @@ export function ActiveNavigationLink({
   const isActive = pathname === href;
 
   return (
-    <Link href={href} legacyBehavior passHref>
+    <Link href={href}>
       <NavigationMenuLink
         className={cn(
           navigationMenuTriggerStyle(),

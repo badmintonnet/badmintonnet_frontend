@@ -303,7 +303,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                           : "bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 hover:shadow-md transform hover:scale-105 active:scale-95"
                       }`}
                     >
-                      <Link href={`/club-events/${event.id}`}>
+                      <Link href={`/events/${event.id}`}>
                         {isFull ? "Đã đầy" : "Đăng ký ngay"}
                       </Link>
                     </Button>

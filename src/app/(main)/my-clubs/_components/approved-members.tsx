@@ -52,7 +52,10 @@ export default function ApprovedMembers({
             <Users className="h-5 w-5" />
             Danh sách thành viên
           </h3>
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+          <Badge
+            variant="secondary"
+            className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+          >
             {approvedMembers.length ? approvedMembers.length : 0} thành viên
           </Badge>
         </div>
@@ -65,20 +68,25 @@ export default function ApprovedMembers({
             approvedMembers.map((member) => (
               <div
                 key={member.id}
-                className="p-4 border rounded-lg mb-3 bg-white dark:bg-gray-900 flex items-center gap-3"
+                className="p-4 border w-full rounded-lg mb-3 bg-white dark:bg-gray-900 flex items-center gap-3"
               >
                 <Avatar name={member.name} className="h-10 w-10" />
                 <div className="flex-1">
                   <p className="font-medium">{member.name}</p>
                   <p className="text-xs text-gray-500">
-                    Ngày tham gia: {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
+                    Ngày tham gia:{" "}
+                    {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
                   </p>
                 </div>
-                {member.role === "OWNER" && <Crown className="h-5 w-5 text-yellow-500" />}
+                {member.role === "OWNER" && (
+                  <Crown className="h-5 w-5 text-yellow-500" />
+                )}
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500">Không có thành viên đã duyệt</p>
+            <p className="text-sm text-gray-500">
+              Không có thành viên đã duyệt
+            </p>
           )}
         </div>
         {totalPagesApproved > 1 && (
@@ -91,7 +99,9 @@ export default function ApprovedMembers({
             >
               Trước
             </Button>
-            <span className="text-sm">Trang {pageApproved + 1}/{totalPagesApproved}</span>
+            <span className="text-sm">
+              Trang {pageApproved + 1}/{totalPagesApproved}
+            </span>
             <Button
               size="sm"
               variant="outline"
@@ -106,5 +116,3 @@ export default function ApprovedMembers({
     </Card>
   );
 }
-
-
