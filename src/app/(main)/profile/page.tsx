@@ -1,11 +1,28 @@
-// app/profile/page.tsx (Server Component)
-import ProfileContainer from "@/app/(main)/profile/profile-container";
-import ProfileStats from "@/app/(main)/profile/profile-stats";
+import accountApiRequest from "@/apiRequest/account";
+import ProfileContainer from "@/app/(main)/profile/_components/profile-container";
+import ProfileStats from "@/app/(main)/profile/_components/profile-stats";
+import { cookies } from "next/headers";
 
-// Server component để fetch data
 export default async function ProfilePage() {
-  // Fetch dữ liệu từ server
-  const profile = await getProfileData();
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken");
+
+  let profile;
+
+  try {
+    const res = await accountApiRequest.getAccount(accessToken?.value || "");
+    profile = res.payload.data;
+    console.log("Profile data:", profile);
+  } catch (error) {
+    console.log("Error fetching clubs:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <p className="text-red-500">
+          Đã có lỗi xảy ra khi tải profile của bạn.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -16,63 +33,13 @@ export default async function ProfilePage() {
           <div className="lg:col-span-2">
             <ProfileContainer profile={profile} />
           </div>
-          
+
           {/* Thống kê (chiếm 1 cột) */}
           <div className="lg:col-span-1">
-            <ProfileStats
-              stats={{
-                rating: profile.rating,
-                totalMatches: profile.totalMatches,
-                winRate: profile.winRate,
-                joinDate: profile.joinDate,
-              }}
-            />
+            <ProfileStats />
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-// Hàm fetch data từ server (có thể từ database, API, etc.)
-async function getProfileData() {
-  // Trong thực tế, fetch từ database hoặc API
-  // const response = await fetch(`${process.env.API_URL}/api/profile`);
-  // return await response.json();
-  
-  // Mock data cho demo
-  await new Promise(resolve => setTimeout(resolve, 100)); // Giả lập API delay
-  
-  return {
-    id: "user_123",
-    email: "nguyenvana@example.com",
-    fullName: "Nguyễn Văn An",
-    birthDate: "1995-03-15",
-    gender: "Nam",
-    address: "123 Đường Nguyễn Trãi, Quận 1, TP.HCM",
-    bio: "Đam mê cầu lông từ nhỏ, thích thi đấu và giao lưu với các bạn cùng sở thích. Mục tiêu là trở thành tay vợt giỏi và tham gia nhiều giải đấu chuyên nghiệp.",
-    avatarUrl: "/api/placeholder/128/128",
-    rating: 1650,
-    rank: "Trung bình khá",
-    totalMatches: 127,
-    winRate: 68,
-    joinDate: "Tháng 6, 2023",
-  };
-}
-
-// Export types for TypeScript
-export type Profile = {
-  id: string;
-  email: string;
-  fullName: string;
-  birthDate: string;
-  gender: string;
-  address: string;
-  bio: string;
-  avatarUrl: string;
-  rating: number;
-  rank: string;
-  totalMatches: number;
-  winRate: number;
-  joinDate: string;
-};

@@ -3,49 +3,52 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import accountApiRequest from "@/apiRequest/account";
+import { toast } from "sonner";
 import {
   PencilIcon,
   CameraIcon,
   XMarkIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
+import { AccountResType } from "@/schemaValidations/account.schema";
+
+type Profile = AccountResType["data"];
 
 interface ProfileHeaderProps {
-  profile: {
-    fullName: string;
-    email: string;
-    rank: string;
-    avatarUrl: string;
-  };
+  profile: Profile;
   onEditToggle: () => void;
   isEditing: boolean;
 }
 
-export default function ProfileHeader({ profile, onEditToggle, isEditing }: ProfileHeaderProps) {
+export default function ProfileHeader({
+  profile,
+  onEditToggle,
+  isEditing,
+}: ProfileHeaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append('avatar', file);
-      
-      const response = await fetch('/api/profile/avatar', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (response.ok) {
-        const { avatarUrl } = await response.json();
-        // Reload page hoặc update state parent component
-        window.location.reload();
+      formData.append("file", file);
+
+      const res = await accountApiRequest.uploadImageAvatar(formData);
+      if (res.status === 200) {
+        toast.success("Cập nhật ảnh đại diện thành công");
+      } else {
+        toast.error(res.payload?.message || "Upload thất bại");
       }
     } catch (error) {
       console.error("Lỗi khi upload avatar:", error);
+      toast.error("Có lỗi khi upload ảnh");
     } finally {
       setIsUploading(false);
     }
@@ -59,7 +62,7 @@ export default function ProfileHeader({ profile, onEditToggle, isEditing }: Prof
         <div className="relative">
           <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl">
             <Image
-              src={profile.avatarUrl}
+              src={profile.avatarUrl ? profile.avatarUrl : "/user.png"}
               alt="Avatar"
               width={128}
               height={128}
