@@ -175,6 +175,7 @@ export const EventDetailSchema = z.object({
 
   clubId: z.string(),
 
+  joined: z.boolean(),
   openForOutside: z.boolean(),
   maxClubMembers: z.number().int(),
   maxOutsideMembers: z.number().int(),
@@ -193,3 +194,30 @@ export const EventDetailResponse = z.object({
 
 export type EventDetailType = z.infer<typeof EventDetailSchema>;
 export type EventDetailResponseType = z.infer<typeof EventDetailResponse>;
+
+export const ParticipantSchema = z.object({
+  id: z.string(),
+  joinedAt: z.coerce.date(),
+  email: z.string(),
+  fullName: z.string(),
+  gender: z.string(),
+  avatarUrl: z.string(),
+  clubMember: z.boolean(),
+});
+export const PagedParticipantResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(ParticipantSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type ParticipantType = z.infer<typeof ParticipantSchema>;
+export type PagedParticipantResponseType = z.infer<
+  typeof PagedParticipantResponse
+>;

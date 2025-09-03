@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
 import { EventDetailType } from "@/schemaValidations/event.schema";
+import { JoinEventButton } from "@/app/(main)/events/_components/join-event-button";
+import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -341,22 +343,23 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                       <X className="w-4 h-4 mr-2" />
                       Hủy sự kiện
                     </Button>
+                    <ViewParticipantsButton eventId={eventDetail.id} />
                   </div>
                 )}
 
                 {eventDetail.participantRole === "MEMBER" && (
                   <div className="flex flex-col gap-3">
-                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Đăng ký tham gia
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      <UserMinus className="w-4 h-4 mr-2" />
-                      Rời sự kiện
-                    </Button>
+                    {!eventDetail.joined ? (
+                      <JoinEventButton eventId={eventDetail.id} />
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      >
+                        <UserMinus className="w-4 h-4 mr-2" />
+                        Hủy tham gia
+                      </Button>
+                    )}
                   </div>
                 )}
 
@@ -364,17 +367,17 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   <>
                     {eventDetail.openForOutside ? (
                       <div className="flex flex-col gap-3">
-                        <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Đăng ký tham gia
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                        >
-                          <UserMinus className="w-4 h-4 mr-2" />
-                          Rời sự kiện
-                        </Button>
+                        {!eventDetail.joined ? (
+                          <JoinEventButton eventId={eventDetail.id} />
+                        ) : (
+                          <Button
+                            variant="destructive"
+                            className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                          >
+                            <UserMinus className="w-4 h-4 mr-2" />
+                            Hủy tham gia
+                          </Button>
+                        )}
                       </div>
                     ) : (
                       <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">

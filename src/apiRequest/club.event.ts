@@ -5,6 +5,7 @@ import {
   CreateEventClubBodyType,
   EventDetailResponseType,
   PagedEventResponseType,
+  PagedParticipantResponseType,
 } from "@/schemaValidations/event.schema";
 
 const eventClubApiRequest = {
@@ -40,5 +41,25 @@ const eventClubApiRequest = {
         Authorization: `Bearer ${accessToken}`,
       },
     }),
+  joinEvent: (id: string, accessToken: string) =>
+    http.post(`/club-event/join/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+  getParticipants: (
+    id: string,
+    accessToken: string,
+    page: number,
+    size: number
+  ) =>
+    http.get<PagedParticipantResponseType>(
+      `/club-event/all-participant/${id}?page=${page}&size=${size}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ),
 };
 export default eventClubApiRequest;
