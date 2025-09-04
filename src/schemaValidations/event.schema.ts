@@ -14,9 +14,9 @@ const BadmintonCategoryEnum = z.enum([
 ]);
 
 const EventStatusEnum = z.enum([
-  "DRAFT",
   "OPEN",
   "CLOSED",
+  "ONGOING",
   "FINISHED",
   "CANCELLED",
 ]);
@@ -131,6 +131,8 @@ export const EventSchema = z.object({
   endTime: z.coerce.date(),
   totalMember: z.number().int(),
   joinedMember: z.number().int(),
+  openForOutside: z.boolean(),
+  nameClub: z.string(),
   fee: z.number().optional(),
   categories: z.array(BadmintonCategoryEnum).optional(),
   status: EventStatusEnum,
@@ -167,7 +169,7 @@ export const EventDetailSchema = z.object({
 
   totalMember: z.number().int(),
   joinedMember: z.number().int(),
-
+  nameClub: z.string(),
   fee: z.number().nullable().default(0),
 
   categories: z.array(BadmintonCategoryEnum).optional(),

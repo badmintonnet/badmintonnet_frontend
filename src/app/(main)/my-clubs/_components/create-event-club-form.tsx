@@ -95,7 +95,6 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
 
       const eventClub = await eventClubApiRequest.createEventClub(values);
       toast.success("Tạo hoạt động thành công");
-      await authApiRequest.refreshSession();
       form.reset();
       setImageFile(null);
       setImagePreview("");

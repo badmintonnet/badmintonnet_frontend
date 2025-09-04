@@ -136,38 +136,13 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   let currentPage = 0;
   let last = true;
 
-  try {
-    const response = await eventClubApiRequest.getAllPublicEventClubs(
-      page,
-      size
-    );
-    events = response.payload.data.content || [];
-    ({ totalPages, page: currentPage, last } = response.payload.data);
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-emerald-50 to-blue-50 dark:from-blue-900 dark:via-emerald-900 dark:to-blue-900">
-        <Card className="p-6 max-w-md w-full text-center bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-blue-200 dark:border-emerald-800">
-          <div className="w-16 h-16 bg-blue-100/50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Calendar className="w-8 h-8 text-blue-600 dark:text-emerald-400" />
-          </div>
-          <h2 className="text-lg font-semibold text-blue-600 dark:text-emerald-300 mb-3">
-            Lỗi tải dữ liệu
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm">
-            Đã có lỗi xảy ra khi tải danh sách hoạt động. Vui lòng thử lại sau.
-          </p>
-          <Button
-            asChild
-            variant="outline"
-            className="rounded-xl border-blue-300 dark:border-emerald-700 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20"
-          >
-            <Link href="/">Quay lại trang chủ</Link>
-          </Button>
-        </Card>
-      </div>
-    );
-  }
+  const response = await eventClubApiRequest.getMyClubsEventClubs(
+    page,
+    size,
+    accessToken
+  );
+  events = response.payload.data.content || [];
+  ({ totalPages, page: currentPage, last } = response.payload.data);
 
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
@@ -185,20 +160,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
           </p>
 
           {/* Nút My Clubs */}
-
-          {accessToken && (
-            <div className="flex justify-end">
-              <Link href="/events/my-clubs">
-                <Button
-                  variant="outline"
-                  className="border-2 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
-                >
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Hoạt động CLB đã tham gia
-                </Button>
-              </Link>
-            </div>
-          )}
+          <div className="flex justify-end">
+            <Link href="/events">
+              <Button
+                variant="outline"
+                className="border-2 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <Building2 className="w-4 h-4 mr-2" />
+                Hoạt động vãng lai
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Events Grid */}
@@ -232,7 +204,6 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       src={event.image || "/api/placeholder/400/160"}
                       alt={event.title}
                       fill
-                      priority
                       sizes="(max-width: 768px) 100vw, 400px"
                       className="object-cover  transition-transform duration-500"
                     />
@@ -283,6 +254,27 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
                         {event.nameClub}
                       </p>
+                    </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                          <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          Đối tượng:{" "}
+                        </span>
+                      </div>
+                      <Badge
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          event.openForOutside
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                        }`}
+                      >
+                        {event.openForOutside
+                          ? "Có vãng lai"
+                          : "Chỉ thành viên CLB"}
+                      </Badge>
                     </div>
                     {/* Date and Time Section */}
                     <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg p-3 mb-3">

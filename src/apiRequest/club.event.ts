@@ -35,6 +35,15 @@ const eventClubApiRequest = {
     http.get<PagedEventResponseType>(
       `/club-event/all/public?page=${page}&size=${size}`
     ),
+  getMyClubsEventClubs: (page: number, size: number, accessToken: string) =>
+    http.get<PagedEventResponseType>(
+      `/club-event/all/my_clubs?page=${page}&size=${size}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ),
   getEventById: (id: string, accessToken: string) =>
     http.get<EventDetailResponseType>(`/club-event/${id}`, {
       headers: accessToken

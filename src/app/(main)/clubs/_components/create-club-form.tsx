@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { z } from "zod";
 import { useState, ChangeEvent } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -25,6 +24,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import clubServiceApi from "@/apiRequest/club";
 import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
+import { clientSessionToken } from "@/lib/http";
 const CreateClubForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -97,7 +97,12 @@ const CreateClubForm = () => {
         logoUrl: uploadedImageUrl || "",
       });
       toast.success("Tạo câu lạc bộ thành công");
-      await authApiRequest.refreshSession();
+      const token = await authApiRequest.refreshSession();
+      if (token.payload.data.accessToken) {
+        clientSessionToken.value = token.payload.data.accessToken;
+        clientSessionToken.refreshValue = token.payload.data.refreshToken;
+        clientSessionToken.deviceIdValue = token.payload.data.deviceId;
+      }
       form.reset();
       setLogoFile(null);
       setLogoPreview("");

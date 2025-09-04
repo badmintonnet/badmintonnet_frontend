@@ -9,6 +9,8 @@ import {
   X,
   UserPlus,
   UserMinus,
+  CircleStar,
+  CheckCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,28 +29,11 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
   const accessToken = cookieStore.get("accessToken");
   const { id } = await params;
 
-  // let eventDetail: EventDetailType;
-  // try {
   const response = await eventClubApiRequest.getEventById(
     id,
     accessToken?.value || ""
   );
   const eventDetail = response.payload.data || null;
-  // } catch (error) {
-  //   console.log("Error fetching event detail:", error);
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-  //       <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
-  //         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-  //           <X className="w-8 h-8 text-red-500" />
-  //         </div>
-  //         <p className="text-red-600 dark:text-red-400 font-medium">
-  //           Đã có lỗi xảy ra khi tải chi tiết sự kiện.
-  //         </p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   if (!eventDetail) {
     return (
@@ -92,10 +77,10 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { label: string; color: string }> = {
-      DRAFT: {
-        label: "Nháp",
+      ONGOING: {
+        label: "Đang diễn ra",
         color:
-          "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-600",
+          "bg-purple-100 text-purple-700 dark:bg-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-600",
       },
       OPEN: {
         label: "Mở đăng ký",
@@ -131,7 +116,6 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
       <div className="max-w-7xl mx-auto p-6">
         {/* Hero Section với ảnh */}
         <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden mb-8">
-          {/* Image Container */}
           <div className="relative h-80 lg:h-96">
             <Image
               src={eventDetail.image || "/api/placeholder/800/400"}
@@ -140,19 +124,18 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               className="object-cover"
               priority
             />
-            {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-            {/* Status badge overlay */}
             <div className="absolute top-6 right-6">
               {getStatusBadge(eventDetail.status)}
             </div>
-
-            {/* Title overlay */}
             <div className="absolute bottom-6 left-6 right-6">
               <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2 leading-tight">
                 {eventDetail.title}
               </h1>
+              <div className="mb-1 flex items-center text-white/90 text-sm">
+                <CircleStar className="w-4 h-4 mr-2" />
+                <span>{eventDetail.nameClub}</span>
+              </div>
               <div className="flex items-center text-white/90 text-sm">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span>{formatDate(eventDetail.startTime)}</span>
@@ -162,9 +145,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Main Content - Tăng từ 2 cols thành 3 cols (75% width) */}
           <div className="lg:col-span-3 space-y-8">
-            {/* Description */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                 <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-4"></div>
@@ -177,7 +158,6 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               </div>
             </div>
 
-            {/* Requirements */}
             {eventDetail.requirements && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
@@ -192,7 +172,6 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               </div>
             )}
 
-            {/* Categories */}
             {eventDetail.categories != null &&
               eventDetail.categories?.length > 0 && (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
@@ -212,19 +191,32 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   </div>
                 </div>
               )}
-
-            {/* Thêm section chi tiết khác */}
           </div>
 
-          {/* Sidebar - Giảm từ 1 col xuống (25% width) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Event Info Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sticky top-6">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
                 Thông tin sự kiện
               </h2>
 
               <div className="space-y-4">
+                {/* Joined Status */}
+                {eventDetail.joined && (
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-green-900 dark:text-green-300">
+                        Trạng thái
+                      </p>
+                      <p className="text-sm text-green-700 dark:text-green-400 font-semibold">
+                        Đã tham gia
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -328,7 +320,6 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                 )}
               </div>
 
-              {/* Action buttons */}
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 {eventDetail.participantRole === "OWNER" && (
                   <div className="flex flex-col gap-3">
@@ -347,47 +338,49 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   </div>
                 )}
 
-                {eventDetail.participantRole === "MEMBER" && (
-                  <div className="flex flex-col gap-3">
-                    {!eventDetail.joined ? (
-                      <JoinEventButton eventId={eventDetail.id} />
-                    ) : (
-                      <Button
-                        variant="destructive"
-                        className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                      >
-                        <UserMinus className="w-4 h-4 mr-2" />
-                        Hủy tham gia
-                      </Button>
-                    )}
-                  </div>
-                )}
+                {eventDetail.participantRole === "MEMBER" &&
+                  eventDetail.status == "OPEN" && (
+                    <div className="flex flex-col gap-3">
+                      {!eventDetail.joined ? (
+                        <JoinEventButton eventId={eventDetail.id} />
+                      ) : (
+                        <Button
+                          variant="destructive"
+                          className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                        >
+                          <UserMinus className="w-4 h-4 mr-2" />
+                          Hủy tham gia
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
-                {eventDetail.participantRole === "GUEST" && (
-                  <>
-                    {eventDetail.openForOutside ? (
-                      <div className="flex flex-col gap-3">
-                        {!eventDetail.joined ? (
-                          <JoinEventButton eventId={eventDetail.id} />
-                        ) : (
-                          <Button
-                            variant="destructive"
-                            className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                          >
-                            <UserMinus className="w-4 h-4 mr-2" />
-                            Hủy tham gia
-                          </Button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                        <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
-                          Sự kiện này không mở cho người ngoài tham gia.
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
+                {eventDetail.participantRole === "GUEST" &&
+                  eventDetail.status == "OPEN" && (
+                    <>
+                      {eventDetail.openForOutside ? (
+                        <div className="flex flex-col gap-3">
+                          {!eventDetail.joined ? (
+                            <JoinEventButton eventId={eventDetail.id} />
+                          ) : (
+                            <Button
+                              variant="destructive"
+                              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                            >
+                              <UserMinus className="w-4 h-4 mr-2" />
+                              Hủy tham gia
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                          <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
+                            Sự kiện này không mở cho người ngoài tham gia.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
               </div>
             </div>
           </div>

@@ -39,10 +39,6 @@ export const EventClubCard = ({ event }: EventClubCardProps) => {
       EventType["status"],
       { label: string; color: string }
     > = {
-      DRAFT: {
-        label: "Nháp",
-        color: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
-      },
       OPEN: {
         label: "Mở đăng ký",
         color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -51,6 +47,11 @@ export const EventClubCard = ({ event }: EventClubCardProps) => {
         label: "Đã đóng",
         color:
           "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      },
+      ONGOING: {
+        label: "Đang diễn ra",
+        color:
+          "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
       },
       FINISHED: {
         label: "Đã kết thúc",
