@@ -307,9 +307,13 @@ export default function ViewParticipantsButton({
                           <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate text-base">
                             {p.fullName}
                           </h3>
-                          {p.clubMember && (
+                          {p.clubMember ? (
                             <Badge className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-0.5 shrink-0">
                               Thành viên CLB
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-0.5 shrink-0">
+                              Vãng lai
                             </Badge>
                           )}
                         </div>

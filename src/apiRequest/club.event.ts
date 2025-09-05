@@ -31,9 +31,14 @@ const eventClubApiRequest = {
       }
     ),
   //Lấy danh sách event clubs tất cả
-  getAllPublicEventClubs: (page: number, size: number) =>
+  getAllPublicEventClubs: (page: number, size: number, accessToken: string) =>
     http.get<PagedEventResponseType>(
-      `/club-event/all/public?page=${page}&size=${size}`
+      `/club-event/all/public?page=${page}&size=${size}`,
+      {
+        headers: accessToken
+          ? { Authorization: `Bearer ${accessToken}` }
+          : undefined,
+      }
     ),
   getMyClubsEventClubs: (page: number, size: number, accessToken: string) =>
     http.get<PagedEventResponseType>(

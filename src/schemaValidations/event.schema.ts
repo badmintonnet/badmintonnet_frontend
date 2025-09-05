@@ -131,11 +131,14 @@ export const EventSchema = z.object({
   endTime: z.coerce.date(),
   totalMember: z.number().int(),
   joinedMember: z.number().int(),
+  maxOutsideMembers: z.number().int(),
+  joinedOpenMembers: z.number().int(),
   openForOutside: z.boolean(),
   nameClub: z.string(),
   fee: z.number().optional(),
   categories: z.array(BadmintonCategoryEnum).optional(),
   status: EventStatusEnum,
+  participantRole: ParticipantRoleEnum,
 });
 
 export const PagedEventResponse = z.object({
@@ -181,7 +184,7 @@ export const EventDetailSchema = z.object({
   openForOutside: z.boolean(),
   maxClubMembers: z.number().int(),
   maxOutsideMembers: z.number().int(),
-
+  joinedOpenMembers: z.number().int(),
   createdAt: z.coerce.date(),
   createdBy: z.string().nullable(),
 

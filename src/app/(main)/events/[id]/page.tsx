@@ -269,7 +269,9 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                       Số lượng
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {eventDetail.joinedMember}/{eventDetail.totalMember} người
+                      {eventDetail.joinedMember}/{eventDetail.totalMember} thành
+                      viên ({eventDetail.joinedOpenMembers}/
+                      {eventDetail.maxOutsideMembers} vãng lai)
                     </p>
                     <div className="mt-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                       <div
@@ -361,7 +363,18 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                       {eventDetail.openForOutside ? (
                         <div className="flex flex-col gap-3">
                           {!eventDetail.joined ? (
-                            <JoinEventButton eventId={eventDetail.id} />
+                            <>
+                              {eventDetail.joinedOpenMembers <
+                              eventDetail.maxOutsideMembers ? (
+                                <JoinEventButton eventId={eventDetail.id} />
+                              ) : (
+                                <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                                  <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
+                                    Đã đủ số lượng vãng lai
+                                  </p>
+                                </div>
+                              )}
+                            </>
                           ) : (
                             <Button
                               variant="destructive"
@@ -375,7 +388,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                       ) : (
                         <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
                           <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
-                            Sự kiện này không mở cho người ngoài tham gia.
+                            Sự kiện này không mở cho thành viên ngoài tham gia.
                           </p>
                         </div>
                       )}

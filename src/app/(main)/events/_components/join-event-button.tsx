@@ -41,8 +41,14 @@ export const JoinEventButton = ({ eventId }: JoinEventButtonProps) => {
         toast.error("Tham gia thất bại.");
       }
     } catch (error) {
-      toast.error("Tham gia thất bại. Vui lòng thử lại.");
-      console.error("Error joining club:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+        console.error("Error joining club:", error.message);
+      } else {
+        toast.error("Tham gia thất bại. Vui lòng thử lại.");
+        console.error("Error joining club:", error);
+      }
+      router.refresh();
     }
   };
 

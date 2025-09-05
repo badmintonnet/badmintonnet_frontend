@@ -7,7 +7,7 @@ import clubServiceApi from "@/apiRequest/club";
 import { MemberType } from "@/schemaValidations/clubs.schema";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Avatar, MemberSkeleton } from "./member-shared";
+import { MemberSkeleton } from "./member-shared";
 import { Check, X, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 
