@@ -295,6 +295,7 @@ export default function ProfileEditModal({
                           >
                             <Calendar
                               mode="single"
+                              captionLayout="dropdown"
                               selected={
                                 field.value
                                   ? new Date(

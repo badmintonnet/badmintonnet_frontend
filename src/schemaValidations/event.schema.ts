@@ -119,8 +119,43 @@ export const CreateEventClubBody = z.object({
   clubId: z.string().min(1, "ID CLB là bắt buộc"),
 });
 
+export const UpdateEventClubBody = z.object({
+  title: z
+    .string()
+    .min(1, "Tiêu đề là bắt buộc")
+    .max(256, "Tiêu đề không được quá 256 ký tự"),
+  description: z
+    .string()
+    .min(1, "Mô tả là bắt buộc")
+    .max(10000, "Mô tả không được quá 10000 ký tự"),
+  requirements: z
+    .string()
+    .max(1000, "Yêu cầu không được quá 1000 ký tự")
+    .optional(),
+  image: z.string().optional(),
+  location: z
+    .string()
+    .min(1, "Địa điểm là bắt buộc")
+    .max(256, "Địa điểm không được quá 256 ký tự"),
+  startTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Thời gian bắt đầu không hợp lệ",
+  }),
+  endTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Thời gian kết thúc không hợp lệ",
+  }),
+  type: z
+    .array(BadmintonCategoryEnum)
+    .min(1, "Phải chọn ít nhất một loại hình"),
+  fee: z.number().min(0, "Phí không được âm").optional(),
+  deadline: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Hạn đăng ký không hợp lệ",
+  }),
+  openForOutside: z.boolean(),
+});
+
 export type CreateEventBodyType = z.infer<typeof CreateEventBody>;
 export type CreateEventClubBodyType = z.infer<typeof CreateEventClubBody>;
+export type UpdateEventClubBodyType = z.infer<typeof UpdateEventClubBody>;
 
 export const EventSchema = z.object({
   id: z.string(),

@@ -30,6 +30,16 @@ const eventClubApiRequest = {
         },
       }
     ),
+
+  updateEventClub: (
+    body: Partial<CreateEventClubBodyType>,
+    accessToken: string
+  ) =>
+    http.put<EventDetailResponseType>("/club-event/update", body, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
   //Lấy danh sách event clubs tất cả
   getAllPublicEventClubs: (page: number, size: number) =>
     http.get<PagedEventResponseType>(
