@@ -372,7 +372,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                           : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
                       }`}
                     >
-                      <Link href={`/events/${event.id}`}>
+                      <Link href={`/events/${event.slug}`}>
                         {isFull ? "Đã đầy" : "Xem chi tiết"}
                       </Link>
                     </Button>

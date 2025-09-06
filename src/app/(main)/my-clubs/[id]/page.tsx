@@ -38,7 +38,6 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
   const accessToken = cookieStore.get("accessToken");
   const { id } = await params;
   let clubDetail = null;
-
   try {
     const response = await clubServiceApi.getMyClubById(
       id,
@@ -103,7 +102,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
                 >
                   <Edit className="h-4 w-4 mr-1" /> Chỉnh sửa CLB
                 </Button>
-                <CreateEventClubButton clubId={clubDetail.id} />
+                <CreateEventClubButton club={clubDetail.slug} />
               </div>
             )}
           </CardHeader>
@@ -196,7 +195,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
           {/* Activity Tab */}
           <TabsContent value="activity" className="mt-6">
             <ClubEvents
-              searchParams={Promise.resolve({ clubId: clubDetail.id })}
+              searchParams={Promise.resolve({ clubId: clubDetail.slug })}
               owner={clubDetail.owner}
             />
           </TabsContent>

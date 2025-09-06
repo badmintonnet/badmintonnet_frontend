@@ -156,7 +156,7 @@ export const EventClubCard = ({ event }: EventClubCardProps) => {
         {/* Nút chi tiết */}
         <div className="mt-4 sm:mt-0 sm:flex-shrink-0">
           <Link
-            href={`/events/${event.id}`}
+            href={`/events/${event.slug}`}
             className="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white text-sm font-medium rounded-lg transition-all active:scale-95"
           >
             Chi tiết

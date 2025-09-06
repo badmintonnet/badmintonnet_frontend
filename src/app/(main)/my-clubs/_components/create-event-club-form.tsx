@@ -28,7 +28,7 @@ import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import eventClubApiRequest from "@/apiRequest/club.event";
 
-const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
+const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -51,7 +51,7 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       openForOutside: false,
       maxClubMembers: 0,
       maxOutsideMembers: 0,
-      clubId: clubId,
+      clubSlug: clubSlug,
     },
   });
 
@@ -98,7 +98,7 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       form.reset();
       setImageFile(null);
       setImagePreview("");
-      router.push(`/events/${eventClub.payload.data.id}`);
+      router.push(`/events/${eventClub.payload.data.slug}`);
     } catch (error) {
       toast.error("Tạo thất bại", {
         description: "Có lỗi xảy ra, vui lòng thử lại",

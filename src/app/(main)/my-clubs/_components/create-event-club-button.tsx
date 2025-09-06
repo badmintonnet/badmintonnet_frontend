@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 
 export const CreateEventClubButton = ({
   className = "",
-  clubId,
+  club,
 }: {
   className?: string;
-  clubId: string;
+  club: string;
 }) => {
   return (
     <Button
@@ -15,7 +15,7 @@ export const CreateEventClubButton = ({
       variant="default"
       className={`bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white ${className}`}
     >
-      <Link href={`/my-clubs/create-event?clubId=${clubId}`}>
+      <Link href={`/my-clubs/create-event?club=${club}`}>
         <Plus className="h-4 w-4 mr-1" />
         Tạo hoạt động
       </Link>

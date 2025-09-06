@@ -139,7 +139,7 @@ export default async function MyClubs({
                   )}
                   {club.memberStatus === "APPROVED" && (
                     <Link
-                      href={`/my-clubs/${club.id}`}
+                      href={`/my-clubs/${club.slug}`}
                       className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:shadow-lg group/btn"
                     >
                       Chi tiết

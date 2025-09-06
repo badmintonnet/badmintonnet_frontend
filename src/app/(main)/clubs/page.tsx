@@ -6,6 +6,7 @@ import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
 import { isClubOwner } from "@/lib/utils";
 import Link from "next/link";
+import { tree } from "next/dist/build/templates/app-page";
 
 const ClubList = async ({
   searchParams,
@@ -53,7 +54,7 @@ const ClubList = async ({
               >
                 {/* Card Header with Logo */}
                 <div className="relative p-6 pb-4">
-                  <Link href={`/clubs/${club.id}`}>
+                  <Link href={`/clubs/${club.slug}`}>
                     <div className="absolute top-4 right-4">
                       <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-lg">
                         <Image
@@ -109,7 +110,11 @@ const ClubList = async ({
 
                 {/* Card Footer with Join Button */}
                 <div className="px-6 pb-6">
-                  <JoinClubButton clubId={club.id} clubName={club.name} />
+                  <JoinClubButton
+                    clubId={club.id}
+                    clubName={club.name}
+                    isRefresh={true}
+                  />
                 </div>
               </div>
             ))}

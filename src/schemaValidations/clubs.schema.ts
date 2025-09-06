@@ -33,6 +33,7 @@ export type CreateClubBodyType = z.infer<typeof CreateClubBody>;
 
 export const ClubSchema = z.object({
   id: z.string(),
+  slug: z.string(),
   name: z.string(),
   description: z.string(),
   logoUrl: z.string().optional(),

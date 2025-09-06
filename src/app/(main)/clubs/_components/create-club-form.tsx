@@ -106,7 +106,7 @@ const CreateClubForm = () => {
       form.reset();
       setLogoFile(null);
       setLogoPreview("");
-      router.push(`/my-clubs/${club.payload.data.id}`);
+      router.push(`/my-clubs/${club.payload.data.slug}`);
     } catch (error) {
       toast.error("Tạo thất bại", {
         description: "Có lỗi xảy ra, vui lòng thử lại",

@@ -59,8 +59,8 @@ const eventClubApiRequest = {
         },
       }
     ),
-  getEventById: (id: string, accessToken: string) =>
-    http.get<EventDetailResponseType>(`/club-event/${id}`, {
+  getEventById: (slug: string, accessToken: string) =>
+    http.get<EventDetailResponseType>(`/club-event/${slug}`, {
       headers: accessToken
         ? { Authorization: `Bearer ${accessToken}` }
         : undefined,

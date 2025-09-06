@@ -26,7 +26,6 @@ export const EventClubList = ({
   totalPages,
   currentPage,
   clubId,
-  accessToken,
   owner,
 }: EventClubListProps) => {
   if (owner) console.log("Owner view enabled");
@@ -45,7 +44,7 @@ export const EventClubList = ({
 
         {/* Nút tạo hoạt động mới */}
         {owner && (
-          <Link href={`/my-clubs/create-event?clubId=${clubId}`}>
+          <Link href={`/my-clubs/create-event?club=${clubId}`}>
             <Button className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white">
               <Calendar className="w-4 h-4 mr-2" />
               Tạo hoạt động mới

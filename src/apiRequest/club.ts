@@ -27,9 +27,9 @@ const clubServiceApi = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     ),
-  getClubById: (id: string) => http.get<ClubResType>(`/clubs/${id}`),
-  getMyClubById: (id: string, token = "") =>
-    http.get<MyClubResType>(`/clubs/my_clubs/${id}`, {
+  getClubById: (slug: string) => http.get<ClubResType>(`/clubs/${slug}`),
+  getMyClubById: (slug: string, token = "") =>
+    http.get<MyClubResType>(`/clubs/my_clubs/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     }),
   joinClub: (id: string, token = "") =>

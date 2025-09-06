@@ -1,15 +1,15 @@
 import CreateEventClubForm from "@/app/(main)/my-clubs/_components/create-event-club-form";
 
 interface CreateActivityPageProps {
-  searchParams: Promise<{ clubId?: string }>;
+  searchParams: Promise<{ club?: string }>;
 }
 
 export default async function CreateActivityPage({
   searchParams,
 }: CreateActivityPageProps) {
-  const { clubId } = await searchParams;
+  const { club } = await searchParams;
 
-  if (!clubId) {
+  if (!club) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
@@ -83,7 +83,7 @@ export default async function CreateActivityPage({
           <div className="relative z-10 p-10 md:p-16">
             {/* Icon section */}
 
-            <CreateEventClubForm clubId={clubId} />
+            <CreateEventClubForm clubSlug={club} />
           </div>
         </div>
 

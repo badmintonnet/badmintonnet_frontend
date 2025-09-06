@@ -79,7 +79,11 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Hành động
             </h2>
-            <JoinClubButton clubId={club.id} clubName={club.name} />
+            <JoinClubButton
+              clubId={club.id}
+              clubName={club.name}
+              isRefresh={false}
+            />
           </div>
         </div>
       </div>
