@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, UserCircle, Users, LogOut } from "lucide-react";
+import { User, UserCircle, Users, LogOut, Calendar } from "lucide-react";
 import LogoutButton from "@/components/button-logout";
 
 export default function UserMenu() {
@@ -57,6 +57,16 @@ export default function UserMenu() {
           >
             <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             <span>CLB của tôi</span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link
+            href="/events/my-joined-events"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-150"
+          >
+            <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span>Hoạt động đã tham gia</span>
           </Link>
         </DropdownMenuItem>
 

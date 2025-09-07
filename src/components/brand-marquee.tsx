@@ -16,7 +16,7 @@ export default function BrandMarquee({ logos }: BrandMarqueeProps) {
   const duplicated = [...logos, ...logos];
 
   return (
-    <div className="relative overflow-hidden  border-y bg-white  dark:bg-gray-900 ">
+    <div className="relative overflow-hidden bg-white dark:bg-gray-900 ">
       {/* fade left */}
       <div className="absolute left-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-r from-white to-transparent dark:from-gray-900" />
       {/* fade right */}

@@ -93,37 +93,6 @@ const InfoItem = ({
   </div>
 );
 
-// Skeleton UI
-const ClubEventsSkeleton = () => (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-emerald-50 to-blue-50 dark:from-blue-900 dark:via-emerald-900 dark:to-blue-900">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 text-center">
-        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mb-2 animate-pulse" />
-        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <Card
-            key={i}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border-none animate-pulse flex flex-col"
-          >
-            <div className="relative h-40 bg-gray-200 dark:bg-gray-700" />
-            <CardContent className="p-4 flex-1">
-              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3" />
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3" />
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-              </div>
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg mt-4" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
 export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value || "";
@@ -185,10 +154,19 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
             tham gia.
           </p>
 
-          {/* Nút My Clubs */}
+          {/* Các nút điều hướng */}
 
           {accessToken && (
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-4">
+              <Link href="/events/my-joined-events">
+                <Button
+                  variant="outline"
+                  className="border-2 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Hoạt động đã tham gia
+                </Button>
+              </Link>
               <Link href="/events/my-clubs">
                 <Button
                   variant="outline"
@@ -225,21 +203,21 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
               return (
                 <Card
                   key={event.id}
-                  className="group bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg border border-blue-100 dark:border-emerald-900 hover:border-blue-300 dark:hover:border-emerald-700 transition-all duration-300 overflow-hidden flex flex-col"
+                  className="group py-0 gap-2 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg border border-blue-100 dark:border-emerald-900 hover:border-blue-300 dark:hover:border-emerald-700 transition-all duration-300 overflow-hidden flex flex-col"
                 >
                   {/* Event Image */}
-                  <div className="relative h-40 w-full">
+                  <div className="relative h-40 w-full -m-0">
                     <Image
                       src={event.image || "/api/placeholder/400/160"}
                       alt={event.title}
                       fill
                       priority
                       sizes="(max-width: 768px) 100vw, 400px"
-                      className="object-cover  transition-transform duration-500"
+                      className="object-cover transition-transform duration-500 rounded-t-xl"
                     />
 
                     {/* Categories */}
-                    <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5">
+                    <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
                       {event.categories?.map((cat) => (
                         <Badge
                           key={cat}
@@ -251,7 +229,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         </Badge>
                       ))}
                     </div>
-                    <div className="absolute bottom-3 right-3">
+
+                    <div className="absolute bottom-3 right-3 z-10">
                       <Badge
                         className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
                           event.participantRole == "GUEST"
@@ -274,8 +253,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         </div>
                       </Badge>
                     </div>
+
                     {/* Progress Bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/50 dark:bg-gray-700/50">
+                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/50 dark:bg-gray-700/50 z-10">
                       <div
                         className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500"
                         style={{ width: `${fillPercentage}%` }}
@@ -298,6 +278,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         {event.location}
                       </p>
                     </div>
+
                     <div className="flex items-center gap-2 mb-3">
                       {/* Club Name Section */}
                       <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
@@ -307,6 +288,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         {event.nameClub}
                       </p>
                     </div>
+
                     {/* Date and Time Section */}
                     <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg p-3 mb-3">
                       <InfoItem
@@ -362,6 +344,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         </span>
                       </div>
                     )}
+
                     {/* Action Button */}
                     <Button
                       asChild
