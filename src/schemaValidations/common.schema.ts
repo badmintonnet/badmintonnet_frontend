@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { string } from "zod";
 
 export const MessageRes = z
   .object({
@@ -17,3 +17,11 @@ export const FileRes = z.object({
 });
 
 export type FileResType = z.TypeOf<typeof FileRes>;
+
+export const ListStringRes = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: z.array(string()),
+});
+
+export type ListStringResType = z.TypeOf<typeof ListStringRes>;

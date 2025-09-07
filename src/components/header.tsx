@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Bell } from "lucide-react";
 import { ModeToggle } from "@/components/dark-toggle";
 import { cookies } from "next/headers";
 import MobileMenu from "@/components/mobile-menu";
 import UserMenu from "@/components/user-menu";
 import HeaderNav from "@/components/header-nav";
+import NotificationBell from "@/components/notification";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
@@ -33,16 +34,16 @@ export default async function Header() {
         {/* Actions */}
         <div className="flex items-center space-x-4">
           {/* Search Icon */}
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
-          >
-            <Link href="/search">
-              <Search className="h-5 w-5" />
-            </Link>
-          </Button>
+          {accessToken && (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            >
+              <NotificationBell />
+            </Button>
+          )}
 
           {/* Nếu chưa login */}
           {!accessToken && (

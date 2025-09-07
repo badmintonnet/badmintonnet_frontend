@@ -4,7 +4,10 @@ import {
   AccountResType,
   UpdateProfileBodyType,
 } from "@/schemaValidations/account.schema";
-import { FileResType } from "@/schemaValidations/common.schema";
+import {
+  FileResType,
+  ListStringResType,
+} from "@/schemaValidations/common.schema";
 
 const accountApiRequest = {
   uploadImageAvatar: (body: FormData) =>
@@ -19,5 +22,11 @@ const accountApiRequest = {
 
   updateProfile: (body: UpdateProfileBodyType) =>
     http.put<AccountResType>("/account/profile", body),
+  getAllClubId: (accessToken: string) =>
+    http.get<ListStringResType>("/account/get-all-club-id", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
 };
 export default accountApiRequest;
