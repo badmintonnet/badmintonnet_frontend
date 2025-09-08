@@ -12,7 +12,7 @@ export default async function ProfilePage() {
   try {
     const res = await accountApiRequest.getAccount(accessToken?.value || "");
     profile = res.payload.data;
-    console.log("Profile data:", profile);
+    // console.log("Profile data:", profile);
   } catch (error) {
     console.log("Error fetching clubs:", error);
     return (

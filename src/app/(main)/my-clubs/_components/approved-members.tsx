@@ -66,8 +66,8 @@ export default function ApprovedMembers({
   };
 
   return (
-    <Card className="h-full flex flex-col shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-      <CardHeader className="pb-4">
+    <Card className="h-full gap-0 flex flex-col shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -92,7 +92,7 @@ export default function ApprovedMembers({
             <MemberSkeleton />
           ) : approvedMembers.length > 0 ? (
             approvedMembers.map((member, index) => (
-              <>
+              <div key={member.id} className="space-y-3">
                 <div
                   key={member.id}
                   className={`group relative p-4 dark:bg-gray-800`}
@@ -133,9 +133,11 @@ export default function ApprovedMembers({
                             "vi-VN"
                           )}
                         </span>
-                        <Badge variant="outline" className="text-xs">
-                          Thành viên
-                        </Badge>
+                        {member.role !== "OWNER" && (
+                          <Badge variant="outline" className="text-xs">
+                            Thành viên
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
@@ -185,7 +187,7 @@ export default function ApprovedMembers({
                 {index < approvedMembers.length - 1 && (
                   <hr className="border-t border-gray-200 dark:border-gray-700" />
                 )}
-              </>
+              </div>
             ))
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-center">

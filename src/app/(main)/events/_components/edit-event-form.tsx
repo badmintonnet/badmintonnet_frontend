@@ -228,15 +228,24 @@ export default function EditEventModal({
     }
   };
 
-  const formatDateTimeLocal = (dateString: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().slice(0, 16);
+  const formatDateTimeLocal = (isoString: string) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
+  // Lưu: datetime-local string -> ISO string
   const parseLocalDateTime = (dateTimeLocal: string) => {
     if (!dateTimeLocal) return "";
-    return new Date(dateTimeLocal).toISOString();
+    const date = new Date(dateTimeLocal);
+    return date.toISOString(); // luôn ra ISO chuẩn UTC
   };
 
   if (!isOpen) return null;
