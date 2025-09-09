@@ -161,7 +161,16 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
           </p>
 
           {/* Nút My Clubs */}
-          <div className="flex justify-end">
+          <div className="flex justify-end space-x-4">
+            <Link href="/events/my-joined-events">
+              <Button
+                variant="outline"
+                className="border-2 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Hoạt động đã tham gia
+              </Button>
+            </Link>
             <Link href="/events">
               <Button
                 variant="outline"
