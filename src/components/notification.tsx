@@ -1,42 +1,56 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { Bell } from "lucide-react";
-import accountApiRequest from "@/apiRequest/account";
-import { clientSessionToken } from "@/lib/http";
 import Link from "next/link";
+import { jwtDecode } from "jwt-decode";
+import { clientSessionToken } from "@/lib/http";
+import {
+  NotificationMessageType,
+  NotificationMessagePageType,
+} from "@/schemaValidations/common.schema";
+import notificationApiRequest from "@/apiRequest/notification";
 
-type NotificationMessage = {
-  id: number;
-  title: string;
-  content: string;
-  link?: string;
-  read: boolean;
-};
+interface JwtPayload {
+  sub: string;
+  id: string;
+  exp: number;
+  iat: number;
+  authorities: string[];
+}
 
 export default function NotificationBell() {
-  const [messages, setMessages] = useState<NotificationMessage[]>([]);
+  const [messages, setMessages] = useState<NotificationMessageType[]>([]);
   const [open, setOpen] = useState(false);
-  const [clubIDs, setClubIDs] = useState<string[]>([]);
+  const [page, setPage] = useState(0);
+  const [last, setLast] = useState(false);
+  const listRef = useRef<HTMLUListElement>(null);
+  const loadingRef = useRef(false);
+
+  const loadNotifications = async (pageNum: number) => {
+    if (loadingRef.current || last) return;
+    loadingRef.current = true;
+    try {
+      const res = await notificationApiRequest.getOldNotifications(pageNum, 10);
+      const data: NotificationMessagePageType = res.payload;
+      setMessages((prev) => [...prev, ...data.data.content]);
+      setLast(data.data.last);
+      setPage(data.data.page);
+    } catch (err) {
+      console.error("Lỗi khi load thông báo:", err);
+    } finally {
+      loadingRef.current = false;
+    }
+  };
 
   useEffect(() => {
-    const fetchClubIds = async () => {
-      try {
-        const res = await accountApiRequest.getAllClubId(
-          clientSessionToken.value
-        );
-        setClubIDs(res.payload.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchClubIds();
-  }, []);
+    const token = jwtDecode<JwtPayload>(clientSessionToken.value);
 
-  useEffect(() => {
-    if (clubIDs.length === 0) return;
+    // lần đầu load
+    loadNotifications(0);
 
+    // kết nối websocket
     const socket = new SockJS(`${process.env.NEXT_PUBLIC_WS_ENDPOINT}/ws`);
     const stompClient = new Client({
       webSocketFactory: () => socket,
@@ -47,26 +61,20 @@ export default function NotificationBell() {
     stompClient.onConnect = () => {
       console.log("Connected to WebSocket");
 
+      // nhận broadcast chung
       stompClient.subscribe("/topic/notifications", (msg) => {
         if (msg.body) {
           const data = JSON.parse(msg.body);
-          setMessages((prev) => [
-            ...prev,
-            { id: Date.now(), ...data, read: false },
-          ]);
+          setMessages((prev) => [{ ...data, read: false }, ...prev]); // thêm vào đầu
         }
       });
 
-      clubIDs.forEach((clubId) => {
-        stompClient.subscribe(`/topic/club/${clubId}`, (msg) => {
-          if (msg.body) {
-            const data = JSON.parse(msg.body);
-            setMessages((prev) => [
-              ...prev,
-              { id: Date.now(), ...data, read: false },
-            ]);
-          }
-        });
+      // nhận cho riêng user
+      stompClient.subscribe(`/topic/account/${token.id}`, (msg) => {
+        if (msg.body) {
+          const data = JSON.parse(msg.body);
+          setMessages((prev) => [{ ...data, read: false }, ...prev]); // thêm vào đầu
+        }
       });
     };
 
@@ -75,13 +83,31 @@ export default function NotificationBell() {
     return () => {
       stompClient.deactivate();
     };
-  }, [clubIDs]);
+  }, []);
+
+  // 📌 scroll event để load thêm
+  useEffect(() => {
+    if (!open || !listRef.current) return;
+    const el = listRef.current;
+
+    const handleScroll = () => {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 10) {
+        loadNotifications(page + 1);
+      }
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [open, page, last]);
 
   const unreadCount = messages.filter((m) => !m.read).length;
 
-  const toggleMenu = () => {
+  const toggleMenu = async () => {
     setOpen(!open);
-    setMessages((prev) => prev.map((m) => ({ ...m, read: true })));
+    if (!open) {
+      await notificationApiRequest.postReadNotifications();
+      setMessages((prev) => prev.map((m) => ({ ...m, read: true })));
+    }
   };
 
   return (
@@ -104,7 +130,10 @@ export default function NotificationBell() {
           <div className="px-4 py-3 font-semibold text-lg text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800">
             Thông báo
           </div>
-          <ul className="max-h-96 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-800">
+          <ul
+            ref={listRef}
+            className="max-h-96 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-800"
+          >
             {messages.length === 0 ? (
               <li className="p-6 text-gray-500 dark:text-gray-400 text-sm text-center">
                 Không có thông báo
@@ -136,6 +165,11 @@ export default function NotificationBell() {
                   )}
                 </li>
               ))
+            )}
+            {!last && (
+              <li className="p-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                Đang tải thêm...
+              </li>
             )}
           </ul>
         </div>

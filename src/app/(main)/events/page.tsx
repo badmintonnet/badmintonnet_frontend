@@ -378,26 +378,20 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                 <Link href={`?page=${currentPage - 1}`}>← Trước</Link>
               </Button>
             )}
-            {[...Array(Math.min(totalPages, 5))].map((_, idx) => {
-              const pageIndex = Math.max(
-                0,
-                Math.min(currentPage - 2 + idx, totalPages - 1)
-              );
-              return (
-                <Button
-                  key={pageIndex}
-                  asChild
-                  variant={pageIndex === currentPage ? "default" : "outline"}
-                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                    pageIndex === currentPage
-                      ? "bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md"
-                      : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
-                  }`}
-                >
-                  <Link href={`?page=${pageIndex}`}>{pageIndex + 1}</Link>
-                </Button>
-              );
-            })}
+            {Array.from({ length: totalPages }, (_, pageIndex) => (
+              <Button
+                key={pageIndex}
+                asChild
+                variant={pageIndex === currentPage ? "default" : "outline"}
+                className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                  pageIndex === currentPage
+                    ? "bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md"
+                    : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
+                }`}
+              >
+                <Link href={`?page=${pageIndex}`}>{pageIndex + 1}</Link>
+              </Button>
+            ))}
             {!last && (
               <Button
                 asChild

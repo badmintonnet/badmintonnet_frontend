@@ -228,7 +228,7 @@ const http = {
   },
   post<Response>(
     url: string,
-    body: any,
+    body?: any,
     options?: Omit<CustomOptions, "body"> | undefined
   ) {
     return request<Response>("POST", url, { ...options, body });
