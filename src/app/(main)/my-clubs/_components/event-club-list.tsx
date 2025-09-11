@@ -16,6 +16,7 @@ interface EventClubListProps {
   events: EventType[];
   totalPages: number;
   currentPage: number;
+  totalElements: number;
   clubId?: string;
   accessToken: string;
   owner?: boolean;
@@ -25,6 +26,7 @@ export const EventClubList = ({
   events,
   totalPages,
   currentPage,
+  totalElements,
   clubId,
   owner,
 }: EventClubListProps) => {
@@ -38,7 +40,7 @@ export const EventClubList = ({
             Hoạt động thể thao
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {events.length} hoạt động được tìm thấy
+            {totalElements} hoạt động được tìm thấy
           </p>
         </div>
 
@@ -137,9 +139,7 @@ export const EventClubList = ({
       {events.length > 0 && totalPages > 1 && (
         <div className="flex justify-center items-center mt-8 space-x-4">
           <Link
-            href={`?page=${currentPage - 1}${
-              clubId ? `&clubId=${clubId}` : ""
-            }`}
+            href={`/my-clubs/${clubId}?page=${currentPage - 1}`}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               currentPage === 0
                 ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed pointer-events-none"
@@ -154,9 +154,7 @@ export const EventClubList = ({
           </span>
 
           <Link
-            href={`?page=${currentPage + 1}${
-              clubId ? `&clubId=${clubId}` : ""
-            }`}
+            href={`/my-clubs/${clubId}?page=${currentPage + 1}`}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               currentPage >= totalPages - 1
                 ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed pointer-events-none"

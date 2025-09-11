@@ -3,29 +3,28 @@ import { EventClubList } from "../../_components/event-club-list";
 import { cookies } from "next/headers";
 
 interface EventsPageProps {
-  searchParams: Promise<{
-    clubId?: string;
-    page?: string;
-    status?: string;
-    type?: string;
-    search?: string;
-  }>;
-  owner?: boolean;
+  page: number;
+  status?: string;
+  type?: string;
+  search?: string;
+  owner: boolean;
+  clubId: string;
 }
 
 export default async function ClubEvents({
-  searchParams,
+  page,
+  status,
+  type,
+  search,
   owner,
+  clubId,
 }: EventsPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 
   // Lấy params từ URL
-  const params = await searchParams;
-  const page = parseInt(params.page || "0", 10);
-  const size = 10;
-  const clubId = params.clubId;
 
+  const size = 10;
   if (!clubId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -43,6 +42,7 @@ export default async function ClubEvents({
   let events;
   let totalPages = 0;
   let currentPage = 0;
+  let totalElements = 0;
 
   try {
     // Lấy event clubs theo club ID
@@ -54,6 +54,7 @@ export default async function ClubEvents({
     );
     events = response.payload.data.content || [];
     totalPages = response.payload.data.totalPages || 0;
+    totalElements = response.payload.data.totalElements;
     currentPage = response.payload.data.page || 0;
   } catch (error) {
     console.log("Error fetching events:", error);
@@ -76,6 +77,7 @@ export default async function ClubEvents({
           events={events}
           totalPages={totalPages}
           currentPage={currentPage}
+          totalElements={totalElements}
           clubId={clubId}
           accessToken={accessToken?.value || ""}
           owner={owner}

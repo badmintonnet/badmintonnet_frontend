@@ -20,6 +20,7 @@ import { EventDetailType } from "@/schemaValidations/event.schema";
 import { JoinEventButton } from "@/app/(main)/events/_components/join-event-button";
 import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
+import ViewRating from "@/app/(main)/events/_components/view-rating";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -396,6 +397,15 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
             </div>
           </div>
         </div>
+      </div>
+      <div className="max-w-7xl mx-auto p-6">
+        {eventDetail.status == "FINISHED" && (
+          <ViewRating
+            eventId={eventDetail.id}
+            isJoined={eventDetail.joined}
+            isOwner={eventDetail.participantRole === "OWNER"}
+          />
+        )}
       </div>
     </div>
   );

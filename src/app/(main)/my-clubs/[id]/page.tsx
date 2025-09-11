@@ -28,15 +28,35 @@ import { CreateEventClubButton } from "@/app/(main)/my-clubs/_components/create-
 import ClubEvents from "@/app/(main)/my-clubs/[id]/events/club-event";
 import ApprovedMembers from "@/app/(main)/my-clubs/_components/approved-members";
 import PendingMembers from "@/app/(main)/my-clubs/_components/pending-members";
+import TabWrapper from "@/app/(main)/my-clubs/_components/tab-wrapper";
 
 interface ClubDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
+  searchParams: {
+    page?: string;
+    status?: string;
+    type?: string;
+    search?: string;
+  };
 }
 
-export default async function MyClubDetail({ params }: ClubDetailPageProps) {
+export default async function MyClubDetail({
+  params,
+  searchParams,
+}: ClubDetailPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
-  const { id } = await params;
+  const awaitedParams = await params;
+  const awaitedSearchParams = await searchParams;
+
+  const id = awaitedParams.id;
+  const page = awaitedSearchParams?.page
+    ? parseInt(awaitedSearchParams.page, 10)
+    : 0;
+  const status = awaitedSearchParams?.status ?? "";
+  const type = awaitedSearchParams?.type ?? "";
+  const search = awaitedSearchParams?.search ?? "";
+
   let clubDetail = null;
   try {
     const response = await clubServiceApi.getMyClubById(
@@ -195,8 +215,12 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
           {/* Activity Tab */}
           <TabsContent value="activity" className="mt-6">
             <ClubEvents
-              searchParams={Promise.resolve({ clubId: clubDetail.slug })}
+              page={page}
+              status={status}
+              type={type}
+              search={search}
               owner={clubDetail.owner}
+              clubId={clubDetail.slug}
             />
           </TabsContent>
 
