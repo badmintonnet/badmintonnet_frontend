@@ -21,6 +21,8 @@ import { JoinEventButton } from "@/app/(main)/events/_components/join-event-butt
 import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
 import ViewRating from "@/app/(main)/events/_components/view-rating";
+import CreateHighlightButton from "@/app/(main)/events/_components/create-highlight-button";
+import EventHighlights from "@/app/(main)/events/_components/event-highlights";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -400,11 +402,33 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
       </div>
       <div className="max-w-7xl mx-auto p-6">
         {eventDetail.status == "FINISHED" && (
-          <ViewRating
-            eventId={eventDetail.id}
-            isJoined={eventDetail.joined}
-            isOwner={eventDetail.participantRole === "OWNER"}
-          />
+          <>
+            <ViewRating
+              eventId={eventDetail.id}
+              isJoined={eventDetail.joined}
+              isOwner={eventDetail.participantRole === "OWNER"}
+            />
+            <div className="mt-8">
+              {/* Hiển thị form đăng highlights cho người dùng đã tham gia sự kiện */}
+              {eventDetail.joined && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
+                    Chia sẻ khoảnh khắc của bạn
+                  </h2>
+                  <CreateHighlightButton
+                    eventId={eventDetail.id}
+                  />
+                </div>
+              )}
+
+              {/* Hiển thị component highlights khi sự kiện đã kết thúc */}
+              <EventHighlights
+                eventId={eventDetail.id}
+                isFinished={eventDetail.status === "FINISHED"}
+              />
+            </div>
+          </>
         )}
       </div>
     </div>
