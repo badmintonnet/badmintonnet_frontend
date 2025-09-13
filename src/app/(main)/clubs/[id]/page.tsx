@@ -2,6 +2,7 @@ import Image from "next/image";
 import { MapPin, Users, Calendar } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
+import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
 
 interface ClubDetailPageProps {
   params: Promise<{ id: string }>;
@@ -57,28 +58,28 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
           </div>
 
           {/* Info */}
-          <div className="space-y-3">
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
-              {club.location}
-            </div>
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <Users className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
-              Tối đa {club.maxMembers} thành viên
-            </div>
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <Calendar className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
-              Ngày tạo: {new Date(club.createdAt).toLocaleDateString("vi-VN")}
-            </div>
-          </div>
         </div>
 
         {/* Right Sidebar */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex flex-col justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Hành động
+              Thông tin
             </h2>
+            <div className="space-y-3">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                {club.location}
+              </div>
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Users className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
+                Tối đa {club.maxMembers} thành viên
+              </div>
+              <div className="flex items-center text-gray-600 dark:text-gray-400 mb-6">
+                <Calendar className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                Ngày tạo: {new Date(club.createdAt).toLocaleDateString("vi-VN")}
+              </div>
+            </div>
             <JoinClubButton
               clubId={club.id}
               clubName={club.name}
@@ -86,6 +87,9 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
             />
           </div>
         </div>
+      </div>
+      <div className="max-w-7xl mx-auto space-y-8 mt-6">
+        <RatingView id={club.id} />
       </div>
     </div>
   );
