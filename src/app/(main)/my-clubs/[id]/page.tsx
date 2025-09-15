@@ -242,6 +242,7 @@ export default async function MyClubDetail({
                   <>
                     <PendingMembers
                       id={clubDetail.id}
+                      slug={clubDetail.slug}
                       accessToken={accessToken?.value || ""}
                       isOwner={clubDetail.owner}
                     />

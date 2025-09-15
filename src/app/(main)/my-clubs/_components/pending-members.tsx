@@ -38,12 +38,16 @@ import { Separator } from "@/components/ui/separator";
 
 export default function PendingMembers({
   id,
+  slug,
   accessToken,
   isOwner = false,
+  onActionDone,
 }: {
   id: string;
+  slug: string;
   accessToken: string;
   isOwner?: boolean;
+  onActionDone?: () => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
@@ -111,7 +115,6 @@ export default function PendingMembers({
             accessToken
           );
           toast.success("Đã duyệt thành viên.");
-          router.refresh();
         } catch (error) {
           toast.error("Duyệt thành viên thất bại. Vui lòng thử lại.");
           console.error("Error approving member:", error);
@@ -121,7 +124,6 @@ export default function PendingMembers({
         if (member) {
           setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
         }
-        router.refresh();
       } else {
         try {
           await clubServiceApi.postApproveMember(
@@ -138,10 +140,8 @@ export default function PendingMembers({
         }
         setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
       }
-    } catch (error) {
-      // Add a catch block to handle any unexpected errors
-      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
-      console.error("Error updating member status:", error);
+    } finally {
+      router.push(`/my-clubs/${slug}?tab=members`);
     }
   };
   return (

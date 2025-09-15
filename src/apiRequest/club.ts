@@ -47,6 +47,7 @@ const clubServiceApi = {
       `/clubs/my_clubs/${id}/member?page=${page}&size=${size}&status=${status}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
+        cache: "no-store",
       }
     ),
 

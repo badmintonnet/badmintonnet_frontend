@@ -1,69 +1,43 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Users, Crown } from "lucide-react";
+import Image from "next/image";
 import clubServiceApi from "@/apiRequest/club";
 import { MemberType } from "@/schemaValidations/clubs.schema";
-import { MemberSkeleton } from "./member-shared";
-import { Users, Crown, MoreHorizontal, User, Ban, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Image from "next/image";
 
-export default function ApprovedMembers({
+async function getApprovedMembers(
+  id: string,
+  accessToken: string,
+  page = 0
+): Promise<{ members: MemberType[]; totalPages: number }> {
+  const res = await clubServiceApi.getClubMembers(
+    id,
+    page,
+    10,
+    accessToken,
+    "APPROVED"
+  );
+
+  return {
+    members: res.payload.data.content,
+    totalPages: res.payload.data.totalPages || 0,
+  };
+}
+
+export default async function ApprovedMembers({
   id,
   accessToken,
+  page = 0,
 }: {
   id: string;
   accessToken: string;
+  page?: number;
 }) {
-  const [approvedMembers, setApprovedMembers] = useState<MemberType[]>([]);
-  const [pageApproved, setPageApproved] = useState(0);
-  const [totalPagesApproved, setTotalPagesApproved] = useState(0);
-  const [loadingApproved, setLoadingApproved] = useState(true);
-
-  useEffect(() => {
-    const fetchApproved = async () => {
-      try {
-        setLoadingApproved(true);
-        const res = await clubServiceApi.getClubMembers(
-          id,
-          pageApproved,
-          10,
-          accessToken,
-          "APPROVED"
-        );
-        const pageData = res?.payload?.data;
-        setApprovedMembers(pageData?.content || []);
-        setTotalPagesApproved(pageData?.totalPages || 0);
-      } catch (error) {
-        console.error("Error fetching approved members:", error);
-      } finally {
-        setLoadingApproved(false);
-      }
-    };
-    fetchApproved();
-  }, [id, accessToken, pageApproved]);
-
-  const handleViewProfile = (memberId: string) => {
-    console.log("View profile for member:", memberId);
-  };
-
-  const handleRemoveFromGroup = (memberId: string, memberName: string) => {
-    console.log("Remove from group:", memberId, memberName);
-  };
-
-  const handleBanMember = (memberId: string, memberName: string) => {
-    console.log("Ban member:", memberId, memberName);
-  };
+  const { members, totalPages } = await getApprovedMembers(
+    id,
+    accessToken,
+    page
+  );
 
   return (
     <Card className="h-full gap-0 flex flex-col shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
@@ -81,24 +55,19 @@ export default function ApprovedMembers({
             variant="secondary"
             className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-md"
           >
-            {approvedMembers.length} thành viên
+            {members.length} thành viên
           </Badge>
         </div>
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col overflow-hidden px-6">
         <div className="flex-1 overflow-y-auto space-y-3">
-          {loadingApproved ? (
-            <MemberSkeleton />
-          ) : approvedMembers.length > 0 ? (
-            approvedMembers.map((member, index) => (
+          {members.length > 0 ? (
+            members.map((member, index) => (
               <div key={member.id} className="space-y-3">
-                <div
-                  key={member.id}
-                  className={`group relative p-4 dark:bg-gray-800`}
-                >
+                <div className="group relative p-4 dark:bg-gray-800">
                   <div className="flex items-center gap-4">
-                    {/* Avatar with online indicator */}
+                    {/* Avatar */}
                     <div className="relative">
                       <Image
                         src={member.avatar || "/user.png"}
@@ -107,10 +76,9 @@ export default function ApprovedMembers({
                         height={56}
                         className="h-14 w-14 rounded-full object-cover border-3 border-white dark:border-gray-700 shadow-md"
                       />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                     </div>
 
-                    {/* Member Info */}
+                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
@@ -140,51 +108,9 @@ export default function ApprovedMembers({
                         )}
                       </div>
                     </div>
-
-                    {/* Action Dropdown */}
-                    {member.role !== "OWNER" && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem
-                            onClick={() => handleViewProfile(member.id)}
-                            className="cursor-pointer"
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Xem trang cá nhân
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleRemoveFromGroup(member.id, member.name)
-                            }
-                            className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Xóa khỏi nhóm
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleBanMember(member.id, member.name)
-                            }
-                            className="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                          >
-                            <Ban className="h-4 w-4 mr-2" />
-                            Banned
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
                   </div>
                 </div>
-                {index < approvedMembers.length - 1 && (
+                {index < members.length - 1 && (
                   <hr className="border-t border-gray-200 dark:border-gray-700" />
                 )}
               </div>
@@ -204,38 +130,12 @@ export default function ApprovedMembers({
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPagesApproved > 1 && (
+        {/* Pagination (chỉ hiển thị, muốn chuyển trang thì phải điều hướng link khác) */}
+        {totalPages > 1 && (
           <div className="flex items-center justify-center mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={pageApproved === 0}
-                onClick={() => setPageApproved((p) => p - 1)}
-                className="hover:bg-blue-50 hover:border-blue-300"
-              >
-                ← Trước
-              </Button>
-              <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {pageApproved + 1}
-                </span>
-                <span className="text-sm text-gray-500">/</span>
-                <span className="text-sm text-gray-500">
-                  {totalPagesApproved}
-                </span>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={pageApproved + 1 >= totalPagesApproved}
-                onClick={() => setPageApproved((p) => p + 1)}
-                className="hover:bg-blue-50 hover:border-blue-300"
-              >
-                Sau →
-              </Button>
-            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Trang {page + 1} / {totalPages}
+            </p>
           </div>
         )}
       </CardContent>

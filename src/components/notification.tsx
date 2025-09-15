@@ -158,7 +158,10 @@ export default function NotificationBell() {
                     <Link
                       href={m.link}
                       className="mt-2 inline-block text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-medium"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpen(!open);
+                      }}
                     >
                       Xem chi tiết
                     </Link>
