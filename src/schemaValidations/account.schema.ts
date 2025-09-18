@@ -58,3 +58,53 @@ export const UpdateProfileBody = z.object({
 });
 
 export type UpdateProfileBodyType = z.TypeOf<typeof UpdateProfileBody>;
+
+export const PlayerRatingCreateBody = z
+  .object({
+    experience: z.number().int().min(0).max(5),
+    serve: z.number().int().min(0).max(5),
+    smash: z.number().int().min(0).max(5),
+    clear: z.number().int().min(0).max(5),
+    dropShot: z.number().int().min(0).max(5),
+    drive: z.number().int().min(0).max(5),
+    netShot: z.number().int().min(0).max(5),
+    doubles: z.number().int().min(0).max(5),
+    defense: z.number().int().min(0).max(5),
+    footwork: z.number().int().min(0).max(5),
+    stamina: z.number().int().min(0).max(5),
+    tactics: z.number().int().min(0).max(5),
+  })
+  .strict();
+
+export type PlayerRatingCreateBodyType = z.TypeOf<
+  typeof PlayerRatingCreateBody
+>;
+
+export const PlayerRating = z.object({
+  id: z.string(),
+  experience: z.number().int(),
+  serve: z.number().int(),
+  smash: z.number().int(),
+  clear: z.number().int(),
+  dropShot: z.number(),
+  drive: z.number().int(),
+  netShot: z.number().int(),
+  doubles: z.number().int(),
+  defense: z.number().int(),
+  footwork: z.number().int(),
+  stamina: z.number().int(),
+  tactics: z.number().int(),
+  averageTechnicalScore: z.number(),
+  overallScore: z.number(),
+  skillLevel: z.string(),
+});
+
+export type PlayerRatingType = z.TypeOf<typeof PlayerRating>;
+
+export const PlayerRatingResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: PlayerRating,
+});
+
+export type PlayerRatingResponseType = z.TypeOf<typeof PlayerRatingResponse>;

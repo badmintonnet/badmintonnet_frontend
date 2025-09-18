@@ -2,6 +2,8 @@ import http from "@/lib/http";
 
 import {
   AccountResType,
+  PlayerRatingCreateBodyType,
+  PlayerRatingResponseType,
   UpdateProfileBodyType,
 } from "@/schemaValidations/account.schema";
 import {
@@ -27,6 +29,19 @@ const accountApiRequest = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+    }),
+  createPlayerRating: (body: PlayerRatingCreateBodyType) =>
+    http.post("/account/player-rating", body),
+
+  getPlayerRating: (accessToken?: string) =>
+    http.get<PlayerRatingResponseType>("/account/player-rating", {
+      ...(accessToken
+        ? {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        : {}),
     }),
 };
 export default accountApiRequest;

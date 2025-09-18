@@ -60,7 +60,7 @@ const RegisterForm = () => {
       toast.success("Đăng ký thành công", {
         description: "Tài khoản của bạn đã được tạo thành công!",
       });
-      router.push("/");
+      router.push("/profile/player-rating");
     } catch (error: unknown) {
       // handleErrorApi({
       //   error,
