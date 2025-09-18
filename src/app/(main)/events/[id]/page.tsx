@@ -21,8 +21,8 @@ import { JoinEventButton } from "@/app/(main)/events/_components/join-event-butt
 import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
 import ViewRating from "@/app/(main)/events/_components/view-rating";
-import CreateHighlightButton from "@/app/(main)/events/_components/create-highlight-button";
-import EventHighlights from "@/app/(main)/events/_components/event-highlights";
+import EventHighlights from "@/app/(main)/events/_components/highlight/event-highlights";
+import CreateHighlightButton from "@/app/(main)/events/_components/highlight/create-highlight-button";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -416,9 +416,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
                     Chia sẻ khoảnh khắc của bạn
                   </h2>
-                  <CreateHighlightButton
-                    eventId={eventDetail.id}
-                  />
+                  <CreateHighlightButton eventId={eventDetail.id} />
                 </div>
               )}
 

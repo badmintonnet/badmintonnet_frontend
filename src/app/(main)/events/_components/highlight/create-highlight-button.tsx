@@ -48,7 +48,7 @@ export default function CreateHighlightButton({
     defaultValues: {
       eventId,
       content: "",
-      mediaUrls: [],
+      fileNames: [],
     },
   });
 
@@ -56,8 +56,8 @@ export default function CreateHighlightButton({
     if (e.target.files) {
       const files = Array.from(e.target.files);
       if (files.length > 0) {
-        // Giới hạn số lượng file (tối đa 5 file)
-        const newFiles = [...selectedFiles, ...files].slice(0, 5);
+        // Giới hạn số lượng file (tối đa 6 file)
+        const newFiles = [...selectedFiles, ...files].slice(0, 6);
         setSelectedFiles(newFiles);
 
         // Tạo URL preview cho các file
@@ -83,6 +83,33 @@ export default function CreateHighlightButton({
     setPreviewUrls(newPreviewUrls);
   };
 
+  const uploadFiles = async (files: File[]): Promise<string[]> => {
+    if (files.length === 0) return [];
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      const response = await highlightApiRequest.uploadFileHightLight(formData);
+
+      if (response.payload.message === "Success") {
+        // Xử lý cả hai trường hợp single file và multiple files
+        if ("fileName" in response.payload.data) {
+          return [response.payload.data.fileName];
+        } else if ("fileNames" in response.payload.data) {
+          return response.payload.data.fileNames;
+        }
+      }
+
+      throw new Error("Upload failed");
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw new Error("Không thể upload file");
+    }
+  };
+
   const onSubmit = async (data: CreateHighlightType) => {
     if (!clientSessionToken.value) {
       toast.error("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -92,29 +119,24 @@ export default function CreateHighlightButton({
     try {
       setIsSubmitting(true);
 
-      // Trong thực tế, bạn sẽ cần upload các file lên server và nhận về URL
-      // Đây là phần giả lập, trong thực tế bạn sẽ cần thay thế bằng API upload thực
-      const uploadedUrls =
-        selectedFiles.length > 0
-          ? previewUrls // Giả sử đây là URL đã upload thành công
-          : [];
+      // Bước 1: Upload files trước
+      let uploadedFileNames: string[] = [];
+      if (selectedFiles.length > 0) {
+        toast.loading("Đang upload file...");
+        uploadedFileNames = await uploadFiles(selectedFiles);
+        console.log("Uploaded file names:", uploadedFileNames);
+        toast.dismiss();
+      }
 
-      const mediaType =
-        selectedFiles.length > 0
-          ? selectedFiles[0].type.includes("video")
-            ? ("VIDEO" as const)
-            : ("IMAGE" as const)
-          : undefined;
-
+      // Bước 2: Tạo highlight với các fileNames đã upload
       const highlightData = {
         ...data,
-        mediaUrls: uploadedUrls,
-        mediaType,
+        fileNames: uploadedFileNames,
       };
 
       const response = await highlightApiRequest.createHighlight(
         highlightData,
-        clientSessionToken.value || ""
+        clientSessionToken.value
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -127,9 +149,9 @@ export default function CreateHighlightButton({
       } else {
         toast.error("Không thể đăng highlight");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Lỗi khi đăng highlight:", err);
-      toast.error("Đã xảy ra lỗi khi đăng highlight");
+      toast.error(err.message || "Đã xảy ra lỗi khi đăng highlight");
     } finally {
       setIsSubmitting(false);
     }
@@ -196,7 +218,11 @@ export default function CreateHighlightButton({
                     className="relative group rounded-lg overflow-hidden h-24"
                   >
                     {selectedFiles[index]?.type.includes("video") ? (
-                      <video src={url} className="w-full h-full object-cover" />
+                      <video
+                        src={url}
+                        className="w-full h-full object-cover"
+                        controls={false}
+                      />
                     ) : (
                       <div className="relative w-full h-full">
                         <Image

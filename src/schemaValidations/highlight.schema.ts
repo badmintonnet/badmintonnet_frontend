@@ -1,34 +1,53 @@
-import { z } from 'zod';
+import { z } from "zod";
+
+export const MediaTypeEnum = z.enum(["IMAGE", "VIDEO"]);
+
+export const MediaSchema = z.object({
+  url: z.string(),
+  type: MediaTypeEnum,
+});
 
 export const HighlightSchema = z.object({
   id: z.string(),
   eventId: z.string(),
-  userId: z.string(),
-  userName: z.string(),
-  userAvatar: z.string().optional(),
+  authorName: z.string(),
+  authorAvatar: z.string().optional(),
   content: z.string(),
-  mediaUrls: z.array(z.string()).optional(),
-  mediaType: z.enum(['IMAGE', 'VIDEO']).optional(),
+  mediaList: z.array(MediaSchema).optional(),
   createdAt: z.string().or(z.date()),
-  updatedAt: z.string().or(z.date()).optional(),
-  likes: z.number().default(0),
-  comments: z.number().default(0),
+  likeCount: z.number().default(0),
+  commentCount: z.number().default(0),
+  userId: z.string(),
+  currentUserId: z.string().optional(), // ID người dùng hiện tại, có thể null nếu chưa đăng nhập
 });
 
 export const CreateHighlightSchema = z.object({
   eventId: z.string(),
-  content: z.string().min(1, 'Nội dung không được để trống'),
-  mediaUrls: z.array(z.string()).optional(),
-  mediaType: z.enum(['IMAGE', 'VIDEO']).optional(),
+  content: z.string().min(1, "Nội dung không được để trống"),
+  fileNames: z.array(z.string()).optional(),
 });
 
-export const UpdateHighlightSchema = z.object({
-  id: z.string(),
-  content: z.string().min(1, 'Nội dung không được để trống').optional(),
-  mediaUrls: z.array(z.string()).optional(),
-  mediaType: z.enum(['IMAGE', 'VIDEO']).optional(),
+export const HighlightResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(HighlightSchema),
 });
 
+export const FileRes = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: z.union([
+    z.object({
+      fileName: z.string(),
+    }),
+    z.object({
+      fileNames: z.array(z.string()),
+    }),
+  ]),
+});
+
+export type FileResType = z.TypeOf<typeof FileRes>;
+
+export type HighlightResponseType = z.infer<typeof HighlightResponse>;
 export type HighlightType = z.infer<typeof HighlightSchema>;
 export type CreateHighlightType = z.infer<typeof CreateHighlightSchema>;
-export type UpdateHighlightType = z.infer<typeof UpdateHighlightSchema>;
