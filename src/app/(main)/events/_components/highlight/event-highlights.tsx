@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import highlightApiRequest from "@/apiRequest/highlight";
 import { cookies } from "next/headers";
 import MediaGallery from "@/app/(main)/events/_components/highlight/media-gallery";
-import HighlightActions from "@/app/(main)/events/_components/highlight/highlight-action";
+import HighlightActions, { HighlightMenu } from "@/app/(main)/events/_components/highlight/highlight-action";
 
 interface EventHighlightsProps {
   eventId: string;
@@ -96,6 +96,11 @@ export default async function EventHighlights({
                     </p>
                   </div>
                 </div>
+                <HighlightMenu
+                  highlightId={highlight.id}
+                  userId={highlight.userId}
+                  currentUserId={highlight.currentUserId}
+                />
               </div>
             </CardHeader>
 

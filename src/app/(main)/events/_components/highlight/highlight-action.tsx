@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, MessageCircle, Trash2, MoreVertical } from "lucide-react";
+import { Heart, MessageCircle, Trash2, MoreVertical, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,6 +18,13 @@ interface HighlightActionsProps {
   commentCount: number;
   isLiked?: boolean;
   onLike?: (highlightId: string) => Promise<void>;
+  onDelete?: (highlightId: string) => Promise<void>;
+}
+
+interface HighlightMenuProps {
+  highlightId: string;
+  userId: string;
+  currentUserId?: string;
   onDelete?: (highlightId: string) => Promise<void>;
 }
 
@@ -105,32 +112,63 @@ export default function HighlightActions({
           <MessageCircle className="mr-2 h-4 w-4" />
           <span>{commentCount}</span>
         </Button>
-
-        {canDelete && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                disabled={isDeleting}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="text-red-600 dark:text-red-400 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {isDeleting ? "Đang xóa..." : "Xóa bài viết"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
       </div>
     </div>
+  );
+}
+
+export function HighlightMenu({
+  highlightId,
+  userId,
+  currentUserId,
+  onDelete,
+}: HighlightMenuProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const canDelete = currentUserId === userId;
+
+  const handleDelete = async () => {
+    // if (isDeleting || !onDelete) return;
+    // const confirmed = confirm("Bạn có chắc chắn muốn xóa bài viết này không?");
+    // if (!confirmed) return;
+    // setIsDeleting(true);
+    // try {
+    //   await onDelete(highlightId);
+    // } finally {
+    //   setIsDeleting(false);
+    // }
+  };
+
+  if (!canDelete) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+          disabled={isDeleting}
+        >
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem
+          //   onClick={handleEdit}
+          className="text-blue-600 dark:text-blue-400 focus:text-blue-700 focus:bg-blue-50 dark:focus:bg-blue-900/20 cursor-pointer"
+        >
+          <Edit className="mr-2 h-4 w-4" />
+          Chỉnh sửa
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="text-red-600 dark:text-red-400 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer"
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          {isDeleting ? "Đang xóa..." : "Xóa bài viết"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
