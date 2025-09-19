@@ -8,7 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import highlightApiRequest from "@/apiRequest/highlight";
 import { cookies } from "next/headers";
 import MediaGallery from "@/app/(main)/events/_components/highlight/media-gallery";
-import HighlightActions, { HighlightMenu } from "@/app/(main)/events/_components/highlight/highlight-action";
+import HighlightActions, {
+  HighlightMenu,
+} from "@/app/(main)/events/_components/highlight/highlight-action";
 
 interface EventHighlightsProps {
   eventId: string;
@@ -59,36 +61,36 @@ export default async function EventHighlights({
         Highlights của sự kiện
       </h2>
 
-      <div className="space-y-6">
+      {/* Grid layout with responsive columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {highlights.map((highlight) => (
           <Card
             key={highlight.id}
-            className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+            className="bg-white gap-0 dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200"
           >
-            {/* Header */}
-            <CardHeader className="pb-3">
+            {/* Header - More compact */}
+            <CardHeader className="pb-3 px-5 pt-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-9 h-9">
                     <AvatarImage
                       src={highlight.authorAvatar}
                       alt={highlight.authorName}
                     />
-                    <AvatarFallback className="bg-blue-500 text-white">
+                    <AvatarFallback className="bg-blue-500 text-white text-sm">
                       {highlight.authorName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white text-[15px]">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
                       {highlight.authorName}
                     </p>
-                    <p className="text-[13px] text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(highlight.createdAt).toLocaleDateString(
                         "vi-VN",
                         {
-                          year: "numeric",
-                          month: "long",
                           day: "numeric",
+                          month: "short",
                           hour: "2-digit",
                           minute: "2-digit",
                         }
@@ -105,19 +107,29 @@ export default async function EventHighlights({
             </CardHeader>
 
             {/* Content */}
-            <CardContent className="px-4 py-0">
+            <CardContent className="px-5 py-0">
               {highlight.content && (
-                <p className="text-gray-900 dark:text-gray-100 text-[15px] leading-5 whitespace-pre-line mb-3">
-                  {highlight.content}
-                </p>
+                <div className="mb-3">
+                  <p className="text-gray-900 dark:text-gray-100 text-sm leading-relaxed whitespace-pre-line line-clamp-4">
+                    {highlight.content}
+                  </p>
+                  {/* Show more/less for long content */}
+                  {highlight.content.length > 200 && (
+                    <button className="text-blue-500 hover:text-blue-600 text-xs mt-1 font-medium">
+                      Xem thêm
+                    </button>
+                  )}
+                </div>
               )}
 
-              {/* Media Gallery - Client Component */}
-              <MediaGallery mediaList={highlight.mediaList || []} />
+              {/* Media Gallery - Optimized for smaller cards */}
+              <div className="mb-3">
+                <MediaGallery mediaList={highlight.mediaList || []} />
+              </div>
             </CardContent>
 
-            {/* Footer - Client Component */}
-            <CardFooter className="px-4 pt-3 pb-2">
+            {/* Footer - More compact */}
+            <CardFooter className="px-5 pt-2 pb-4">
               <HighlightActions
                 highlightId={highlight.id}
                 userId={highlight.userId}
@@ -131,6 +143,13 @@ export default async function EventHighlights({
             </CardFooter>
           </Card>
         ))}
+      </div>
+
+      {/* Load more button if needed */}
+      <div className="flex justify-center mt-8">
+        <button className="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
+          Xem thêm highlights
+        </button>
       </div>
     </div>
   );
