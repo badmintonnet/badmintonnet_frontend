@@ -11,18 +11,23 @@ import {
   UserMinus,
   CircleStar,
   CheckCircle,
+  GraduationCap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
-import { EventDetailType } from "@/schemaValidations/event.schema";
+import {
+  EventDetailType,
+  ParticipantType,
+} from "@/schemaValidations/event.schema";
 import { JoinEventButton } from "@/app/(main)/events/_components/join-event-button";
-import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
+// import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
 import ViewRating from "@/app/(main)/events/_components/view-rating";
 import EventHighlights from "@/app/(main)/events/_components/highlight/event-highlights";
 import CreateHighlightButton from "@/app/(main)/events/_components/highlight/create-highlight-button";
+import ParticipantsSection from "@/app/(main)/events/_components/view-participants";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -37,8 +42,16 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
     id,
     accessToken?.value || ""
   );
-  const eventDetail = response.payload.data || null;
 
+  const eventDetail = response.payload.data || null;
+  let participantRes;
+  if (eventDetail.participantRole === "OWNER") {
+    participantRes = await eventClubApiRequest.getParticipants(
+      eventDetail?.id,
+      accessToken?.value || ""
+    );
+  }
+  const participants: ParticipantType[] = participantRes?.payload.data || [];
   if (!eventDetail) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -105,6 +118,11 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
         label: "Đã hủy",
         color:
           "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800",
+      },
+      DRAFT: {
+        label: "Chưa mở đăng ký",
+        color:
+          "bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 border border-gray-200 dark:border-gray-800",
       },
     };
 
@@ -234,7 +252,20 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     </p>
                   </div>
                 </div>
-
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <GraduationCap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      Trình độ yêu cầu
+                    </p>
+                    <span className="text-sm text-gray-600 dark:text-gray-300 break-words">
+                      {eventDetail.minLevel.toFixed(1)} -{" "}
+                      {eventDetail.maxLevel.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                   <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -337,7 +368,6 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                       <X className="w-4 h-4 mr-2" />
                       Hủy sự kiện
                     </Button>
-                    <ViewParticipantsButton eventId={eventDetail.id} />
                   </div>
                 )}
 
@@ -345,7 +375,10 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   eventDetail.status == "OPEN" && (
                     <div className="flex flex-col gap-3">
                       {!eventDetail.joined ? (
-                        <JoinEventButton eventId={eventDetail.id} />
+                        <JoinEventButton
+                          eventId={eventDetail.id}
+                          isMember={true}
+                        />
                       ) : (
                         <Button
                           variant="destructive"
@@ -367,7 +400,10 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                             <>
                               {eventDetail.joinedOpenMembers <
                               eventDetail.maxOutsideMembers ? (
-                                <JoinEventButton eventId={eventDetail.id} />
+                                <JoinEventButton
+                                  eventId={eventDetail.id}
+                                  isMember={false}
+                                />
                               ) : (
                                 <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
                                   <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
@@ -376,13 +412,22 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                                 </div>
                               )}
                             </>
-                          ) : (
+                          ) : eventDetail.participantStatus !== "PENDING" ? (
                             <Button
                               variant="destructive"
                               className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                             >
                               <UserMinus className="w-4 h-4 mr-2" />
                               Hủy tham gia
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              disabled
+                              className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                            >
+                              <UserMinus className="w-4 h-4 mr-2" />
+                              Vui lòng chờ phê duyệt
                             </Button>
                           )}
                         </div>
@@ -399,6 +444,16 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
             </div>
           </div>
         </div>
+      </div>
+      <div className="max-w-7xl mx-auto p-6">
+        {eventDetail.participantRole === "OWNER" && (
+          <>
+            <ParticipantsSection
+              participants={participants}
+              eventId={eventDetail.id}
+            />
+          </>
+        )}
       </div>
       <div className="max-w-7xl mx-auto p-6">
         {eventDetail.status == "FINISHED" && (

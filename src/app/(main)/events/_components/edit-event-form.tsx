@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -83,6 +84,11 @@ const STATUS_OPTIONS = [
     value: "CANCELLED",
     label: "Đã hủy",
     color: "bg-red-50 text-red-700 border-red-200",
+  },
+  {
+    value: "DRAFT",
+    label: "Chưa mở đăng ký",
+    color: "bg-gray-50 text-gray-700 border-gray-200",
   },
 ];
 

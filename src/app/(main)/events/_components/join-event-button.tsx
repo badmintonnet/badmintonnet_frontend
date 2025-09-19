@@ -20,9 +20,13 @@ import {
 
 interface JoinEventButtonProps {
   eventId: string;
+  isMember: boolean;
 }
 
-export const JoinEventButton = ({ eventId }: JoinEventButtonProps) => {
+export const JoinEventButton = ({
+  eventId,
+  isMember,
+}: JoinEventButtonProps) => {
   const accessToken = clientSessionToken.value;
   const router = useRouter();
 
@@ -63,10 +67,18 @@ export const JoinEventButton = ({ eventId }: JoinEventButtonProps) => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Xác nhận tham gia</AlertDialogTitle>
-          <AlertDialogDescription>
-            Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham gia
-            bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng.
-          </AlertDialogDescription>
+          {isMember ? (
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
+              gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng.
+            </AlertDialogDescription>
+          ) : (
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
+              gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng. Vui
+              lòng chờ sự phê duyệt của Chủ CLB
+            </AlertDialogDescription>
+          )}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Hủy</AlertDialogCancel>

@@ -9,6 +9,7 @@ import {
   Club,
   CircleStar,
   Building2,
+  GraduationCap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -278,7 +279,19 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         {event.location}
                       </p>
                     </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                      </div>
 
+                      <span className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Trình độ yêu cầu:
+                        </span>{" "}
+                        {event.minLevel.toFixed(1)} -{" "}
+                        {event.maxLevel.toFixed(1)}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2 mb-3">
                       {/* Club Name Section */}
                       <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">

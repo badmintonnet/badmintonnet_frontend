@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { MapPin, Users, Calendar } from "lucide-react";
+import { MapPin, Users, Calendar, GraduationCap } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
 import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
@@ -70,6 +70,13 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                 {club.location}
+              </div>
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <GraduationCap className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
+                <span className="font-medium">Trình độ yêu cầu:</span>
+                <span className="ml-2">
+                  {club.minLevel.toFixed(1)} - {club.maxLevel.toFixed(1)}
+                </span>
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Users className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />

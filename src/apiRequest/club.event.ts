@@ -67,14 +67,9 @@ const eventClubApiRequest = {
         Authorization: `Bearer ${accessToken}`,
       },
     }),
-  getParticipants: (
-    id: string,
-    accessToken: string,
-    page: number,
-    size: number
-  ) =>
+  getParticipants: (id: string, accessToken: string) =>
     http.get<PagedParticipantResponseType>(
-      `/club-event/all-participant/${id}?page=${page}&size=${size}`,
+      `/club-event/all-participant/${id}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -91,5 +86,10 @@ const eventClubApiRequest = {
         },
       }
     ),
+  approvedParticipant: (id: string, eventId: string) =>
+    http.put(`/club-event/${eventId}/participant/${id}/approve`),
+
+  rejectParticipant: (id: string, eventId: string) =>
+    http.put(`/club-event/${eventId}/participant/${id}/reject`),
 };
 export default eventClubApiRequest;

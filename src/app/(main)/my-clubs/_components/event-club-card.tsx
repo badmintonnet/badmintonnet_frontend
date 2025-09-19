@@ -62,6 +62,11 @@ export const EventClubCard = ({ event }: EventClubCardProps) => {
         label: "Đã hủy",
         color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
       },
+      DRAFT: {
+        label: "Chưa mở đăng ký",
+        color:
+          "bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 border border-gray-200 dark:border-gray-800",
+      },
     };
 
     return (

@@ -19,8 +19,15 @@ const EventStatusEnum = z.enum([
   "ONGOING",
   "FINISHED",
   "CANCELLED",
+  "DRAFT",
 ]);
 
+const EventParticipantStatusEnum = z.enum([
+  "PENDING",
+  "APPROVED",
+  "ATTENDED",
+  "ABSENT",
+]);
 export const ParticipantRoleEnum = z.enum(["OWNER", "MEMBER", "GUEST"]);
 // Schema for file uploads (MultipartFile in Java)
 const FileSchema = z
@@ -117,6 +124,14 @@ export const CreateEventClubBody = z.object({
     .int()
     .min(0, "Số thành viên ngoài tối đa không được âm"),
   clubSlug: z.string().min(1, "ID CLB là bắt buộc"),
+  minLevel: z
+    .number()
+    .max(5, "Điểm đánh giá trình không được lớn hơn 5")
+    .optional(),
+  maxLevel: z
+    .number()
+    .max(5, "Điểm đánh giá trình không được lớn hơn 5")
+    .optional(),
 });
 
 export const UpdateEventClubBody = z.object({
@@ -134,6 +149,8 @@ export const UpdateEventClubBody = z.object({
   deadline: z.coerce.date(),
   openForOutside: z.boolean(),
   status: EventStatusEnum,
+  minLevel: z.number(),
+  maxLevel: z.number(),
 });
 
 export type CreateEventBodyType = z.infer<typeof CreateEventBody>;
@@ -155,6 +172,8 @@ export const EventSchema = z.object({
   openForOutside: z.boolean(),
   nameClub: z.string(),
   fee: z.number().optional(),
+  minLevel: z.number(),
+  maxLevel: z.number(),
   categories: z.array(BadmintonCategoryEnum),
   status: EventStatusEnum,
   participantRole: ParticipantRoleEnum,
@@ -207,8 +226,10 @@ export const EventDetailSchema = z.object({
   joinedOpenMembers: z.number().int(),
   createdAt: z.coerce.date(),
   createdBy: z.string().nullable(),
-
+  minLevel: z.number(),
+  maxLevel: z.number(),
   participantRole: ParticipantRoleEnum,
+  participantStatus: EventParticipantStatusEnum,
 });
 
 export const EventDetailResponse = z.object({
@@ -228,18 +249,18 @@ export const ParticipantSchema = z.object({
   gender: z.string(),
   avatarUrl: z.string(),
   clubMember: z.boolean(),
+  status: EventParticipantStatusEnum,
+  experience: z.number().int(),
+  stamina: z.number().int(),
+  tactics: z.number().int(),
+  averageTechnicalScore: z.number(),
+  overallScore: z.number(),
+  skillLevel: z.string(),
 });
 export const PagedParticipantResponse = z.object({
   status: z.number(),
   message: z.string(),
-  data: z.object({
-    content: z.array(ParticipantSchema),
-    page: z.number(),
-    size: z.number(),
-    totalElements: z.number(),
-    totalPages: z.number(),
-    last: z.boolean(),
-  }),
+  data: z.array(ParticipantSchema),
 });
 
 export type ParticipantType = z.infer<typeof ParticipantSchema>;

@@ -40,6 +40,8 @@ const CreateClubForm = () => {
       logoUrl: "",
       location: "",
       maxMembers: 50,
+      minLevel: 0,
+      maxLevel: 5,
       visibility: "PUBLIC",
       tags: [],
     },
@@ -248,7 +250,66 @@ const CreateClubForm = () => {
             </FormItem>
           )}
         />
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="minLevel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                  Trình độ tối thiểu
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    min={0}
+                    max={5}
+                    placeholder="0 - 5"
+                    className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    {...field}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      const maxLevel = form.getValues("maxLevel") ?? 5;
+                      if (value < 0 || value > 5 || value > maxLevel) return; // chặn nhập ngoài range
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maxLevel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                  Trình độ tối đa
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.5"
+                    min={0}
+                    max={5}
+                    placeholder="0 - 5"
+                    className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    {...field}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      const minLevel = form.getValues("minLevel") ?? 5;
+                      if (value < 0 || value > 5 || value < minLevel) return;
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {/* Số lượng thành viên */}
         <FormField
           control={form.control}

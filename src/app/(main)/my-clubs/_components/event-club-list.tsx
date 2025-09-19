@@ -77,6 +77,7 @@ export const EventClubList = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="DRAFT">Chưa mở đăng ký</SelectItem>
                 <SelectItem value="UPCOMING">Sắp diễn ra</SelectItem>
                 <SelectItem value="ONGOING">Đang diễn ra</SelectItem>
                 <SelectItem value="COMPLETED">Đã kết thúc</SelectItem>

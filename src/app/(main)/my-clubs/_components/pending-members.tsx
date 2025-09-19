@@ -16,13 +16,10 @@ import {
   ChevronDown,
   ChevronUp,
   User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
   FileText,
   StickyNote,
-  Clock,
+  Trophy,
+  Star,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -35,13 +32,19 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
+function getLevelGradient(score: number) {
+  if (score < 1) return "from-gray-500 to-gray-600";
+  if (score < 2) return "from-red-500 to-red-600";
+  if (score < 3) return "from-yellow-500 to-orange-500";
+  if (score < 4) return "from-blue-500 to-blue-600";
+  if (score < 4.5) return "from-indigo-500 to-purple-600";
+  return "from-emerald-500 to-teal-600";
+}
 export default function PendingMembers({
   id,
   slug,
   accessToken,
   isOwner = false,
-  onActionDone,
 }: {
   id: string;
   slug: string;
@@ -144,6 +147,28 @@ export default function PendingMembers({
       router.push(`/my-clubs/${slug}?tab=members`);
     }
   };
+  const mainStats = [
+    {
+      title: "Kinh nghiệm",
+      value: detailData?.experience,
+      color: "text-emerald-600 dark:text-emerald-400",
+    },
+    {
+      title: "Kỹ thuật",
+      value: detailData?.averageTechnicalScore,
+      color: "text-blue-600 dark:text-blue-400",
+    },
+    {
+      title: "Thể lực",
+      value: detailData?.stamina,
+      color: "text-blue-600 dark:text-blue-400",
+    },
+    {
+      title: "Chiến thuật",
+      value: detailData?.tactics,
+      color: "text-emerald-600 dark:text-emerald-400",
+    },
+  ];
   return (
     <Card>
       <CardHeader>
@@ -201,7 +226,7 @@ export default function PendingMembers({
                       Xem chi tiết
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="w-full max-w-5xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader className="pb-4">
                       <DialogTitle className="text-xl font-bold text-center">
                         Thông tin thành viên
@@ -243,7 +268,123 @@ export default function PendingMembers({
                             </p>
                           </div>
                         </div>
+                        {detailData.skillLevel && (
+                          <div className="p-6 bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 rounded-xl">
+                            <div className="text-center mb-6">
+                              <h3 className="text-lg font-semibold flex items-center justify-center gap-2 mb-4">
+                                <Trophy className="h-5 w-5 text-emerald-600" />
+                                Đánh giá tổng quan
+                              </h3>
 
+                              <div className="relative w-32 h-32 mx-auto mb-4">
+                                <svg
+                                  className="w-32 h-32 transform -rotate-90"
+                                  viewBox="0 0 128 128"
+                                >
+                                  <circle
+                                    cx="64"
+                                    cy="64"
+                                    r="52"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="8"
+                                    className="text-gray-200 dark:text-gray-700"
+                                  />
+                                  <circle
+                                    cx="64"
+                                    cy="64"
+                                    r="52"
+                                    fill="none"
+                                    stroke="url(#gradient)"
+                                    strokeWidth="8"
+                                    strokeLinecap="round"
+                                    strokeDasharray={`${
+                                      (detailData.overallScore / 5) * 326.7
+                                    } 326.7`}
+                                    className="transition-all duration-1000 ease-out"
+                                  />
+                                  <defs>
+                                    <linearGradient
+                                      id="gradient"
+                                      x1="0%"
+                                      y1="0%"
+                                      x2="100%"
+                                      y2="0%"
+                                    >
+                                      <stop offset="0%" stopColor="#10b981" />
+                                      <stop offset="100%" stopColor="#3b82f6" />
+                                    </linearGradient>
+                                  </defs>
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="text-center">
+                                    <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                                      {detailData.overallScore.toFixed(1)}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      /5.0
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div
+                                className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-white text-sm font-semibold bg-gradient-to-r ${getLevelGradient(
+                                  detailData.overallScore
+                                )}`}
+                              >
+                                <Trophy className="h-4 w-4" />
+                                {detailData.skillLevel}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Chi tiết kỹ năng */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <Star className="h-5 w-5 text-yellow-600" />
+                            Chi tiết kỹ năng
+                          </h3>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {mainStats.map((stat) => {
+                              return (
+                                <div
+                                  key={stat.title}
+                                  className="p-4 bg-white dark:bg-gray-800 rounded-lg border shadow-sm"
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                      {stat.title}
+                                    </div>
+                                  </div>
+                                  <div
+                                    className={`text-xl font-bold ${stat.color}`}
+                                  >
+                                    {typeof stat.value === "number"
+                                      ? stat.value.toFixed(1)
+                                      : stat.value}
+                                  </div>
+                                  <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div
+                                      className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 transition-all duration-700"
+                                      style={{
+                                        width: `${
+                                          ((typeof stat.value === "number"
+                                            ? stat.value
+                                            : 0) /
+                                            5) *
+                                          100
+                                        }%`,
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
                         <Separator />
                         {detailData.note && (
                           <div className="grid gap-4">
@@ -262,6 +403,7 @@ export default function PendingMembers({
                             </div>
                           </div>
                         )}
+
                         {/* Thông tin cơ bản */}
                         <div className="grid gap-4">
                           <h3 className="text-lg font-semibold flex items-center gap-2">

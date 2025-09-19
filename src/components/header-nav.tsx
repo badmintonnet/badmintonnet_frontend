@@ -12,7 +12,6 @@ const navItems = [
 
 export default function HeaderNav() {
   const pathname = usePathname();
-  console.log("Pathname: ", pathname);
   return (
     <NavigationMenu.Root className="hidden md:block">
       <NavigationMenu.List className="flex space-x-8 items-center">

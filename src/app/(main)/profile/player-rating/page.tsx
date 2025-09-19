@@ -1,11 +1,12 @@
 import PlayerRatingForm from "@/app/(main)/profile/_components/player-rating-form";
 
-export default function PlayerRatingPage({
+export default async function PlayerRatingPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const mode = searchParams.mode;
+  const params = await searchParams;
+  const mode = params.mode;
   const isEdit = mode === "edit";
 
   return (

@@ -1,4 +1,4 @@
-import z, { email } from "zod";
+import z from "zod";
 
 const ClubVisibilityEnum = z.enum(["PRIVATE", "PUBLIC"]);
 const RoleEnum = z.enum(["OWNER", "MEMBER"]);
@@ -24,6 +24,15 @@ export const CreateClubBody = z.object({
     .int()
     .positive("Số thành viên tối đa phải lớn hơn 0")
     .optional(),
+
+  minLevel: z
+    .number()
+    .max(5, "Điểm đánh giá trình không được lớn hơn 5")
+    .optional(),
+  maxLevel: z
+    .number()
+    .max(5, "Điểm đánh giá trình không được lớn hơn 5")
+    .optional(),
   visibility: ClubVisibilityEnum,
   tags: z
     .array(z.string().max(50, "Mỗi tag không được vượt quá 50 ký tự"))
@@ -39,7 +48,10 @@ export const ClubSchema = z.object({
   description: z.string(),
   logoUrl: z.string().optional(),
   location: z.string(),
+  memberCount: z.number().int(),
   maxMembers: z.int(),
+  minLevel: z.number(),
+  maxLevel: z.number(),
   visibility: ClubVisibilityEnum,
   tags: z.array(z.string()),
   ownerName: z.string(),
@@ -166,6 +178,13 @@ export const ClubMemberDetail = z.object({
   avatarUrl: z.string(),
   phone: z.string(),
   note: z.string(),
+  experience: z.number().int(),
+  stamina: z.number().int(),
+  tactics: z.number().int(),
+  averageTechnicalScore: z.number(),
+  overallScore: z.number(),
+  skillLevel: z.string(),
+
   createdAt: z.coerce.date(),
 });
 export const ClubMemberDetailRes = z.object({

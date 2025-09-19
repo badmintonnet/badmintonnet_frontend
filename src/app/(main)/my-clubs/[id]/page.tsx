@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Star,
   ThumbsUp,
+  Info,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -173,14 +174,26 @@ export default async function MyClubDetail({
           <TabsContent value="overview" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Club Description */}
-              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all rounded-2xl">
                 <CardHeader>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Info className="w-5 h-5 text-emerald-500" />
                     Mô tả về CLB
                   </h3>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                <CardContent className="space-y-3">
+                  {/* Trình độ yêu cầu */}
+                  <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                    <Users className="w-4 h-4 text-blue-500" />
+                    <span className="font-medium">Trình độ yêu cầu:</span>
+                    <span className="ml-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                      {clubDetail.minLevel.toFixed(1)} -{" "}
+                      {clubDetail.maxLevel.toFixed(1)}
+                    </span>
+                  </div>
+
+                  {/* Nội dung mô tả */}
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3 italic">
                     {clubDetail.description}
                   </p>
                 </CardContent>
