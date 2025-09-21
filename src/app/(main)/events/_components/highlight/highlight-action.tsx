@@ -9,6 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import UpdateHighlightDialog from "@/app/(main)/events/_components/highlight/update-highlight";
+
+interface MediaItem {
+  fileName: string;
+  mediaUrl: string;
+  mediaType: "image" | "video";
+}
 
 interface HighlightActionsProps {
   highlightId: string;
@@ -25,6 +32,13 @@ interface HighlightMenuProps {
   highlightId: string;
   userId: string;
   currentUserId?: string;
+  highlight?: {
+    id: string;
+    content: string;
+    mediaList: MediaItem[];
+    authorName: string;
+    authorAvatar?: string;
+  };
   onDelete?: (highlightId: string) => Promise<void>;
 }
 
@@ -121,54 +135,75 @@ export function HighlightMenu({
   highlightId,
   userId,
   currentUserId,
+  highlight,
   onDelete,
 }: HighlightMenuProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const canDelete = currentUserId === userId;
 
   const handleDelete = async () => {
-    // if (isDeleting || !onDelete) return;
-    // const confirmed = confirm("Bạn có chắc chắn muốn xóa bài viết này không?");
-    // if (!confirmed) return;
-    // setIsDeleting(true);
-    // try {
-    //   await onDelete(highlightId);
-    // } finally {
-    //   setIsDeleting(false);
-    // }
+    if (isDeleting || !onDelete) return;
+    const confirmed = confirm("Bạn có chắc chắn muốn xóa bài viết này không?");
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await onDelete(highlightId);
+    } catch (error) {
+      console.error("Failed to delete:", error);
+      alert("Không thể xóa bài viết. Vui lòng thử lại.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditDialogOpen(true);
   };
 
   if (!canDelete) return null;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-          disabled={isDeleting}
-        >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem
-          //   onClick={handleEdit}
-          className="text-blue-600 dark:text-blue-400 focus:text-blue-700 focus:bg-blue-50 dark:focus:bg-blue-900/20 cursor-pointer"
-        >
-          <Edit className="mr-2 h-4 w-4" />
-          Chỉnh sửa
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="text-red-600 dark:text-red-400 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          {isDeleting ? "Đang xóa..." : "Xóa bài viết"}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            disabled={isDeleting}
+          >
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            onClick={handleEdit}
+            className="text-blue-600 dark:text-blue-400 focus:text-blue-700 focus:bg-blue-50 dark:focus:bg-blue-900/20 cursor-pointer"
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Chỉnh sửa
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="text-red-600 dark:text-red-400 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {isDeleting ? "Đang xóa..." : "Xóa bài viết"}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Update Dialog */}
+      {highlight && (
+        <UpdateHighlightDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          highlight={highlight}
+        />
+      )}
+    </>
   );
 }

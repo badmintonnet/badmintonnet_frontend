@@ -11,6 +11,7 @@ import MediaGallery from "@/app/(main)/events/_components/highlight/media-galler
 import HighlightActions, {
   HighlightMenu,
 } from "@/app/(main)/events/_components/highlight/highlight-action";
+import { MediaSchemaType } from "@/schemaValidations/highlight.schema";
 
 interface EventHighlightsProps {
   eventId: string;
@@ -63,86 +64,105 @@ export default async function EventHighlights({
 
       {/* Grid layout with responsive columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {highlights.map((highlight) => (
-          <Card
-            key={highlight.id}
-            className="bg-white gap-0 dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200"
-          >
-            {/* Header - More compact */}
-            <CardHeader className="pb-3 px-5 pt-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="w-9 h-9">
-                    <AvatarImage
-                      src={highlight.authorAvatar}
-                      alt={highlight.authorName}
-                    />
-                    <AvatarFallback className="bg-blue-500 text-white text-sm">
-                      {highlight.authorName.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                      {highlight.authorName}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(highlight.createdAt).toLocaleDateString(
-                        "vi-VN",
-                        {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
-                    </p>
+        {highlights.map((highlight) => {
+          // Prepare highlight data for the edit dialog
+          const highlightForEdit = {
+            id: highlight.id,
+            content: highlight.content,
+            mediaList: (highlight.mediaList || []).map(
+              (media: MediaSchemaType) => ({
+                fileName: media.fileName,
+                mediaUrl: media.url,
+                mediaType: media.type.toLowerCase() as "image" | "video",
+              })
+            ),
+            authorName: highlight.authorName,
+            authorAvatar: highlight.authorAvatar,
+          };
+          console.log("edit", highlightForEdit);
+
+          return (
+            <Card
+              key={highlight.id}
+              className="bg-white gap-0 dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200"
+            >
+              {/* Header - More compact */}
+              <CardHeader className="pb-3 px-5 pt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="w-9 h-9">
+                      <AvatarImage
+                        src={highlight.authorAvatar}
+                        alt={highlight.authorName}
+                      />
+                      <AvatarFallback className="bg-blue-500 text-white text-sm">
+                        {highlight.authorName.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                        {highlight.authorName}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(highlight.createdAt).toLocaleDateString(
+                          "vi-VN",
+                          {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
+                      </p>
+                    </div>
                   </div>
+                  <HighlightMenu
+                    highlightId={highlight.id}
+                    userId={highlight.userId}
+                    currentUserId={highlight.currentUserId}
+                    highlight={highlightForEdit}
+                  />
                 </div>
-                <HighlightMenu
+              </CardHeader>
+
+              {/* Content */}
+              <CardContent className="px-5 py-0">
+                {highlight.content && (
+                  <div className="mb-3">
+                    <p className="text-gray-900 dark:text-gray-100 text-sm leading-relaxed whitespace-pre-line line-clamp-4">
+                      {highlight.content}
+                    </p>
+                    {/* Show more/less for long content */}
+                    {highlight.content.length > 200 && (
+                      <button className="text-blue-500 hover:text-blue-600 text-xs mt-1 font-medium">
+                        Xem thêm
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Media Gallery - Optimized for smaller cards */}
+                <div className="mb-3">
+                  <MediaGallery mediaList={highlight.mediaList || []} />
+                </div>
+              </CardContent>
+
+              {/* Footer - More compact */}
+              <CardFooter className="px-5 pt-2 pb-4">
+                <HighlightActions
                   highlightId={highlight.id}
                   userId={highlight.userId}
                   currentUserId={highlight.currentUserId}
+                  likeCount={highlight.likeCount}
+                  commentCount={highlight.commentCount}
+                  isLiked={false}
+                  // onLike={handleLike}
+                  // onDelete={handleDelete}
                 />
-              </div>
-            </CardHeader>
-
-            {/* Content */}
-            <CardContent className="px-5 py-0">
-              {highlight.content && (
-                <div className="mb-3">
-                  <p className="text-gray-900 dark:text-gray-100 text-sm leading-relaxed whitespace-pre-line line-clamp-4">
-                    {highlight.content}
-                  </p>
-                  {/* Show more/less for long content */}
-                  {highlight.content.length > 200 && (
-                    <button className="text-blue-500 hover:text-blue-600 text-xs mt-1 font-medium">
-                      Xem thêm
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {/* Media Gallery - Optimized for smaller cards */}
-              <div className="mb-3">
-                <MediaGallery mediaList={highlight.mediaList || []} />
-              </div>
-            </CardContent>
-
-            {/* Footer - More compact */}
-            <CardFooter className="px-5 pt-2 pb-4">
-              <HighlightActions
-                highlightId={highlight.id}
-                userId={highlight.userId}
-                currentUserId={highlight.currentUserId}
-                likeCount={highlight.likeCount}
-                commentCount={highlight.commentCount}
-                isLiked={false}
-                // onLike={handleLike}
-                // onDelete={handleDelete}
-              />
-            </CardFooter>
-          </Card>
-        ))}
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Load more button if needed */}

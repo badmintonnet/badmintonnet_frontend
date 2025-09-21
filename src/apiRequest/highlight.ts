@@ -3,6 +3,7 @@ import {
   CreateHighlightType,
   FileResType,
   HighlightResponseType,
+  UpdateHighlightType,
   // UpdateHighlightType,
 } from "@/schemaValidations/highlight.schema";
 
@@ -26,13 +27,13 @@ const highlightApiRequest = {
     });
   },
 
-  // updateHighlight: async (data: UpdateHighlightType, token: string) => {
-  //   return await http.put<HighlightType>(`/api/highlights/${data.id}`, data, {
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   });
-  // },
+  updateHighlight: async (data: UpdateHighlightType, token: string) => {
+    return await http.put<HighlightResponseType>("/posts", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 
   // deleteHighlight: async (id: string, token: string) => {
   //   return await http.delete(`/api/highlights/${id}`, {
