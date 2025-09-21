@@ -16,9 +16,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
+import FilterForm from "./_components/filter-form";
 
 interface ClubEventsProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    provinceId?: string;
+    wardId?: string;
+  }>;
 }
 
 // Map loại hoạt động sang tiếng Việt
@@ -100,6 +106,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const params = await searchParams;
   const page = parseInt(params.page || "0", 10);
   const size = 8;
+  const searchQuery = params.search || "";
+  const provinceId = params.provinceId || "";
+  const wardId = params.wardId || "";
 
   let events = [];
   let totalPages = 1;
@@ -111,6 +120,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
       page,
       size,
       accessToken
+      // searchQuery,
+      // provinceId,
+      // wardId
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -144,6 +156,13 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
         {/* Header */}
         <div className="mb-8 text-center">
+          {/* Phần tìm kiếm và bộ lọc */}
+          <FilterForm
+            searchQuery={searchQuery}
+            provinceId={provinceId}
+            wardId={wardId}
+          />
+
           {/* Tiêu đề gradient */}
           <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
             Hoạt động của các CLB
@@ -156,7 +175,6 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
           </p>
 
           {/* Các nút điều hướng */}
-
           {accessToken && (
             <div className="flex justify-end space-x-4">
               <Link href="/events/my-joined-events">
@@ -388,7 +406,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                 variant="outline"
                 className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
               >
-                <Link href={`?page=${currentPage - 1}`}>← Trước</Link>
+                <Link
+                  href={`?page=${currentPage - 1}${
+                    searchQuery
+                      ? `&search=${encodeURIComponent(searchQuery)}`
+                      : ""
+                  }${provinceId ? `&provinceId=${provinceId}` : ""}${
+                    wardId ? `&wardId=${wardId}` : ""
+                  }`}
+                >
+                  ← Trước
+                </Link>
               </Button>
             )}
             {Array.from({ length: totalPages }, (_, pageIndex) => (
@@ -402,7 +430,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                 }`}
               >
-                <Link href={`?page=${pageIndex}`}>{pageIndex + 1}</Link>
+                <Link
+                  href={`?page=${pageIndex}${
+                    searchQuery
+                      ? `&search=${encodeURIComponent(searchQuery)}`
+                      : ""
+                  }${provinceId ? `&provinceId=${provinceId}` : ""}${
+                    wardId ? `&wardId=${wardId}` : ""
+                  }`}
+                >
+                  {pageIndex + 1}
+                </Link>
               </Button>
             ))}
             {!last && (
@@ -411,7 +449,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                 variant="outline"
                 className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
               >
-                <Link href={`?page=${currentPage + 1}`}>Sau →</Link>
+                <Link
+                  href={`?page=${currentPage + 1}${
+                    searchQuery
+                      ? `&search=${encodeURIComponent(searchQuery)}`
+                      : ""
+                  }${provinceId ? `&provinceId=${provinceId}` : ""}${
+                    wardId ? `&wardId=${wardId}` : ""
+                  }`}
+                >
+                  Sau →
+                </Link>
               </Button>
             )}
           </div>
