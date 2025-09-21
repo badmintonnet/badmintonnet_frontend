@@ -226,9 +226,14 @@ export default function UpdateHighlightDialog({
       } else {
         toast.error("Không thể cập nhật highlight");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Lỗi khi cập nhật highlight:", err);
-      toast.error(err.message || "Đã xảy ra lỗi khi cập nhật highlight");
+      toast.error(
+        typeof err === "object" && err !== null && "message" in err
+          ? (err as { message?: string }).message ||
+              "Đã xảy ra lỗi khi cập nhật highlight"
+          : "Đã xảy ra lỗi khi cập nhật highlight"
+      );
     } finally {
       setIsSubmitting(false);
     }

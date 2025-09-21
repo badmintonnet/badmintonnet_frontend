@@ -79,7 +79,6 @@ export default async function EventHighlights({
             authorName: highlight.authorName,
             authorAvatar: highlight.authorAvatar,
           };
-          console.log("edit", highlightForEdit);
 
           return (
             <Card

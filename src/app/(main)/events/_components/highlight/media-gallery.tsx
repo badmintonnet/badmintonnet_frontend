@@ -80,6 +80,7 @@ export default function MediaGallery({ mediaList }: MediaGalleryProps) {
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-200"
                 priority
+                sizes="100vw"
               />
             )}
           </div>
@@ -134,6 +135,8 @@ export default function MediaGallery({ mediaList }: MediaGalleryProps) {
                   alt={`Media ${index + 1}`}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-200"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               )}
             </div>
@@ -187,6 +190,8 @@ export default function MediaGallery({ mediaList }: MediaGalleryProps) {
                 alt="Media 1"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-200"
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             )}
           </div>
@@ -223,6 +228,8 @@ export default function MediaGallery({ mediaList }: MediaGalleryProps) {
                     alt={`Media ${index + 2}`}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-200"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 )}
               </div>
@@ -277,6 +284,8 @@ export default function MediaGallery({ mediaList }: MediaGalleryProps) {
                 src={media.url}
                 alt={`Media ${index + 1}`}
                 fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-200"
               />
             )}

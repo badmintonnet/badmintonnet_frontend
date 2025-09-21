@@ -100,7 +100,7 @@ export default function FilterForm({
     if (selectedWardId) params.append("wardId", selectedWardId);
 
     const url = `/events${params.toString() ? `?${params.toString()}` : ""}`;
-    window.location.href = url;
+    // window.location.href = url;
   };
 
   const clearFilters = () => {

@@ -149,9 +149,12 @@ export default function CreateHighlightButton({
       } else {
         toast.error("Không thể đăng highlight");
       }
-    } catch (err: any) {
-      console.error("Lỗi khi đăng highlight:", err);
-      toast.error(err.message || "Đã xảy ra lỗi khi đăng highlight");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Đã xảy ra lỗi khi đăng highlight");
+      }
     } finally {
       setIsSubmitting(false);
     }

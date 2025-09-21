@@ -18,6 +18,12 @@ export const ProvinceResponseSchema = z.object({
   data: z.array(ProvinceSchema),
 });
 
+export const ProvinceResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: ProvinceResponseSchema,
+});
+
 export const WardSchema = z.object({
   id: z.string(),
   code: z.string(),
@@ -38,7 +44,13 @@ export const WardResponseSchema = z.object({
   data: z.array(WardSchema),
 });
 
+export const WardResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: WardResponseSchema,
+});
+
 export type WardType = z.infer<typeof WardSchema>;
-export type WardResponseType = z.infer<typeof WardResponseSchema>;
+export type WardResponseType = z.infer<typeof WardResponse>;
 export type ProvinceType = z.infer<typeof ProvinceSchema>;
-export type ProvinceResponseType = z.infer<typeof ProvinceResponseSchema>;
+export type ProvinceResponseType = z.infer<typeof ProvinceResponse>;

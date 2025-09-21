@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
@@ -25,12 +25,35 @@ import clubServiceApi from "@/apiRequest/club";
 import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import { clientSessionToken } from "@/lib/http";
+import addressApiRequest from "@/apiRequest/address";
+import { MapPin, ChevronDown } from "lucide-react";
+
+// Interfaces for address data
+interface Province {
+  id: string;
+  full_name: string;
+}
+
+interface Ward {
+  id: string;
+  full_name: string;
+}
+
 const CreateClubForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentTag, setCurrentTag] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
+
+  // Address related states
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedWardId, setSelectedWardId] = useState("");
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+  const [additionalAddress, setAdditionalAddress] = useState("");
 
   const form = useForm<CreateClubBodyType>({
     resolver: zodResolver(CreateClubBody),
@@ -47,6 +70,93 @@ const CreateClubForm = () => {
     },
   });
 
+  // Load provinces when component mounts
+  useEffect(() => {
+    const loadProvinces = async () => {
+      try {
+        const response = await addressApiRequest.getProvinces();
+        console.log("Provinces response:", response);
+        setProvinces(response.payload.data.data || []);
+      } catch (error) {
+        console.error("Error loading provinces:", error);
+      } finally {
+        setIsLoadingProvinces(false);
+      }
+    };
+
+    loadProvinces();
+  }, []);
+
+  // Load wards when province changes
+  useEffect(() => {
+    const loadWards = async () => {
+      if (!selectedProvinceId) {
+        setWards([]);
+        setSelectedWardId("");
+        return;
+      }
+
+      setIsLoadingWards(true);
+      try {
+        const response = await addressApiRequest.getWardsByProvinceId(
+          selectedProvinceId
+        );
+        setWards(response.payload.data.data || []);
+        setSelectedWardId("");
+      } catch (error) {
+        console.error("Error loading wards:", error);
+        setWards([]);
+      } finally {
+        setIsLoadingWards(false);
+      }
+    };
+
+    loadWards();
+  }, [selectedProvinceId]);
+
+  // Update location field when province/ward changes
+  useEffect(() => {
+    const updateLocation = () => {
+      const selectedProvince = provinces.find(
+        (p) => p.id === selectedProvinceId
+      );
+      const selectedWard = wards.find((w) => w.id === selectedWardId);
+
+      const locationParts: string[] = [];
+
+      if (selectedWard) {
+        locationParts.push(selectedWard.full_name);
+      }
+      if (selectedProvince) {
+        locationParts.push(selectedProvince.full_name);
+      }
+
+      const baseLocation = locationParts.join(", ");
+      const fullLocation = additionalAddress
+        ? `${additionalAddress}, ${baseLocation}`
+        : baseLocation;
+
+      form.setValue("location", fullLocation);
+    };
+
+    updateLocation();
+  }, [
+    selectedProvinceId,
+    selectedWardId,
+    additionalAddress,
+    provinces,
+    wards,
+    form,
+  ]);
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProvinceId(e.target.value);
+  };
+
+  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedWardId(e.target.value);
+  };
+
   // Xử lý Tags
   const handleAddTag = () => {
     if (
@@ -60,12 +170,14 @@ const CreateClubForm = () => {
       setCurrentTag("");
     }
   };
+
   const handleRemoveTag = (tagToRemove: string) => {
     form.setValue(
       "tags",
       (form.getValues("tags") ?? []).filter((tag) => tag !== tagToRemove)
     );
   };
+
   const handleTagKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -78,8 +190,8 @@ const CreateClubForm = () => {
     const file = e.target.files?.[0];
     if (file) {
       setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file)); // preview local
-      form.setValue("logoUrl", file.name); // giữ tên để submit
+      setLogoPreview(URL.createObjectURL(file));
+      form.setValue("logoUrl", file.name);
     }
   };
 
@@ -90,7 +202,6 @@ const CreateClubForm = () => {
       const formData = new FormData();
       if (logoFile) {
         formData.append("file", logoFile);
-        // Gọi API upload ảnh
       }
       const uploadRes = await clubServiceApi.uploadImage(formData);
       const uploadedImageUrl = uploadRes.payload.data.fileName;
@@ -108,6 +219,9 @@ const CreateClubForm = () => {
       form.reset();
       setLogoFile(null);
       setLogoPreview("");
+      setSelectedProvinceId("");
+      setSelectedWardId("");
+      setAdditionalAddress("");
       router.push(`/my-clubs/${club.payload.data.slug}`);
     } catch (error) {
       toast.error("Tạo thất bại", {
@@ -230,26 +344,107 @@ const CreateClubForm = () => {
           )}
         />
 
-        {/* Địa điểm */}
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Địa điểm
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ví dụ: TP. Hồ Chí Minh"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Địa điểm - Enhanced with Province/Ward Selection */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-gray-500" />
+            <span className="text-base font-semibold text-gray-700 dark:text-gray-300">
+              Địa điểm
+            </span>
+          </div>
+
+          {/* Province and Ward Selection */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Province Select */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tỉnh thành <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedProvinceId}
+                onChange={handleProvinceChange}
+                disabled={isLoadingProvinces}
+                className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">
+                  {isLoadingProvinces ? "Đang tải..." : "Chọn tỉnh thành"}
+                </option>
+                {provinces.map((province) => (
+                  <option key={province.id} value={province.id}>
+                    {province.full_name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Ward Select */}
+            {selectedProvinceId && (
+              <div className="relative animate-in slide-in-from-top-2 duration-300">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Phường/Xã
+                </label>
+                <select
+                  value={selectedWardId}
+                  onChange={handleWardChange}
+                  disabled={isLoadingWards}
+                  className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {isLoadingWards
+                      ? "Đang tải..."
+                      : "Chọn phường xã (tùy chọn)"}
+                  </option>
+                  {wards.map((ward) => (
+                    <option key={ward.id} value={ward.id}>
+                      {ward.full_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Additional Address Details */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Địa chỉ chi tiết (tùy chọn)
+            </label>
+            <Input
+              placeholder="Ví dụ: Số 123, đường ABC..."
+              value={additionalAddress}
+              onChange={(e) => setAdditionalAddress(e.target.value)}
+              className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          {/* Final Location Display */}
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Địa chỉ đầy đủ
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 dark:bg-gray-700"
+                    {...field}
+                    readOnly
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -271,7 +466,7 @@ const CreateClubForm = () => {
                     onChange={(e) => {
                       const value = Number(e.target.value);
                       const maxLevel = form.getValues("maxLevel") ?? 5;
-                      if (value < 0 || value > 5 || value > maxLevel) return; // chặn nhập ngoài range
+                      if (value < 0 || value > 5 || value > maxLevel) return;
                       field.onChange(value);
                     }}
                   />
@@ -310,6 +505,7 @@ const CreateClubForm = () => {
             )}
           />
         </div>
+
         {/* Số lượng thành viên */}
         <FormField
           control={form.control}
@@ -332,12 +528,13 @@ const CreateClubForm = () => {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="visibility"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-gray-700">
+              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
                 Chế độ hiển thị
               </FormLabel>
               <FormControl>
@@ -368,6 +565,7 @@ const CreateClubForm = () => {
             </FormItem>
           )}
         />
+
         {/* Tags */}
         <FormField
           control={form.control}
