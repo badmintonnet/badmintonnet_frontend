@@ -172,13 +172,53 @@ export default function CreateHighlightButton({
 
   return (
     <>
-      <Button
+      {/* Giao diện mới thay thế button */}
+      <div
         onClick={() => setIsDialogOpen(true)}
-        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+        className="group relative flex items-center space-x-4 p-4 bg-white dark:bg-gray-900 rounded-xl cursor-pointer 
+                   shadow-sm hover:shadow-md active:shadow-lg active:scale-[0.98]
+                   border border-gray-100 dark:border-gray-700
+                   transition-all duration-300 ease-out
+                   hover:border-blue-200 dark:hover:border-blue-700
+                   hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 
+                   dark:hover:from-blue-900/20 dark:hover:to-purple-900/20
+                   backdrop-blur-sm"
       >
-        <Plus className="w-4 h-4 mr-2" />
-        Chia sẻ khoảnh khắc
-      </Button>
+        {/* Gradient overlay khi hover */}
+        <div
+          className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        />
+
+        {/* Avatar với ring effect */}
+        <div className="relative">
+          <Avatar
+            className="w-12 h-12 ring-2 ring-gray-100 dark:ring-gray-700 
+                           group-hover:ring-blue-200 dark:group-hover:ring-blue-600
+                           transition-all duration-300"
+          >
+            <AvatarImage src={undefined} alt="User" />
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+              U
+            </AvatarFallback>
+          </Avatar>
+          {/* Status indicator */}
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
+        </div>
+
+        {/* Text content với animation */}
+        <div className="flex-1 relative">
+          <div className="text-gray-600 dark:text-gray-300 font-medium group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+            Chia sẻ khoảnh khắc của bạn...
+          </div>
+          <div
+            className="text-xs text-gray-400 dark:text-gray-500 mt-1 
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          >
+            Nhấp để bắt đầu viết
+          </div>
+        </div>
+      </div>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

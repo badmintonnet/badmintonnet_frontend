@@ -112,6 +112,7 @@ export default function FilterForm({
     setSelectedProvince("");
     setSelectedWard("");
     setWards([]);
+    router.push("/events");
   };
 
   return (

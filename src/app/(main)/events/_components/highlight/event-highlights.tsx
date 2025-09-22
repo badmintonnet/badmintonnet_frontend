@@ -57,11 +57,6 @@ export default async function EventHighlights({
 
   return (
     <div className="space-y-4 mt-8">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-        <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
-        Highlights của sự kiện
-      </h2>
-
       {/* Grid layout with responsive columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {highlights.map((highlight) => {
