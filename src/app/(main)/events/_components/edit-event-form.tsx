@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Calendar,
@@ -26,14 +27,27 @@ import {
   Save,
   X,
   AlertCircle,
+  ChevronDown,
 } from "lucide-react";
 import {
   EventDetailResponseType,
   EventType,
 } from "@/schemaValidations/event.schema";
 import eventClubApiRequest from "@/apiRequest/club.event";
+import addressApiRequest from "@/apiRequest/address";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+
+// Interfaces for address data
+interface Province {
+  id: string;
+  full_name: string;
+}
+
+interface Ward {
+  id: string;
+  full_name: string;
+}
 
 // Types
 type EventData = EventDetailResponseType["data"];
@@ -104,12 +118,162 @@ export default function EditEventModal({
   const [imagePreview, setImagePreview] = useState<string>(
     eventData.image || ""
   );
+
+  // Address related states
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedWardId, setSelectedWardId] = useState("");
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+  const [additionalAddress, setAdditionalAddress] = useState("");
+
   const router = useRouter();
 
+  // Parse existing location to extract address parts
+  const parseExistingLocation = (location: string) => {
+    if (!location) return { additional: "", province: "", ward: "" };
+
+    // Simple parsing - this might need adjustment based on your location format
+    const parts = location.split(", ");
+    if (parts.length >= 2) {
+      const province = parts[parts.length - 1]; // Last part is usually province
+      const ward = parts.length >= 3 ? parts[parts.length - 2] : ""; // Second to last is ward
+      const additional = parts.slice(0, -2).join(", "); // Everything else is additional
+
+      return { additional, province, ward };
+    }
+
+    return { additional: location, province: "", ward: "" };
+  };
+
+  // Load provinces when modal opens
   useEffect(() => {
-    setFormData(eventData);
-    setImagePreview(eventData.image || "");
-  }, [eventData]);
+    if (isOpen) {
+      const loadProvinces = async () => {
+        try {
+          const response = await addressApiRequest.getProvinces();
+          setProvinces(response.payload.data.data || []);
+
+          // Parse existing location and find matching province
+          const { additional, province } = parseExistingLocation(
+            eventData.location
+          );
+          setAdditionalAddress(additional);
+
+          // Find province by name
+          const matchedProvince = (response.payload.data.data || []).find(
+            (p: Province) => p.full_name === province
+          );
+
+          if (matchedProvince) {
+            setSelectedProvinceId(matchedProvince.id);
+          }
+        } catch (error) {
+          console.error("Error loading provinces:", error);
+        } finally {
+          setIsLoadingProvinces(false);
+        }
+      };
+
+      loadProvinces();
+    }
+  }, [isOpen, eventData.location]);
+
+  // Load wards when province changes
+  useEffect(() => {
+    const loadWards = async () => {
+      if (!selectedProvinceId) {
+        setWards([]);
+        setSelectedWardId("");
+        return;
+      }
+
+      setIsLoadingWards(true);
+      try {
+        const response = await addressApiRequest.getWardsByProvinceId(
+          selectedProvinceId
+        );
+        const wardList = response.payload.data.data || [];
+        setWards(wardList);
+
+        // Find matching ward from existing location
+        const { ward } = parseExistingLocation(eventData.location);
+        const matchedWard = wardList.find((w: Ward) => w.full_name === ward);
+
+        if (matchedWard) {
+          setSelectedWardId(matchedWard.id);
+        } else {
+          setSelectedWardId("");
+        }
+      } catch (error) {
+        console.error("Error loading wards:", error);
+        setWards([]);
+      } finally {
+        setIsLoadingWards(false);
+      }
+    };
+
+    if (selectedProvinceId) {
+      loadWards();
+    }
+  }, [selectedProvinceId, eventData.location]);
+
+  // Update location field when address components change
+  useEffect(() => {
+    const updateLocation = () => {
+      const selectedProvince = provinces.find(
+        (p) => p.id === selectedProvinceId
+      );
+      const selectedWard = wards.find((w) => w.id === selectedWardId);
+
+      const locationParts: string[] = [];
+
+      if (selectedWard) {
+        locationParts.push(selectedWard.full_name);
+      }
+      if (selectedProvince) {
+        locationParts.push(selectedProvince.full_name);
+      }
+
+      const baseLocation = locationParts.join(", ");
+      const fullLocation = additionalAddress
+        ? `${additionalAddress}, ${baseLocation}`
+        : baseLocation;
+
+      setFormData((prev) => ({ ...prev, location: fullLocation }));
+    };
+
+    if (provinces.length > 0) {
+      updateLocation();
+    }
+  }, [selectedProvinceId, selectedWardId, additionalAddress, provinces, wards]);
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProvinceId(e.target.value);
+  };
+
+  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedWardId(e.target.value);
+  };
+
+  // Reset states when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(eventData);
+      setImagePreview(eventData.image || "");
+      setErrors({});
+      setImageFile(null);
+    } else {
+      // Reset address states when modal closes
+      setSelectedProvinceId("");
+      setSelectedWardId("");
+      setAdditionalAddress("");
+      setProvinces([]);
+      setWards([]);
+      setIsLoadingProvinces(true);
+    }
+  }, [eventData, isOpen]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -277,6 +441,9 @@ export default function EditEventModal({
             <div className="w-2 h-6 sm:h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3 sm:mr-4"></div>
             Chỉnh sửa sự kiện
           </DialogTitle>
+          <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+            Cập nhật thông tin chi tiết về sự kiện của bạn
+          </DialogDescription>
         </DialogHeader>
 
         {/* Content */}
@@ -357,32 +524,110 @@ export default function EditEventModal({
                   />
                 </div>
 
-                {/* Location */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="location"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center"
-                  >
-                    <MapPin className="w-4 h-4 mr-2" />
-                    Địa điểm <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) =>
-                      handleInputChange("location", e.target.value)
-                    }
-                    className={`${
-                      errors.location ? "border-red-500" : ""
-                    } h-10 sm:h-11 rounded-md`}
-                    placeholder="Nhập địa điểm tổ chức..."
-                  />
-                  {errors.location && (
-                    <p className="text-red-500 text-xs sm:text-sm flex items-center">
-                      <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.location}
-                    </p>
-                  )}
+                {/* Enhanced Location Section with Province/Ward Selection */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Địa điểm <span className="text-red-500">*</span>
+                    </span>
+                  </div>
+
+                  {/* Province and Ward Selection */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {/* Province Select */}
+                    <div className="relative">
+                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Tỉnh thành
+                      </label>
+                      <select
+                        value={selectedProvinceId}
+                        onChange={handleProvinceChange}
+                        disabled={isLoadingProvinces}
+                        className="appearance-none block w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      >
+                        <option value="">
+                          {isLoadingProvinces
+                            ? "Đang tải..."
+                            : "Chọn tỉnh thành"}
+                        </option>
+                        {provinces.map((province) => (
+                          <option key={province.id} value={province.id}>
+                            {province.full_name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 top-6 pr-2 flex items-center pointer-events-none">
+                        <ChevronDown className="h-4 w-4 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Ward Select */}
+                    {selectedProvinceId && (
+                      <div className="relative animate-in slide-in-from-top-2 duration-300">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Phường/Xã
+                        </label>
+                        <select
+                          value={selectedWardId}
+                          onChange={handleWardChange}
+                          disabled={isLoadingWards}
+                          className="appearance-none block w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        >
+                          <option value="">
+                            {isLoadingWards
+                              ? "Đang tải..."
+                              : "Chọn phường xã (tùy chọn)"}
+                          </option>
+                          {wards.map((ward) => (
+                            <option key={ward.id} value={ward.id}>
+                              {ward.full_name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 top-6 pr-2 flex items-center pointer-events-none">
+                          <ChevronDown className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Address Details */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Địa chỉ chi tiết (tùy chọn)
+                    </label>
+                    <Input
+                      placeholder="Ví dụ: Sân cầu lông ABC, Số 123, đường DEF..."
+                      value={additionalAddress}
+                      onChange={(e) => setAdditionalAddress(e.target.value)}
+                      className="h-10 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Final Location Display */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Địa chỉ đầy đủ
+                    </label>
+                    <Input
+                      value={formData.location}
+                      onChange={(e) =>
+                        handleInputChange("location", e.target.value)
+                      }
+                      className={`${
+                        errors.location ? "border-red-500" : ""
+                      } h-10 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700`}
+                      placeholder="Địa chỉ sẽ được tạo tự động từ lựa chọn trên"
+                      readOnly={selectedProvinceId !== ""}
+                    />
+                    {errors.location && (
+                      <p className="text-red-500 text-xs sm:text-sm flex items-center mt-1">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {errors.location}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Image URL */}
