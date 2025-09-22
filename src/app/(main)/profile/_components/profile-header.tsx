@@ -17,12 +17,14 @@ interface ProfileHeaderProps {
   profile: Profile;
   onEditToggle: () => void;
   isEditing: boolean;
+  canEdit: boolean;
 }
 
 export default function ProfileHeader({
   profile,
   onEditToggle,
   isEditing,
+  canEdit = true,
 }: ProfileHeaderProps) {
   return (
     <div className="relative bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-8 mb-8 text-white">
@@ -53,23 +55,25 @@ export default function ProfileHeader({
                 {profile.email}
               </p>
             </div>
-            <Button
-              onClick={onEditToggle}
-              variant={isEditing ? "secondary" : "outline"}
-              className="mt-4 sm:mt-0 bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              {isEditing ? (
-                <>
-                  <XMarkIcon className="h-4 w-4 mr-2" />
-                  Hủy
-                </>
-              ) : (
-                <>
-                  <PencilIcon className="h-4 w-4 mr-2" />
-                  Chỉnh sửa
-                </>
-              )}
-            </Button>
+            {canEdit && (
+              <Button
+                onClick={onEditToggle}
+                variant={isEditing ? "secondary" : "outline"}
+                className="mt-4 sm:mt-0 bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                {isEditing ? (
+                  <>
+                    <XMarkIcon className="h-4 w-4 mr-2" />
+                    Hủy
+                  </>
+                ) : (
+                  <>
+                    <PencilIcon className="h-4 w-4 mr-2" />
+                    Chỉnh sửa
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>

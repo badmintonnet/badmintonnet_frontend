@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import ViewDetailParticipants from "@/app/(main)/events/_components/view-detail-participants";
+import Link from "next/link";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:
@@ -182,9 +183,11 @@ function ParticipantCard({
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
               <div className="min-w-0 flex-1">
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white truncate">
-                  {participant.fullName}
-                </h4>
+                <Link href={`/profile/${participant.slug}`}>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+                    {participant.fullName}
+                  </h4>
+                </Link>
                 <div className="flex items-center gap-2 mt-1">
                   <Mail className="w-4 h-4 text-gray-400" />
                   <p className="text-sm text-gray-600 dark:text-gray-400 truncate">

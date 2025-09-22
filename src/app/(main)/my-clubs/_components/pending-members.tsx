@@ -260,9 +260,15 @@ export default function PendingMembers({
                             </Badge>
                           </div>
                           <div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                              {detailData.fullName}
-                            </h2>
+                            <a
+                              href={`/profile/${detailData.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                {detailData.fullName}
+                              </h2>
+                            </a>
                             <p className="text-sm text-gray-500">
                               Thành viên mới
                             </p>

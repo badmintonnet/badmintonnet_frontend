@@ -465,7 +465,8 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
             />
             <div className="mt-8">
               {/* Hiển thị form đăng highlights cho người dùng đã tham gia sự kiện */}
-              {eventDetail.joined && (
+              {(eventDetail.joined ||
+                eventDetail.participantRole === "OWNER") && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                     <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>

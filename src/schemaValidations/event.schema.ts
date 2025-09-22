@@ -256,6 +256,7 @@ export const ParticipantSchema = z.object({
   averageTechnicalScore: z.number(),
   overallScore: z.number(),
   skillLevel: z.string(),
+  slug: z.string(),
 });
 export const PagedParticipantResponse = z.object({
   status: z.number(),

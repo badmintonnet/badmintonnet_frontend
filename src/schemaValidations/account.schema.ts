@@ -20,6 +20,7 @@ export const AccountRes = z
       updatedAt: z.coerce.date(),
       createdBy: z.string(),
       updatedBy: z.string(),
+      slug: z.string(),
     }),
     message: z.string(),
   })
@@ -97,6 +98,7 @@ export const PlayerRating = z.object({
   averageTechnicalScore: z.number(),
   overallScore: z.number(),
   skillLevel: z.string(),
+  slug: z.string(),
 });
 
 export type PlayerRatingType = z.TypeOf<typeof PlayerRating>;

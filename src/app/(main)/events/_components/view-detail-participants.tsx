@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Star } from "lucide-react";
+import { Trophy, Star, Link } from "lucide-react";
 import { ParticipantType } from "@/schemaValidations/event.schema";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { toast } from "sonner";
@@ -104,9 +104,15 @@ export default function ViewDetailParticipants({
               </Badge>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {participant.fullName}
-              </h2>
+              <a
+                href={`/profile/${participant.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {participant.fullName}
+                </h2>
+              </a>
               <p className="text-sm text-gray-500">{participant.email}</p>
 
               {/* Giới tính + Ngày tham gia */}

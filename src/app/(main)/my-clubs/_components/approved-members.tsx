@@ -4,6 +4,7 @@ import { Users, Crown } from "lucide-react";
 import Image from "next/image";
 import clubServiceApi from "@/apiRequest/club";
 import { MemberType } from "@/schemaValidations/clubs.schema";
+import Link from "next/link";
 
 async function getApprovedMembers(
   id: string,
@@ -81,9 +82,11 @@ export default async function ApprovedMembers({
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
-                          {member.name}
-                        </h4>
+                        <Link href={`/profile/${member.slug}`}>
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
+                            {member.name}
+                          </h4>
+                        </Link>
                         {member.role === "OWNER" && (
                           <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">
                             <Crown className="h-3 w-3 text-white" />

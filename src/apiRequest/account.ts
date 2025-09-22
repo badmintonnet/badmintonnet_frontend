@@ -21,6 +21,12 @@ const accountApiRequest = {
         Authorization: `Bearer ${accessToken}`,
       },
     }),
+  getOtherAccount: (accessToken: string, slug: string) =>
+    http.get<AccountResType>(`/account/other-profile/${slug}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
 
   updateProfile: (body: UpdateProfileBodyType) =>
     http.put<AccountResType>("/account/profile", body),

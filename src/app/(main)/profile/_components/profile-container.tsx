@@ -8,10 +8,14 @@ import { useState } from "react";
 type Profile = AccountResType["data"];
 
 interface ProfileContainerProps {
+  canEdit?: boolean;
   profile: Profile;
 }
 
-export default function ProfileContainer({ profile }: ProfileContainerProps) {
+export default function ProfileContainer({
+  canEdit = true,
+  profile,
+}: ProfileContainerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleEditToggle = () => {
@@ -28,6 +32,7 @@ export default function ProfileContainer({ profile }: ProfileContainerProps) {
         profile={profile}
         onEditToggle={handleEditToggle}
         isEditing={isModalOpen}
+        canEdit={canEdit}
       />
 
       <div className="mt-8">
@@ -215,13 +220,14 @@ export default function ProfileContainer({ profile }: ProfileContainerProps) {
           </div>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      <ProfileEditModal
-        profile={profile}
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-      />
+      {canEdit && (
+        // Edit Modal
+        <ProfileEditModal
+          profile={profile}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 }

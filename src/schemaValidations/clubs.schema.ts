@@ -148,6 +148,7 @@ export const MemberSchema = z.object({
   role: RoleEnum,
   status: MemberStatusEnum,
   joinedAt: z.coerce.date(),
+  slug: z.string(),
 });
 
 export type MemberType = z.infer<typeof MemberSchema>;
@@ -186,6 +187,7 @@ export const ClubMemberDetail = z.object({
   skillLevel: z.string(),
 
   createdAt: z.coerce.date(),
+  slug: z.string(),
 });
 export const ClubMemberDetailRes = z.object({
   status: z.number(),

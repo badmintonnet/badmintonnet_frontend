@@ -13,8 +13,13 @@ function getLevelGradient(score: number) {
   if (score < 4.5) return "from-indigo-500 to-purple-600";
   return "from-emerald-500 to-teal-600";
 }
+interface ProfileStatsProps {
+  canEdit?: boolean;
+}
 
-export default async function ProfileStats() {
+export default async function ProfileStats({
+  canEdit = true,
+}: ProfileStatsProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 
@@ -210,34 +215,38 @@ export default async function ProfileStats() {
       </div>
 
       {/* Quick tip */}
-      <div className="p-3 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
-        <div className="flex items-start gap-2">
-          <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
-          <div>
-            <div className="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-1">
-              Gợi ý
+      {canEdit && (
+        <div className="p-3 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
+          <div className="flex items-start gap-2">
+            <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <div className="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                Gợi ý
+              </div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                {overallScore < 3
+                  ? "Tập trung luyện kỹ thuật cơ bản"
+                  : overallScore < 4
+                  ? "Phát triển chiến thuật và kỹ thuật nâng cao"
+                  : "Duy trì phong độ và tham gia thi đấu"}
+              </p>
             </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-              {overallScore < 3
-                ? "Tập trung luyện kỹ thuật cơ bản"
-                : overallScore < 4
-                ? "Phát triển chiến thuật và kỹ thuật nâng cao"
-                : "Duy trì phong độ và tham gia thi đấu"}
-            </p>
           </div>
         </div>
-      </div>
-      <Button
-        asChild
-        className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto 
+      )}
+      {canEdit && (
+        <Button
+          asChild
+          className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto 
     bg-gradient-to-r from-emerald-500 to-emerald-600  
     hover:from-emerald-700 hover:to-emerald-800 
     dark:from-blue-400 dark:to-blue-500  
     dark:hover:from-blue-600 dark:hover:to-blue-700 
     text-white hover:shadow-md transform hover:scale-105 active:scale-95"
-      >
-        <Link href="/profile/player-rating?mode=edit">Chỉnh sửa</Link>
-      </Button>
+        >
+          <Link href="/profile/player-rating?mode=edit">Chỉnh sửa</Link>
+        </Button>
+      )}
     </div>
   );
 }
