@@ -8,6 +8,12 @@ export const MediaSchema = z.object({
   type: MediaTypeEnum,
 });
 
+export const PostFriendSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  slug: z.string(),
+});
+
 export const HighlightSchema = z.object({
   id: z.string(),
   eventId: z.string(),
@@ -15,6 +21,7 @@ export const HighlightSchema = z.object({
   authorAvatar: z.string().optional(),
   content: z.string(),
   mediaList: z.array(MediaSchema).optional(),
+  taggedList: z.array(PostFriendSchema).optional(),
   createdAt: z.string().or(z.date()),
   likeCount: z.number().default(0),
   commentCount: z.number().default(0),
@@ -27,6 +34,7 @@ export const CreateHighlightSchema = z.object({
   eventId: z.string(),
   content: z.string().min(1, "Nội dung không được để trống"),
   fileNames: z.array(z.string()).optional(),
+  taggedFriendIds: z.array(z.string()).optional(),
 });
 
 export const HighlightResponse = z.object({
@@ -55,6 +63,7 @@ export const UpdateHighlightSchema = z.object({
   newFileNames: z.array(z.string()).optional(),
 });
 
+export type PostFriendSchemaType = z.infer<typeof PostFriendSchema>;
 export type MediaSchemaType = z.infer<typeof MediaSchema>;
 export type UpdateHighlightType = z.infer<typeof UpdateHighlightSchema>;
 export type FileResType = z.TypeOf<typeof FileRes>;

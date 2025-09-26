@@ -11,7 +11,10 @@ import MediaGallery from "@/app/(main)/events/_components/highlight/media-galler
 import HighlightActions, {
   HighlightMenu,
 } from "@/app/(main)/events/_components/highlight/highlight-action";
-import { MediaSchemaType } from "@/schemaValidations/highlight.schema";
+import {
+  MediaSchemaType,
+  PostFriendSchemaType,
+} from "@/schemaValidations/highlight.schema";
 import Link from "next/link";
 
 interface EventHighlightsProps {
@@ -89,7 +92,7 @@ export default async function EventHighlights({
                       href={`/profile/${highlight.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-3"
+                      className="flex items-center space-x-3 hover:no-underline"
                     >
                       <Avatar className="w-9 h-9">
                         <AvatarImage
@@ -100,23 +103,63 @@ export default async function EventHighlights({
                           {highlight.authorName.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                          {highlight.authorName}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(highlight.createdAt).toLocaleDateString(
-                            "vi-VN",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
-                        </p>
-                      </div>
                     </Link>
+                    <div className="min-w-0 flex-1">
+                      {/* Sửa phần hiển thị tên và tagged friends */}
+                      <div className="font-semibold text-gray-900 dark:text-white text-sm truncate flex items-center flex-wrap gap-1">
+                        <Link
+                          href={`/profile/${highlight.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline"
+                        >
+                          {highlight.authorName}
+                        </Link>
+                        {highlight.taggedList &&
+                          highlight.taggedList.length > 0 && (
+                            <span className="font-normal text-gray-600 dark:text-gray-400 flex items-center flex-wrap gap-1">
+                              cùng với
+                              {highlight.taggedList.map(
+                                (
+                                  friend: PostFriendSchemaType,
+                                  index: number
+                                ) => (
+                                  <span
+                                    key={friend.id}
+                                    className="flex items-center"
+                                  >
+                                    <Link
+                                      href={`/profile/${friend.slug}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold text-gray-900 dark:text-white text-sm hover:underline"
+                                    >
+                                      {friend.fullName}
+                                    </Link>
+                                    {index <
+                                      highlight.taggedList!.length - 1 && (
+                                      <span className="text-gray-600 dark:text-gray-400">
+                                        ,
+                                      </span>
+                                    )}
+                                  </span>
+                                )
+                              )}
+                            </span>
+                          )}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {new Date(highlight.createdAt).toLocaleDateString(
+                          "vi-VN",
+                          {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
+                      </p>
+                    </div>
                   </div>
                   <HighlightMenu
                     highlightId={highlight.id}

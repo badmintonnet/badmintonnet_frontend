@@ -1,3 +1,4 @@
+import { SlowBuffer } from "buffer";
 import z from "zod";
 
 export const FriendStatusEnum = z.enum([
@@ -42,6 +43,7 @@ export const AccountFriendSchema = z.object({
   fullName: z.string(),
   avatarUrl: z.string(),
   skillLevel: z.string(),
+  slug: z.string(),
 });
 
 export type AccountFriendSchemaType = z.TypeOf<typeof AccountFriendSchema>;

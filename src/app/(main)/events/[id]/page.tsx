@@ -30,6 +30,7 @@ import EventHighlights from "@/app/(main)/events/_components/highlight/event-hig
 import CreateHighlightButton from "@/app/(main)/events/_components/highlight/create-highlight-button";
 import ParticipantsSection from "@/app/(main)/events/_components/view-participants";
 import AbsenceDialog from "@/app/(main)/events/_components/absent-reason/absence-dialog";
+import accountApiRequest from "@/apiRequest/account";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -44,6 +45,9 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
     id,
     accessToken?.value || ""
   );
+
+  const me = await accountApiRequest.getAccount(accessToken?.value || "");
+  const user = me.payload.data;
 
   const eventDetail = response.payload.data || null;
   let participantRes;
@@ -551,7 +555,10 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
                     Chia sẻ khoảnh khắc của bạn
                   </h2>
-                  <CreateHighlightButton eventId={eventDetail.id} />
+                  <CreateHighlightButton
+                    eventId={eventDetail.id}
+                    user={user}
+                  />
                 </div>
               )}
 

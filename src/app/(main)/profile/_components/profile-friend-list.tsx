@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
 import friendApiRequest from "@/apiRequest/friend";
 import { UserIcon, UserPlusIcon } from "lucide-react";
+import Link from "next/link";
 
 interface FriendTabProps {
   accountId: string;
@@ -211,31 +212,42 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
           {filteredFriends.map((friend) => (
             <div
               key={friend.id}
-              className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden"
+              className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden"
             >
               {/* Card Header with Avatar */}
               <div className="relative p-6 pb-4">
                 <div className="flex items-center gap-4">
                   {/* Avatar with Online Status */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-white dark:ring-gray-800 shadow-lg">
-                      <Image
-                        src={friend.avatarUrl || "/user.png"}
-                        alt={friend.fullName}
-                        width={64}
-                        height={64}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
+                    <Link
+                      href={`/profile/${friend.slug}`}
+                      rel="noopener noreferrer"
+                    >
+                      <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-white dark:ring-gray-800 cursor-pointer hover:ring-blue-500 transition-all duration-200">
+                        <Image
+                          src={friend.avatarUrl || "/user.png"}
+                          alt={friend.fullName}
+                          width={64}
+                          height={64}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    </Link>
                     {/* Online Status Indicator */}
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
                   </div>
 
                   {/* Friend Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                      {friend.fullName}
-                    </h4>
+                    <Link
+                      href={`/profile/${friend.slug}`}
+                      rel="noopener noreferrer"
+                      className="block hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                    >
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                        {friend.fullName}
+                      </h4>
+                    </Link>
                     <p className="text-gray-500 dark:text-gray-400 text-sm truncate">
                       {friend.skillLevel || "Chưa có"}
                     </p>
@@ -250,7 +262,7 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         <EllipsisVerticalIcon className="h-5 w-5 text-gray-500" />
                       </Button>
@@ -306,9 +318,6 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
                   </Button>
                 </div>
               </div>
-
-              {/* Hover Overlay Effect */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"></div>
             </div>
           ))}
         </div>

@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { clientSessionToken } from "@/lib/http";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image as ImageIcon, X, Plus } from "lucide-react";
+import {
+  Image as ImageIcon,
+  X,
+  Plus,
+  UserPlus,
+  Search,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -21,27 +29,43 @@ import {
   CreateHighlightType,
 } from "@/schemaValidations/highlight.schema";
 import highlightApiRequest from "@/apiRequest/highlight";
+import friendApiRequest from "@/apiRequest/friend";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
+import { AccountResType } from "@/schemaValidations/account.schema";
+import Link from "next/link";
 
 interface CreateHighlightButtonProps {
   eventId: string;
+  user: AccountResType["data"];
 }
+
+type Friend = AccountFriendSchemaType;
 
 export default function CreateHighlightButton({
   eventId,
+  user,
 }: CreateHighlightButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [filteredFriends, setFilteredFriends] = useState<Friend[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [taggedFriends, setTaggedFriends] = useState<Friend[]>([]);
+  const [showFriendList, setShowFriendList] = useState(false);
+  const [isLoadingFriends, setIsLoadingFriends] = useState(false);
+  const [selectedFriends, setSelectedFriends] = useState<Friend[]>([]); // Friends selected in the list
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<CreateHighlightType>({
     resolver: zodResolver(CreateHighlightSchema),
@@ -49,18 +73,59 @@ export default function CreateHighlightButton({
       eventId,
       content: "",
       fileNames: [],
+      taggedFriendIds: [],
     },
   });
+
+  // Load danh sách bạn bè khi mở dialog
+  useEffect(() => {
+    if (isDialogOpen && clientSessionToken.value) {
+      loadFriends();
+    }
+  }, [isDialogOpen]);
+
+  // Filter friends based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredFriends(friends);
+    } else {
+      const filtered = friends.filter((friend) =>
+        friend.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredFriends(filtered);
+    }
+  }, [searchTerm, friends]);
+
+  const loadFriends = async () => {
+    if (!clientSessionToken.value) return;
+
+    try {
+      setIsLoadingFriends(true);
+
+      const res = await friendApiRequest.getFriendList(
+        user.id,
+        clientSessionToken.value
+      );
+
+      if (res.payload.data) {
+        setFriends(res.payload.data);
+        setFilteredFriends(res.payload.data);
+      }
+    } catch (error) {
+      console.error("Error loading friends:", error);
+      toast.error("Không thể tải danh sách bạn bè");
+    } finally {
+      setIsLoadingFriends(false);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       if (files.length > 0) {
-        // Giới hạn số lượng file (tối đa 6 file)
         const newFiles = [...selectedFiles, ...files].slice(0, 6);
         setSelectedFiles(newFiles);
 
-        // Tạo URL preview cho các file
         const newPreviewUrls = newFiles.map((file) =>
           URL.createObjectURL(file)
         );
@@ -73,7 +138,6 @@ export default function CreateHighlightButton({
     const newFiles = [...selectedFiles];
     const newPreviewUrls = [...previewUrls];
 
-    // Giải phóng URL object để tránh memory leak
     URL.revokeObjectURL(newPreviewUrls[index]);
 
     newFiles.splice(index, 1);
@@ -81,6 +145,47 @@ export default function CreateHighlightButton({
 
     setSelectedFiles(newFiles);
     setPreviewUrls(newPreviewUrls);
+  };
+
+  const toggleFriendSelection = (friend: Friend) => {
+    setSelectedFriends((prev) => {
+      const isSelected = prev.find((f) => f.id === friend.id);
+      if (isSelected) {
+        return prev.filter((f) => f.id !== friend.id);
+      } else {
+        return [...prev, friend];
+      }
+    });
+  };
+
+  const addSelectedFriends = () => {
+    const newTaggedFriends = [
+      ...taggedFriends,
+      ...selectedFriends.filter(
+        (friend) => !taggedFriends.find((f) => f.id === friend.id)
+      ),
+    ];
+    setTaggedFriends(newTaggedFriends);
+    setSelectedFriends([]);
+    setShowFriendList(false);
+    setSearchTerm("");
+
+    // Update form value
+    setValue(
+      "taggedFriendIds",
+      newTaggedFriends.map((f) => f.id)
+    );
+  };
+
+  const removeTaggedFriend = (friendId: string) => {
+    const newTaggedFriends = taggedFriends.filter((f) => f.id !== friendId);
+    setTaggedFriends(newTaggedFriends);
+
+    // Update form value
+    setValue(
+      "taggedFriendIds",
+      newTaggedFriends.map((f) => f.id)
+    );
   };
 
   const uploadFiles = async (files: File[]): Promise<string[]> => {
@@ -95,7 +200,6 @@ export default function CreateHighlightButton({
       const response = await highlightApiRequest.uploadFileHightLight(formData);
 
       if (response.payload.message === "Success") {
-        // Xử lý cả hai trường hợp single file và multiple files
         if ("fileName" in response.payload.data) {
           return [response.payload.data.fileName];
         } else if ("fileNames" in response.payload.data) {
@@ -119,7 +223,6 @@ export default function CreateHighlightButton({
     try {
       setIsSubmitting(true);
 
-      // Bước 1: Upload files trước
       let uploadedFileNames: string[] = [];
       if (selectedFiles.length > 0) {
         toast.loading("Đang upload file...");
@@ -128,10 +231,10 @@ export default function CreateHighlightButton({
         toast.dismiss();
       }
 
-      // Bước 2: Tạo highlight với các fileNames đã upload
       const highlightData = {
         ...data,
         fileNames: uploadedFileNames,
+        taggedFriendIds: taggedFriends.map((f) => f.id),
       };
 
       const response = await highlightApiRequest.createHighlight(
@@ -145,6 +248,10 @@ export default function CreateHighlightButton({
         reset();
         setSelectedFiles([]);
         setPreviewUrls([]);
+        setTaggedFriends([]);
+        setSelectedFriends([]);
+        setShowFriendList(false);
+        setSearchTerm("");
         router.refresh();
       } else {
         toast.error("Không thể đăng highlight");
@@ -162,10 +269,13 @@ export default function CreateHighlightButton({
 
   const handleDialogClose = (open: boolean) => {
     if (!open && !isSubmitting) {
-      // Reset form when dialog is closed
       reset();
       setSelectedFiles([]);
       setPreviewUrls([]);
+      setTaggedFriends([]);
+      setSelectedFriends([]);
+      setShowFriendList(false);
+      setSearchTerm("");
     }
     setIsDialogOpen(open);
   };
@@ -197,10 +307,7 @@ export default function CreateHighlightButton({
                            group-hover:ring-blue-200 dark:group-hover:ring-blue-600
                            transition-all duration-300"
           >
-            <AvatarImage src={undefined} alt="User" />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-              U
-            </AvatarFallback>
+            <AvatarImage src={user.avatarUrl || ""} alt="User" />
           </Avatar>
           {/* Status indicator */}
           <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900" />
@@ -225,16 +332,36 @@ export default function CreateHighlightButton({
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-3">
               <Avatar className="w-10 h-10">
-                <AvatarImage src={undefined} alt="User" />
+                <AvatarImage src={user.avatarUrl || ""} alt="User" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
-              <div>
-                <h3 className="text-lg font-semibold">
-                  Chia sẻ khoảnh khắc của bạn
-                </h3>
-                <DialogDescription className="text-sm text-gray-500">
-                  Chia sẻ cảm nghĩ, thành tích hoặc khoảnh khắc đáng nhớ
-                </DialogDescription>
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-gray-900 dark:text-white text-base flex items-center flex-wrap gap-1">
+                  <span>{user.fullName}</span>
+                  {taggedFriends.length > 0 && (
+                    <span className="font-normal text-gray-600 dark:text-gray-400 flex items-center flex-wrap gap-1">
+                      cùng với
+                      {taggedFriends.map((friend, index) => (
+                        <span key={friend.id} className="flex items-center">
+                          <Link
+                            href={`/profile/${friend.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-gray-900 dark:text-white text-base hover:underline"
+                          >
+                            {friend.fullName}
+                          </Link>
+                          {index < taggedFriends.length - 1 && (
+                            <span className="text-gray-600 dark:text-gray-400">
+                              ,
+                            </span>
+                          )}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <DialogDescription className="text-sm text-gray-500 hidden"></DialogDescription>
               </div>
             </DialogTitle>
           </DialogHeader>
@@ -302,6 +429,18 @@ export default function CreateHighlightButton({
                 <ImageIcon className="mr-2 h-4 w-4" />
                 Thêm ảnh/video
               </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="flex items-center"
+                onClick={() => setShowFriendList(!showFriendList)}
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Gắn thẻ bạn bè
+              </Button>
+
               <input
                 id="file-upload-dialog"
                 type="file"
@@ -311,12 +450,153 @@ export default function CreateHighlightButton({
                 onChange={handleFileChange}
                 disabled={selectedFiles.length >= 5}
               />
+
               {selectedFiles.length >= 5 && (
                 <span className="text-sm text-gray-500">
                   Đã đạt giới hạn 5 file
                 </span>
               )}
             </div>
+
+            {/* Giao diện tìm kiếm và danh sách bạn bè */}
+            {showFriendList && (
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 flex-1">
+                    <Search className="h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Tìm kiếm bạn bè..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                  {selectedFriends.length > 0 && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={addSelectedFriends}
+                      className="ml-2"
+                    >
+                      Thêm ({selectedFriends.length})
+                    </Button>
+                  )}
+                </div>
+
+                {/* Hiển thị tagged friends trong danh sách */}
+                {taggedFriends.length > 0 && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                        Đã gắn thẻ
+                      </span>
+                      <span className="text-xs text-blue-600 dark:text-blue-400">
+                        {taggedFriends.length} người
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {taggedFriends.map((friend) => (
+                        <div
+                          key={friend.id}
+                          className="flex items-center bg-white dark:bg-gray-700 rounded-full pl-2 pr-1 py-1 border border-blue-200 dark:border-blue-600"
+                        >
+                          <span className="text-sm text-blue-700 dark:text-blue-300 mr-1">
+                            {friend.fullName}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeTaggedFriend(friend.id)}
+                            className="ml-1 rounded-full p-1 hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+                          >
+                            <X className="h-3 w-3 text-blue-500 dark:text-blue-400" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {isLoadingFriends ? (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500">
+                      Đang tải danh sách bạn bè...
+                    </p>
+                  </div>
+                ) : filteredFriends.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500">
+                      Không tìm thấy bạn bè
+                    </p>
+                  </div>
+                ) : (
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {filteredFriends.map((friend) => {
+                      const isTagged = taggedFriends.find(
+                        (f) => f.id === friend.id
+                      );
+                      const isSelected = selectedFriends.find(
+                        (f) => f.id === friend.id
+                      );
+
+                      return (
+                        <div
+                          key={friend.id}
+                          className={`flex items-center space-x-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                            isTagged
+                              ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-600"
+                              : isSelected
+                              ? "bg-blue-50 dark:bg-blue-900/20"
+                              : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }`}
+                          onClick={() =>
+                            !isTagged && toggleFriendSelection(friend)
+                          }
+                        >
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage
+                              src={friend.avatarUrl}
+                              alt={friend.fullName}
+                            />
+                            <AvatarFallback className="bg-blue-500 text-white text-xs">
+                              {friend.fullName.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`text-sm font-medium truncate ${
+                                isTagged
+                                  ? "text-green-700 dark:text-green-300"
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              {friend.fullName}
+                            </p>
+                            <p
+                              className={`text-xs ${
+                                isTagged
+                                  ? "text-green-600 dark:text-green-400"
+                                  : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              {friend.skillLevel}
+                            </p>
+                          </div>
+                          {isTagged ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                          ) : isSelected ? (
+                            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                              <Check className="h-3 w-3 text-white" />
+                            </div>
+                          ) : (
+                            <div className="w-4 h-4 border border-gray-300 dark:border-gray-600 rounded-full" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             <DialogFooter className="gap-2">
               <Button
