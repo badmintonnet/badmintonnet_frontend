@@ -16,9 +16,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
+import FilterForm from "@/app/(main)/events/_components/filter-form";
 
 interface ClubEventsProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    province?: string;
+    ward?: string;
+  }>;
 }
 
 const statusMapVN: Record<string, string> = {
@@ -129,6 +135,9 @@ export default async function MyJoinedClubEvents({
   const params = await searchParams;
   const page = parseInt(params.page || "0", 10);
   const size = 8;
+  const searchQuery = params.search || "";
+  const province = params.province || "";
+  const ward = params.ward || "";
 
   let events = [];
   let totalPages = 1;
@@ -140,6 +149,9 @@ export default async function MyJoinedClubEvents({
       page,
       size,
       accessToken
+      // searchQuery,
+      // province,
+      // ward
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -202,6 +214,12 @@ export default async function MyJoinedClubEvents({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
         {/* Header */}
         <div className="mb-8 text-center">
+          <FilterForm
+            searchQuery={searchQuery}
+            province={province}
+            ward={ward}
+          />
+
           {/* Tiêu đề gradient */}
           <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
             Hoạt động đã tham gia

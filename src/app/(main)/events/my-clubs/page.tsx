@@ -16,9 +16,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
+import FilterForm from "@/app/(main)/events/_components/filter-form";
 
 interface ClubEventsProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    province?: string;
+    ward?: string;
+  }>;
 }
 
 // Map loại hoạt động sang tiếng Việt
@@ -132,6 +138,10 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const page = parseInt(params.page || "0", 10);
   const size = 8;
 
+  const searchQuery = params.search || "";
+  const province = params.province || "";
+  const ward = params.ward || "";
+
   let events = [];
   let totalPages = 1;
   let currentPage = 0;
@@ -141,6 +151,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
     page,
     size,
     accessToken
+    // searchQuery,
+    // province,
+    // ward
   );
   events = response.payload.data.content || [];
   ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -150,6 +163,11 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
         {/* Header */}
         <div className="mb-8 text-center">
+          <FilterForm
+            searchQuery={searchQuery}
+            province={province}
+            ward={ward}
+          />
           {/* Tiêu đề gradient */}
           <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
             Hoạt động của các CLB
@@ -388,7 +406,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                 variant="outline"
                 className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
               >
-                <Link href={`?page=${currentPage - 1}`}>← Trước</Link>
+                <Link
+                  href={`?page=${currentPage - 1}${
+                    searchQuery
+                      ? `&search=${encodeURIComponent(searchQuery)}`
+                      : ""
+                  }${province ? `&province=${province}` : ""}${
+                    ward ? `&ward=${ward}` : ""
+                  }`}
+                >
+                  ← Trước
+                </Link>
               </Button>
             )}
             {Array.from({ length: totalPages }, (_, pageIndex) => (
@@ -402,7 +430,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                 }`}
               >
-                <Link href={`?page=${pageIndex}`}>{pageIndex + 1}</Link>
+                <Link
+                  href={`?page=${pageIndex}${
+                    searchQuery
+                      ? `&search=${encodeURIComponent(searchQuery)}`
+                      : ""
+                  }${province ? `&province=${province}` : ""}${
+                    ward ? `&ward=${ward}` : ""
+                  }`}
+                >
+                  {pageIndex + 1}
+                </Link>
               </Button>
             ))}
             {!last && (
@@ -411,7 +449,17 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                 variant="outline"
                 className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
               >
-                <Link href={`?page=${currentPage + 1}`}>Sau →</Link>
+                <Link
+                  href={`?page=${currentPage + 1}${
+                    searchQuery
+                      ? `&search=${encodeURIComponent(searchQuery)}`
+                      : ""
+                  }${province ? `&province=${province}` : ""}${
+                    ward ? `&ward=${ward}` : ""
+                  }`}
+                >
+                  Sau →
+                </Link>
               </Button>
             )}
           </div>

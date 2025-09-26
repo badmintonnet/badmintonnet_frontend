@@ -4,9 +4,12 @@ import { FileResType } from "@/schemaValidations/common.schema";
 import {
   CreateEventClubBodyType,
   EventDetailResponseType,
+  EventParticipantStatus,
   PagedEventResponseType,
   PagedParticipantResponseType,
+  ParticipantType,
   UpdateEventClubBodyType,
+  UpdateEventParticipantStatus,
 } from "@/schemaValidations/event.schema";
 import { Update } from "next/dist/build/swc/types";
 
@@ -37,15 +40,28 @@ const eventClubApiRequest = {
     http.put<EventDetailResponseType>("/club-event/update", body),
 
   //Lấy danh sách event clubs tất cả
-  getAllPublicEventClubs: (page: number, size: number, accessToken: string) =>
-    http.get<PagedEventResponseType>(
-      `/club-event/all/public?page=${page}&size=${size}`,
-      {
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined,
-      }
-    ),
+  getAllPublicEventClubs: (
+    page: number,
+    size: number,
+    accessToken?: string,
+    search?: string,
+    province?: string,
+    ward?: string
+  ) => {
+    const query = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+      ...(search ? { search } : {}),
+      ...(province ? { province } : {}),
+      ...(ward ? { ward } : {}),
+    }).toString();
+
+    return http.get<PagedEventResponseType>(`/club-event/all/public?${query}`, {
+      headers: accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : undefined,
+    });
+  },
   getMyClubsEventClubs: (page: number, size: number, accessToken: string) =>
     http.get<PagedEventResponseType>(
       `/club-event/all/my_clubs?page=${page}&size=${size}`,
@@ -91,5 +107,10 @@ const eventClubApiRequest = {
 
   rejectParticipant: (id: string, eventId: string) =>
     http.put(`/club-event/${eventId}/participant/${id}/reject`),
+  updateStatusParticipant: (
+    id: string,
+    eventId: string,
+    body: UpdateEventParticipantStatus
+  ) => http.put(`/club-event/${eventId}/participant/${id}`, body),
 };
 export default eventClubApiRequest;
