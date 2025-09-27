@@ -5,6 +5,7 @@ import { RatingType } from "@/schemaValidations/rating.schema";
 import Image from "next/image";
 import AddRatingButton from "@/app/(main)/events/_components/add-rating-button";
 import ReplyForm from "@/app/(main)/events/_components/reply-form"; // import file mới
+import RatingInfoTooltip from "@/components/rating_info_tooltip";
 
 interface ViewRatingProps {
   eventId: string;
@@ -26,11 +27,24 @@ export default async function ViewRating({
   const ratings = response.payload.data || [];
   const avgRating =
     ratings.length > 0
-      ? (
-          ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
-        ).toFixed(1)
-      : "0.0";
+      ? (() => {
+          const internal = ratings.filter((r) => r.clubMember);
+          const external = ratings.filter((r) => !r.clubMember);
 
+          const internalAvg =
+            internal.length > 0
+              ? internal.reduce((sum, r) => sum + r.rating, 0) / internal.length
+              : 0;
+
+          const externalAvg =
+            external.length > 0
+              ? external.reduce((sum, r) => sum + r.rating, 0) / external.length
+              : 0;
+
+          const weighted = 0.3 * internalAvg + 0.7 * externalAvg;
+          return weighted.toFixed(1);
+        })()
+      : "0.0";
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
       <div className="flex items-center justify-between mb-6">
@@ -46,8 +60,11 @@ export default async function ViewRating({
         <span className="text-yellow-500 font-semibold text-lg">
           {avgRating}
         </span>
-        <span className="text-gray-500 dark:text-gray-400 text-sm">
+        <span className="text-gray-500 dark:text-gray-400 text-sm flex items-center">
           /5 ({ratings.length} đánh giá)
+          <div className="mt-2">
+            <RatingInfoTooltip />
+          </div>
         </span>
       </div>
       {ratings.length === 0 ? (
@@ -79,9 +96,16 @@ export default async function ViewRating({
 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
-                      {r.nameSender}
-                    </h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">
+                        {r.nameSender}
+                      </h4>
+                      {r.clubMember && (
+                        <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300">
+                          Thành viên CLB
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(r.createdAt).toLocaleDateString("vi-VN")}
                     </span>

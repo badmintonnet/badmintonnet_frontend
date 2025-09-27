@@ -28,6 +28,7 @@ export const RatingSchema = z.object({
   avatarUrl: z.string(),
   replyComment: z.string(),
   replyCreatedAt: z.coerce.date(),
+  clubMember: z.boolean(),
 });
 
 export type RatingType = z.infer<typeof RatingSchema>;
