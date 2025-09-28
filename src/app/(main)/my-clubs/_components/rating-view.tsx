@@ -1,5 +1,6 @@
 import ratingApiRequest from "@/apiRequest/rating";
 import LoadMoreRatings from "@/app/(main)/my-clubs/_components/load-more-rating";
+import RatingInfoTooltip from "@/components/rating_info_tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { RatingType } from "@/schemaValidations/rating.schema";
@@ -47,10 +48,17 @@ export default async function RatingView({ id }: { id: string }) {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Đánh giá từ các hoạt động của CLB
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {totalReviews} đánh giá • Điểm trung bình:{" "}
-                  {averageRating.toFixed(1)}/5
-                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-yellow-500 font-semibold text-lg">
+                    {averageRating.toFixed(1)}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm flex items-center">
+                    /5 ({totalReviews} đánh giá)
+                    <div className="mt-2">
+                      <RatingInfoTooltip />
+                    </div>
+                  </span>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -80,9 +88,16 @@ export default async function RatingView({ id }: { id: string }) {
 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-white">
-                      {r.nameSender}
-                    </h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">
+                        {r.nameSender}
+                      </h4>
+                      {r.clubMember && (
+                        <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300">
+                          Thành viên CLB
+                        </span>
+                      )}
+                    </div>
 
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(r.createdAt).toLocaleDateString("vi-VN")}
@@ -145,6 +160,7 @@ export default async function RatingView({ id }: { id: string }) {
             <div className="text-center pb-4 border-b border-gray-200 dark:border-gray-700">
               <div className="text-3xl font-bold text-gray-900 dark:text-white">
                 {averageRating.toFixed(1)}
+                <RatingInfoTooltip />
               </div>
               <div className="flex justify-center items-center gap-1 mt-1">
                 {[1, 2, 3, 4, 5].map((star) => (
