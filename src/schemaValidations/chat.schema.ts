@@ -4,6 +4,7 @@ export const conversation = z.object({
   name: z.string(),
   firstMessage: z.string(),
   avatarUrl: z.string().nullable(),
+  unreadCount: z.number(),
 });
 export const conversationResponse = z.object({
   status: z.number(),

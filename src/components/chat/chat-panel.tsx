@@ -30,7 +30,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
   // phân trang
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const pageSize = 20;
+  const pageSize = 10;
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -80,7 +80,9 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     pageNum: number,
     append = false
   ) => {
+    if (loadingMessages) return;
     setLoadingMessages(true);
+
     try {
       const res = await chatApiRequest.getMessagesByConversationId(
         conversationId,
@@ -97,31 +99,39 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
         setHasMore(false); // hết dữ liệu
       }
 
-      setMessages((prev) => (append ? [...newMessages, ...prev] : newMessages));
-      if (!append) {
-        // lần đầu load thì cuộn xuống cuối
+      if (append) {
+        // giữ vị trí scroll khi load thêm
+        const container = scrollContainerRef.current;
+        const oldHeight = container?.scrollHeight || 0;
+
+        setMessages((prev) => [...newMessages, ...prev]);
+
+        setTimeout(() => {
+          if (container) {
+            const newHeight = container.scrollHeight;
+            container.scrollTop = newHeight - oldHeight; // giữ nguyên vị trí cũ
+          }
+        }, 50);
+      } else {
+        setMessages(newMessages);
         setTimeout(() => scrollToBottom(), 100);
       }
     } catch (err) {
       console.error("Lỗi khi load tin nhắn:", err);
-      setMessages([]);
     } finally {
       setLoadingMessages(false);
     }
   };
-
   const handleScroll = () => {
     if (!scrollContainerRef.current || loadingMessages || !hasMore) return;
 
-    if (scrollContainerRef.current.scrollTop === 0) {
+    // Nếu kéo lên đầu thì load thêm
+    if (scrollContainerRef.current.scrollTop === 0 && selectedConversation) {
       const nextPage = page + 1;
       setPage(nextPage);
-      if (selectedConversation) {
-        loadMessages(selectedConversation.id, nextPage, true);
-      }
+      loadMessages(selectedConversation.id, nextPage, true);
     }
   };
-
   useEffect(() => {
     loadConversation();
   }, []);
@@ -134,37 +144,37 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation]);
-  useEffect(() => {
-    const token = jwtDecode<JwtPayload>(clientSessionToken.value);
+  // useEffect(() => {
+  //   const token = jwtDecode<JwtPayload>(clientSessionToken.value);
 
-    // lần đầu load
+  //   // lần đầu load
 
-    // kết nối websocket
-    const socket = new SockJS(`${process.env.NEXT_PUBLIC_WS_ENDPOINT}/ws`);
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      debug: (str) => console.log("STOMP DEBUG:", str),
-    });
+  //   // kết nối websocket
+  //   const socket = new SockJS(`${process.env.NEXT_PUBLIC_WS_ENDPOINT}/ws`);
+  //   const stompClient = new Client({
+  //     webSocketFactory: () => socket,
+  //     reconnectDelay: 5000,
+  //     debug: (str) => console.log("STOMP DEBUG:", str),
+  //   });
 
-    stompClient.onConnect = () => {
-      console.log("Connected to WebSocket");
+  //   stompClient.onConnect = () => {
+  //     console.log("Connected to WebSocket");
 
-      // nhận cho riêng user
-      stompClient.subscribe(`/topic/message/${token.id}`, (msg) => {
-        if (msg.body) {
-          const data = JSON.parse(msg.body);
-          setMessages((prev) => [{ ...data, read: false }, ...prev]); // thêm vào đầu
-        }
-      });
-    };
+  //     // nhận cho riêng user
+  //     stompClient.subscribe(`/topic/message/${token.id}`, (msg) => {
+  //       if (msg.body) {
+  //         const data = JSON.parse(msg.body);
+  //         setMessages((prev) => [{ ...data, read: false }, ...prev]); // thêm vào đầu
+  //       }
+  //     });
+  //   };
 
-    stompClient.activate();
+  //   stompClient.activate();
 
-    return () => {
-      stompClient.deactivate();
-    };
-  }, []);
+  //   return () => {
+  //     stompClient.deactivate();
+  //   };
+  // }, []);
   return (
     <div className="flex flex-col h-full md:w-96 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden">
       {/* Header */}
