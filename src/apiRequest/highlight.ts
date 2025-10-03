@@ -10,6 +10,14 @@ const highlightApiRequest = {
   uploadFileHightLight: (body: FormData) =>
     http.post<FileResType>("/posts/upload", body),
 
+  getHighlightsByUserId: async (userId: string, token: string) => {
+    return await http.get<HighlightResponseType>(`/posts/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
   getHighlightsByEventId: async (eventId: string, token: string) => {
     return await http.get<HighlightResponseType>(`/posts/${eventId}`, {
       headers: {
