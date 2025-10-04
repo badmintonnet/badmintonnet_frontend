@@ -1,5 +1,6 @@
 import accountApiRequest from "@/apiRequest/account";
 import friendApiRequest from "@/apiRequest/friend";
+import ProfileActivity from "@/app/(main)/profile/_components/profile-activity";
 import FriendList from "@/app/(main)/profile/_components/profile-friend-list";
 import ProfileHeaderSection from "@/app/(main)/profile/_components/profile-header-section";
 import ProfileInformation from "@/app/(main)/profile/_components/profile-information";
@@ -86,9 +87,7 @@ export default async function ProfileDetailPage({
             </TabsContent>
 
             <TabsContent value="activity" className="mt-6">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-8 text-gray-600 dark:text-gray-300">
-                Đang phát triển
-              </div>
+              <ProfileActivity userId={profile.id} user={profile} />
             </TabsContent>
 
             <TabsContent value="stats" className="mt-6">

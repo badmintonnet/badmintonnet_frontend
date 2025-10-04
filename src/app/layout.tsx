@@ -1,4 +1,4 @@
-// app/layout.tsx
+import "@ant-design/v5-patch-for-react-19";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { cookies } from "next/headers";
 import AppProvider from "@/app/app-provider";
 import RefreshToken from "@/components/refresh-token";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -43,7 +44,7 @@ export default async function RootLayout({
             inititalRefreshToken={refreshToken}
             inititalDeviceId={deviceId}
           >
-            {children}
+            <AntdRegistry>{children}</AntdRegistry>
           </AppProvider>
         </ThemeProvider>
       </body>

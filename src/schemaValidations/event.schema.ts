@@ -12,6 +12,7 @@ const BadmintonCategoryEnum = z.enum([
   "WOMEN_DOUBLE",
   "MIXED_DOUBLE",
 ]);
+export type BadmintonCategory = z.infer<typeof BadmintonCategoryEnum>;
 
 const EventStatusEnum = z.enum([
   "OPEN",
@@ -21,6 +22,7 @@ const EventStatusEnum = z.enum([
   "CANCELLED",
   "DRAFT",
 ]);
+export type EventStatus = z.infer<typeof EventStatusEnum>;
 
 export const EventParticipantStatusEnum = z.enum([
   "PENDING",
@@ -279,3 +281,13 @@ export type ParticipantType = z.infer<typeof ParticipantSchema>;
 export type PagedParticipantResponseType = z.infer<
   typeof PagedParticipantResponse
 >;
+
+export const EventFilterSchema = z.object({
+  levels: z.string().array().optional(),
+  categories: z.array(BadmintonCategoryEnum).optional(),
+  participantSize: z.string().optional(),
+  minRating: z.number().min(0).max(5).optional(),
+  clubNames: z.string().array().optional(),
+  status: z.array(EventStatusEnum).optional(),
+});
+export type EventFilterType = z.infer<typeof EventFilterSchema>;

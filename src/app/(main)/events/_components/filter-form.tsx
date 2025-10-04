@@ -1,5 +1,6 @@
 "use client";
 
+import "@ant-design/v5-patch-for-react-19";
 import { useState, useEffect, use } from "react";
 import {
   Search,
@@ -28,6 +29,8 @@ import {
 } from "@/components/ui/sheet";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
+import { DatePicker, Slider } from "antd";
+import dayjs from "dayjs";
 
 interface Province {
   id: string;
@@ -49,14 +52,24 @@ interface FilterSidebarProps {
   searchQuery?: string;
   province?: string;
   ward?: string;
-  onFilterChange?: (filters: any) => void;
+  quickTimeFilter?: string;
+  isFree?: boolean;
+  minFee?: number;
+  maxFee?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 export default function FilterForm({
   searchQuery = "",
   province = "",
   ward = "",
-  onFilterChange,
+  quickTimeFilter = "",
+  isFree = false,
+  minFee = 0,
+  maxFee = 500,
+  startDate = "",
+  endDate = "",
 }: FilterSidebarProps) {
   // Filter states
   const [searchValue, setSearchValue] = useState(searchQuery);
@@ -68,17 +81,21 @@ export default function FilterForm({
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
 
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
-  const [quickTimeFilter, setQuickTimeFilter] = useState("");
-  const [feeRange, setFeeRange] = useState({ min: 0, max: 500 });
-  const [isFree, setIsFree] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    start: startDate ? dayjs(startDate).format("DD/MM/YYYY HH:mm") : "",
+    end: endDate ? dayjs(endDate).format("DD/MM/YYYY HH:mm") : "",
+  });
+  const [quickTime, setQuickTime] = useState(quickTimeFilter);
+  const [feeRange, setFeeRange] = useState({ min: minFee, max: maxFee });
+  const [freeOnly, setFreeOnly] = useState(isFree);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [participantRange, setParticipantRange] = useState({ min: 2, max: 50 });
   const [quickSizeFilter, setQuickSizeFilter] = useState("");
   const [minRating, setMinRating] = useState(0);
   const [selectedClubs, setSelectedClubs] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+
+  const { RangePicker } = DatePicker;
 
   const router = useRouter();
 
@@ -91,15 +108,32 @@ export default function FilterForm({
     "Khá",
     "Bán chuyên",
   ];
-  const categories = ["Đơn Nam", "Đơn Nữ", "Đôi Nam", "Đôi Nữ", "Đôi Nam Nữ"];
+  // const categories = ["Đơn Nam", "Đơn Nữ", "Đôi Nam", "Đôi Nữ", "Đôi Nam Nữ"];
+  const categories = [
+    { key: "MEN_SINGLE", value: "Đơn Nam" },
+    { key: "WOMEN_SINGLE", value: "Đơn Nữ" },
+    { key: "MEN_DOUBLE", value: "Đôi Nam" },
+    { key: "WOMEN_DOUBLE", value: "Đôi Nữ" },
+    { key: "MIXED_DOUBLE", value: "Đôi Nam Nữ" },
+  ];
   const clubs: Club[] = [
     { id: "1", name: "CLB Cầu Lông Sài Gòn", logo: "🏸" },
     { id: "2", name: "Badminton Pro Club", logo: "⭐" },
     { id: "3", name: "Victory Sports Club", logo: "🏆" },
   ];
-  const statusOptions = ["Đang mở đăng ký", "Sắp diễn ra", "Đã kết thúc"];
-  const quickTimeFilters = ["Hôm nay", "Cuối tuần", "Tuần này", "Tuyển gấp"];
-  const quickSizeFilters = ["Nhóm nhỏ (<10)", "Vừa (10-20)", "Đông (>20)"];
+  const statusOptions = [
+    { key: "OPEN", value: "Đang mở đăng ký" },
+    { key: "ONGOING", value: "Sắp diễn ra" },
+    { key: "FINISHED", value: "Đã kết thúc" },
+    { key: "CLOSED", value: "Đã đóng" },
+    { key: "CANCELLED", value: "Đã hủy" },
+  ];
+  const quickTimeFilters = ["Tuyển gấp", "Hôm nay", "Cuối tuần", "Tuần này"];
+  const quickSizeFilters = [
+    { key: "NHO", value: "Nhóm nhỏ (<10)" },
+    { key: "VUA", value: "Vừa (10-20)" },
+    { key: "DONG", value: "Đông (>20)" },
+  ];
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -150,19 +184,17 @@ export default function FilterForm({
     );
   };
 
-  const handleCategoryToggle = (category: string) => {
+  const handleCategoryToggle = (key: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
     );
   };
 
-  const handleClubToggle = (clubId: string) => {
+  const handleClubToggle = (clubName: string) => {
     setSelectedClubs((prev) =>
-      prev.includes(clubId)
-        ? prev.filter((c) => c !== clubId)
-        : [...prev, clubId]
+      prev.includes(clubName)
+        ? prev.filter((c) => c !== clubName)
+        : [...prev, clubName]
     );
   };
 
@@ -175,29 +207,14 @@ export default function FilterForm({
   };
 
   const handleQuickTimeFilter = (filter: string) => {
-    setQuickTimeFilter(quickTimeFilter === filter ? "" : filter);
-    if (filter !== quickTimeFilter) {
+    setQuickTime(quickTime === filter ? "" : filter);
+    if (filter !== quickTime) {
       setDateRange({ start: "", end: "" });
     }
   };
 
   const handleQuickSizeFilter = (filter: string) => {
     setQuickSizeFilter(quickSizeFilter === filter ? "" : filter);
-    if (filter !== quickSizeFilter) {
-      switch (filter) {
-        case "Nhóm nhỏ (<10)":
-          setParticipantRange({ min: 2, max: 9 });
-          break;
-        case "Vừa (10-20)":
-          setParticipantRange({ min: 10, max: 20 });
-          break;
-        case "Đông (>20)":
-          setParticipantRange({ min: 21, max: 50 });
-          break;
-        default:
-          setParticipantRange({ min: 2, max: 50 });
-      }
-    }
   };
 
   const clearAllFilters = () => {
@@ -206,12 +223,11 @@ export default function FilterForm({
     setSelectedWard("");
     setWards([]);
     setDateRange({ start: "", end: "" });
-    setQuickTimeFilter("");
+    setQuickTime("");
     setFeeRange({ min: 0, max: 500 });
-    setIsFree(false);
+    setFreeOnly(false);
     setSelectedLevels([]);
     setSelectedCategories([]);
-    setParticipantRange({ min: 2, max: 50 });
     setQuickSizeFilter("");
     setMinRating(0);
     setSelectedClubs([]);
@@ -223,16 +239,11 @@ export default function FilterForm({
     if (searchValue) count++;
     if (selectedProvince) count++;
     if (selectedWard) count++;
-    if (dateRange.start || dateRange.end || quickTimeFilter) count++;
-    if (feeRange.min > 0 || feeRange.max < 500 || isFree) count++;
+    if (dateRange.start || dateRange.end || quickTime) count++;
+    if (feeRange.min > 0 || feeRange.max < 500 || freeOnly) count++;
     if (selectedLevels.length > 0) count++;
     if (selectedCategories.length > 0) count++;
-    if (
-      participantRange.min > 2 ||
-      participantRange.max < 50 ||
-      quickSizeFilter
-    )
-      count++;
+    if (quickSizeFilter) count++;
     if (minRating > 0) count++;
     if (selectedClubs.length > 0) count++;
     if (selectedStatus.length > 0) count++;
@@ -249,29 +260,51 @@ export default function FilterForm({
       params.append("province", provinceSelected?.full_name || "");
     if (selectedWard) params.append("ward", wardSelected?.full_name || "");
 
+    if (quickTime) params.append("quickTimeFilter", quickTime);
+    if (freeOnly) params.append("isFree", "true");
+    if (feeRange.min > 0) params.append("minFee", feeRange.min.toString());
+    if (feeRange.max < 500) params.append("maxFee", feeRange.max.toString());
+    if (dateRange.start)
+      params.append(
+        "startDate",
+        dayjs(dateRange.start, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+      );
+    if (dateRange.end)
+      params.append(
+        "endDate",
+        dayjs(dateRange.end, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+      );
+
+    // Advanced filters (encode as comma-separated values)
+    if (selectedLevels.length > 0)
+      params.append("levels", selectedLevels.join(","));
+    if (selectedCategories.length > 0)
+      params.append("categories", selectedCategories.join(","));
+    if (quickSizeFilter) params.append("participantSize", quickSizeFilter);
+    if (minRating > 0) params.append("minRating", String(minRating));
+    if (selectedClubs.length > 0)
+      params.append("clubNames", selectedClubs.join(","));
+    if (selectedStatus.length > 0)
+      params.append("status", selectedStatus.join(","));
+
     router.push(`/events${params.toString() ? `?${params.toString()}` : ""}`);
 
-    // TODO: Implement filter application logic
-    const filters = {
-      search: searchValue,
-      province: selectedProvince,
-      ward: selectedWard,
-      dateRange,
-      quickTimeFilter,
-      feeRange,
-      isFree,
-      levels: selectedLevels,
-      categories: selectedCategories,
-      participantRange,
-      quickSizeFilter,
-      minRating,
-      clubs: selectedClubs,
-      status: selectedStatus,
-    };
-
-    if (onFilterChange) {
-      onFilterChange(filters);
-    }
+    // // TODO: Implement filter application logic
+    // const filters = {
+    //   search: searchValue,
+    //   province: selectedProvince,
+    //   ward: selectedWard,
+    //   dateRange,
+    //   quickTimeFilter: quickTime,
+    //   feeRange,
+    //   isFree: freeOnly,
+    //   levels: selectedLevels,
+    //   categories: selectedCategories,
+    //   quickSizeFilter,
+    //   minRating,
+    //   clubs: selectedClubs,
+    //   status: selectedStatus,
+    // };
   };
 
   // Reusable filter content component
@@ -314,7 +347,7 @@ export default function FilterForm({
                   key={filter}
                   onClick={() => handleQuickTimeFilter(filter)}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    quickTimeFilter === filter
+                    quickTime === filter
                       ? "bg-blue-500 text-white border-blue-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
                   }`}
@@ -324,26 +357,27 @@ export default function FilterForm({
               ))}
             </div>
             <div className="space-y-2">
-              <input
-                type="date"
-                value={dateRange.start}
-                onChange={(e) =>
-                  setDateRange((prev) => ({
-                    ...prev,
-                    start: e.target.value,
-                  }))
+              <RangePicker
+                className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                value={
+                  dateRange.start && dateRange.end
+                    ? [
+                        dayjs(dateRange.start, "DD/MM/YYYY HH:mm"),
+                        dayjs(dateRange.end, "DD/MM/YYYY HH:mm"),
+                      ]
+                    : null
                 }
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500"
-                placeholder="Từ ngày"
-              />
-              <input
-                type="date"
-                value={dateRange.end}
-                onChange={(e) =>
-                  setDateRange((prev) => ({ ...prev, end: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500"
-                placeholder="Đến ngày"
+                onChange={(dates, dateStrings) => {
+                  setDateRange({
+                    start: dateStrings[0] || "",
+                    end: dateStrings[1] || "",
+                  });
+                  console.log(dateStrings);
+                  console.log(dates);
+                }}
+                placeholder={["Từ ngày", "Đến ngày"]}
+                showTime={true}
+                format="DD/MM/YYYY hh:mm"
               />
             </div>
           </div>
@@ -415,8 +449,8 @@ export default function FilterForm({
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={isFree}
-                onChange={(e) => setIsFree(e.target.checked)}
+                checked={freeOnly}
+                onChange={(e) => setFreeOnly(e.target.checked)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -424,25 +458,14 @@ export default function FilterForm({
               </span>
             </label>
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-                <span>{feeRange.min.toLocaleString()}đ</span>
-                <span>
-                  {feeRange.max >= 500 ? "500k+" : `${feeRange.max}k`}
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="500"
-                step="10"
-                value={feeRange.min}
-                onChange={(e) =>
-                  setFeeRange((prev) => ({
-                    ...prev,
-                    min: parseInt(e.target.value),
-                  }))
+              <Slider
+                range
+                defaultValue={[20, 50]}
+                value={[feeRange.min, feeRange.max]}
+                onChange={(value) =>
+                  setFeeRange({ min: value[0], max: value[1] })
                 }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full"
               />
             </div>
           </div>
@@ -485,18 +508,18 @@ export default function FilterForm({
             <div className="flex flex-wrap gap-1.5">
               {categories.map((category) => (
                 <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
+                  key={category.key}
+                  onClick={() => handleCategoryToggle(category.key)}
                   className={`px-2.5 py-1.5 text-xs rounded-lg border transition-all flex items-center gap-1 ${
-                    selectedCategories.includes(category)
+                    selectedCategories.includes(category.key)
                       ? "bg-blue-500 text-white border-blue-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
                   }`}
                 >
-                  {selectedCategories.includes(category) && (
+                  {selectedCategories.includes(category.key) && (
                     <Check className="h-3 w-3" />
                   )}
-                  {category}
+                  {category.value}
                 </button>
               ))}
             </div>
@@ -511,36 +534,17 @@ export default function FilterForm({
             <div className="flex flex-wrap gap-1.5">
               {quickSizeFilters.map((filter) => (
                 <button
-                  key={filter}
-                  onClick={() => handleQuickSizeFilter(filter)}
+                  key={filter.key}
+                  onClick={() => handleQuickSizeFilter(filter.key)}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    quickSizeFilter === filter
+                    quickSizeFilter === filter.key
                       ? "bg-purple-500 text-white border-purple-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
                   }`}
                 >
-                  {filter}
+                  {filter.value}
                 </button>
               ))}
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-                <span>{participantRange.min} người</span>
-                <span>{participantRange.max} người</span>
-              </div>
-              <input
-                type="range"
-                min="2"
-                max="50"
-                value={participantRange.min}
-                onChange={(e) =>
-                  setParticipantRange((prev) => ({
-                    ...prev,
-                    min: parseInt(e.target.value),
-                  }))
-                }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
             </div>
           </div>
         </div>
@@ -591,7 +595,7 @@ export default function FilterForm({
                   <input
                     type="checkbox"
                     checked={selectedClubs.includes(club.id)}
-                    onChange={() => handleClubToggle(club.id)}
+                    onChange={() => handleClubToggle(club.name)}
                     className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm">{club.logo}</span>
@@ -612,18 +616,18 @@ export default function FilterForm({
             <div className="flex flex-wrap gap-1.5">
               {statusOptions.map((status) => (
                 <button
-                  key={status}
-                  onClick={() => handleStatusToggle(status)}
+                  key={status.key}
+                  onClick={() => handleStatusToggle(status.key)}
                   className={`px-2.5 py-1.5 text-xs rounded-lg border transition-all flex items-center gap-1 ${
-                    selectedStatus.includes(status)
+                    selectedStatus.includes(status.key)
                       ? "bg-indigo-500 text-white border-indigo-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400"
                   }`}
                 >
-                  {selectedStatus.includes(status) && (
+                  {selectedStatus.includes(status.key) && (
                     <Check className="h-3 w-3" />
                   )}
-                  {status}
+                  {status.value}
                 </button>
               ))}
             </div>
