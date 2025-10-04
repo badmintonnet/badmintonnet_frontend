@@ -1,7 +1,7 @@
 "use client";
 
 import "@ant-design/v5-patch-for-react-19";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   MapPin,
@@ -365,7 +365,7 @@ export default function FilterForm({
                         dayjs(dateRange.start, "DD/MM/YYYY HH:mm"),
                         dayjs(dateRange.end, "DD/MM/YYYY HH:mm"),
                       ]
-                    : null
+                    : undefined
                 }
                 onChange={(dates, dateStrings) => {
                   setDateRange({
@@ -460,7 +460,6 @@ export default function FilterForm({
             <div className="space-y-2">
               <Slider
                 range
-                defaultValue={[20, 50]}
                 value={[feeRange.min, feeRange.max]}
                 onChange={(value) =>
                   setFeeRange({ min: value[0], max: value[1] })
