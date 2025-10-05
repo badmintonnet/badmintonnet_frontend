@@ -5,7 +5,7 @@ const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER"]);
 export const OwnerClub = z.object({
   clubName: z.string(),
   slug: z.string(),
-  urlLogo: z.string()
+  urlLogo: z.string(),
 });
 export const AccountRes = z
   .object({
@@ -136,4 +136,40 @@ export const ReputationHistoryResponse = z.object({
 
 export type ReputationHistoryResponseType = z.TypeOf<
   typeof ReputationHistoryResponse
+>;
+
+export const AccountAdminSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  fullName: z.string(),
+  birthDate: z.string(),
+  gender: GenderEnum,
+  address: z.string(),
+  phone: z.string(),
+  enabled: z.boolean(),
+  createdAt: z.coerce.date(),
+  reputationScore: z.int(),
+  totalParticipatedEvents: z.int(),
+  slug: z.string(),
+  ownerClubs: array(OwnerClub),
+  role: z.string(),
+  overallScore: z.number(),
+});
+
+export const PagedAccountAdminResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(AccountAdminSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type AccountAdminType = z.infer<typeof AccountAdminSchema>;
+export type PagedAccountAdminResponseType = z.infer<
+  typeof PagedAccountAdminResponse
 >;

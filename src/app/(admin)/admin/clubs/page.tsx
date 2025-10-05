@@ -26,7 +26,11 @@ export default async function ClubsPage({
     }
 
     const clubs = response.payload.data.content || [];
-    const { totalPages, page: currentPage } = response.payload.data;
+    const {
+      totalPages,
+      page: currentPage,
+      totalElements: totalElements,
+    } = response.payload.data;
 
     return (
       <ClubsTable
@@ -34,6 +38,7 @@ export default async function ClubsPage({
         totalPages={totalPages}
         currentPage={currentPage}
         accessToken={accessToken?.value || ""}
+        totalElements={totalElements}
       />
     );
   } catch (error) {
