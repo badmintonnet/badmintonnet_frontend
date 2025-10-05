@@ -502,7 +502,7 @@ export default function FilterForm({
                     Phí tham gia
                   </h4>
                 </div>
-                <label className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                <label className="flex items-center gap-2 mb-4 p-3 rounded-lg cursor-pointer transition-colors">
                   <input
                     type="checkbox"
                     checked={freeOnly}
