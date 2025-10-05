@@ -44,7 +44,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
-
+  const [duration, setDuration] = useState<number>(60);
   // Address related states
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
@@ -222,7 +222,32 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
       setLoading(false);
     }
   }
+  // Hàm cập nhật endTime khi start hoặc duration đổi
+  const updateEndTime = (start: string, dur: number) => {
+    if (!start) return;
+    const startDate = new Date(start);
+    console.log("Start Date:", startDate);
+    const endDate = new Date(startDate.getTime() + dur * 60 * 1000);
+    const local = new Date(
+      endDate.getTime() - endDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .slice(0, 16);
 
+    form.setValue("endTime", local);
+  };
+
+  const handleStartChange = (value: string) => {
+    form.setValue("startTime", value);
+    updateEndTime(value, duration);
+  };
+
+  const handleDurationChange = (delta: number) => {
+    const newDuration = Math.max(0, duration + delta);
+    setDuration(newDuration);
+    const startTime = form.getValues("startTime");
+    updateEndTime(startTime, newDuration);
+  };
   return (
     <Form {...form}>
       <form
@@ -523,6 +548,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
 
         {/* Thời gian bắt đầu và kết thúc */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Thời gian bắt đầu */}
           <FormField
             control={form.control}
             name="startTime"
@@ -536,6 +562,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
                     type="datetime-local"
                     className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     {...field}
+                    onChange={(e) => handleStartChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -543,22 +570,73 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
             )}
           />
 
+          {/* Thời lượng (riêng) */}
+          <div>
+            <label className="text-base font-semibold text-gray-700 dark:text-gray-300">
+              Thời lượng (phút) <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => handleDurationChange(-30)}
+                className="
+      w-9 h-9 flex items-center justify-center
+      rounded-md border border-gray-300 dark:border-gray-600
+      bg-gray-50 dark:bg-gray-800
+      text-gray-700 dark:text-gray-200
+      text-lg font-medium
+      hover:bg-gray-100 dark:hover:bg-gray-700
+      transition-colors duration-150
+    "
+              >
+                –
+              </button>
+              <Input
+                type="number"
+                min={0}
+                step={30}
+                readOnly
+                value={duration}
+                className="w-24 text-center border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              />
+              <button
+                type="button"
+                onClick={() => handleDurationChange(30)}
+                className="
+      w-9 h-9 flex items-center justify-center
+      rounded-md border border-gray-300 dark:border-gray-600
+      bg-gray-50 dark:bg-gray-800
+      text-gray-700 dark:text-gray-200
+      text-lg font-medium
+      hover:bg-gray-100 dark:hover:bg-gray-700
+      transition-colors duration-150
+    "
+              >
+                +
+              </button>
+              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                {Math.floor(duration / 60)} giờ{" "}
+                {duration % 60 > 0 && `${duration % 60} phút`}
+              </span>
+            </div>
+          </div>
+          {/* Thời gian kết thúc (readonly) */}
           <FormField
             control={form.control}
             name="endTime"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                  Thời gian kết thúc <span className="text-red-500">*</span>
+                  Thời gian kết thúc
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="datetime-local"
-                    className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    readOnly
+                    className="h-12 text-base border border-gray-300 dark:border-gray-600  dark:text-gray-100 rounded-lg bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />

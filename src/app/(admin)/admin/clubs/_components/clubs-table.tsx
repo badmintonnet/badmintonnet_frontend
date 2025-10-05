@@ -49,22 +49,15 @@ import { ClubAdminSchemaType } from "@/schemaValidations/clubs.schema";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import adminApiRequest from "@/apiRequest/admin";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import Link from "next/link";
+import CustomPagination from "@/components/custom-pagination";
 
 interface ClubsTableProps {
   clubs: ClubAdminSchemaType[];
   totalPages: number;
   currentPage: number;
   accessToken: string;
+  totalElements: number;
 }
 
 export default function ClubsTable({
@@ -72,6 +65,7 @@ export default function ClubsTable({
   totalPages,
   currentPage,
   accessToken,
+  totalElements,
 }: ClubsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -221,7 +215,7 @@ export default function ClubsTable({
         <CardHeader className="pb-3">
           <CardTitle>Danh sách câu lạc bộ</CardTitle>
           <CardDescription>
-            Tổng cộng {clubs.length} câu lạc bộ trong hệ thống
+            Tổng cộng {totalElements} câu lạc bộ trong hệ thống
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -263,6 +257,7 @@ export default function ClubsTable({
                   <TableHead>Chủ sở hữu</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Số thành viên</TableHead>
+                  <TableHead>Điểm CLB</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Ngày tạo</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
@@ -282,6 +277,7 @@ export default function ClubsTable({
                         </span>
                       </div>
                     </TableCell>
+                    <TableCell>{club.reputation.toFixed(2)}</TableCell>
                     <TableCell>{getStatusBadge(club.status)}</TableCell>
                     <TableCell>
                       {new Date(club.createdAt).toLocaleDateString("vi-VN")}
@@ -358,56 +354,10 @@ export default function ClubsTable({
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-6">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href={`?page=${Math.max(0, currentPage - 1)}`}
-                      className={
-                        currentPage === 0
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
-                    />
-                  </PaginationItem>
-
-                  {paginationItems.map((page, i) => {
-                    // Nếu là dấu chấm lửng
-                    if (page < 0) {
-                      return (
-                        <PaginationItem key={`ellipsis-${i}`}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      );
-                    }
-
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          href={`?page=${page}`}
-                          isActive={page === currentPage}
-                        >
-                          {page + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      href={`?page=${Math.min(
-                        totalPages - 1,
-                        currentPage + 1
-                      )}`}
-                      className={
-                        currentPage >= totalPages - 1
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <CustomPagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+              />
             </div>
           )}
         </CardContent>

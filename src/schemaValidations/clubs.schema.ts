@@ -69,6 +69,7 @@ export const ClubAdminSchema = z.object({
   maxMembers: z.int(),
   status: ClubStatusEnum,
   createdAt: z.coerce.date(),
+  reputation: z.number(),
 });
 
 export type ClubAdminSchemaType = z.infer<typeof ClubAdminSchema>;

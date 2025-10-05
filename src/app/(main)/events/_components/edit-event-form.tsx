@@ -428,7 +428,13 @@ export default function EditEventModal({
   const parseLocalDateTime = (dateTimeLocal: string) => {
     if (!dateTimeLocal) return "";
     const date = new Date(dateTimeLocal);
-    return date.toISOString(); // luôn ra ISO chuẩn UTC
+
+    // Chỉnh offset cho đúng giờ địa phương (nếu cần)
+    const offsetMs = date.getTimezoneOffset() * 60 * 1000;
+    const localDate = new Date(date.getTime() - offsetMs);
+
+    // Trả về đúng định dạng ISO LocalDateTime Java hiểu
+    return localDate.toISOString().slice(0, 19); // => "YYYY-MM-DDTHH:mm:ss"
   };
 
   if (!isOpen) return null;

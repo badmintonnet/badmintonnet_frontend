@@ -112,10 +112,7 @@ export const CreateEventClubBody = z.object({
   endTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Thời gian kết thúc không hợp lệ",
   }),
-  totalMember: z
-    .number()
-    .int()
-    .positive("Tổng số thành viên phải là số nguyên dương"),
+  totalMember: z.number().int(),
   type: z
     .array(BadmintonCategoryEnum)
     .min(1, "Phải chọn ít nhất một loại hình"),
@@ -203,6 +200,41 @@ export const PagedEventResponse = z.object({
 
 export type EventType = z.infer<typeof EventSchema>;
 export type PagedEventResponseType = z.infer<typeof PagedEventResponse>;
+
+export const EventAdminSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  location: z.string(),
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
+  totalMember: z.number().int(),
+  joinedMember: z.number().int(),
+  openForOutside: z.boolean(),
+  nameClub: z.string(),
+  fee: z.number().optional(),
+  minLevel: z.number(),
+  maxLevel: z.number(),
+  status: EventStatusEnum,
+});
+
+export const PagedEventAdminResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(EventSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type EventAdminType = z.infer<typeof EventAdminSchema>;
+export type PagedEventAdminResponseType = z.infer<
+  typeof PagedEventAdminResponse
+>;
 
 export const EventDetailSchema = z.object({
   id: z.string(),

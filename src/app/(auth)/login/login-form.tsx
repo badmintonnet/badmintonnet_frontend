@@ -55,16 +55,14 @@ const LoginForm = () => {
       }
     } catch (error: unknown) {
       toast.error("Đăng nhập thất bại", {
-        description: "Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
+        description:
+          error instanceof Error ? error.message : "Vui lòng thử lại",
       });
       // handleErrorApi({
       //   error,
       //   setError: form.setError,
       //   duration: 3000,
       // });
-      toast.error("Đăng nhập thất bại", {
-        description: "Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
-      });
     } finally {
       setLoading(false);
     }
