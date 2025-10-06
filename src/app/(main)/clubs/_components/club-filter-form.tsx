@@ -324,13 +324,13 @@ export default function ClubFilterForm({
                     <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Câu lạc bộ
+                    Sân câu lạc bộ
                   </h4>
                 </div>
                 <Select
                   mode="multiple"
                   showSearch
-                  placeholder="Tìm câu lạc bộ"
+                  placeholder="Tìm sân câu lạc bộ"
                   value={selectedClubs}
                   onChange={setSelectedClubs}
                   style={{ width: "100%" }}
