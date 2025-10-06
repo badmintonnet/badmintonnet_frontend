@@ -1,11 +1,18 @@
 "use client";
 
 import "@ant-design/v5-patch-for-react-19";
-import { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import {
   Search,
   MapPin,
   ChevronDown,
+  ChevronUp,
   Calendar,
   DollarSign,
   Users,
@@ -16,20 +23,13 @@ import {
   Check,
   Clock,
   Award,
-  Menu,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Card } from "@/components/ui/card";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
-import { DatePicker, Slider } from "antd";
+import { DatePicker, Slider, Select } from "antd";
 import dayjs from "dayjs";
 
 interface Province {
@@ -71,8 +71,10 @@ export default function FilterForm({
   startDate = "",
   endDate = "",
 }: FilterSidebarProps) {
-  // Filter states
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState(searchQuery);
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState(searchQuery);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState(province);
   const [selectedWard, setSelectedWard] = useState(ward);
 
@@ -96,10 +98,8 @@ export default function FilterForm({
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 
   const { RangePicker } = DatePicker;
-
   const router = useRouter();
 
-  // Mock data
   const levels = [
     "Mới tập chơi",
     "Cơ bản",
@@ -108,7 +108,6 @@ export default function FilterForm({
     "Khá",
     "Bán chuyên",
   ];
-  // const categories = ["Đơn Nam", "Đơn Nữ", "Đôi Nam", "Đôi Nữ", "Đôi Nam Nữ"];
   const categories = [
     { key: "MEN_SINGLE", value: "Đơn Nam" },
     { key: "WOMEN_SINGLE", value: "Đơn Nữ" },
@@ -120,19 +119,26 @@ export default function FilterForm({
     { id: "1", name: "CLB Cầu Lông Sài Gòn", logo: "🏸" },
     { id: "2", name: "Badminton Pro Club", logo: "⭐" },
     { id: "3", name: "Victory Sports Club", logo: "🏆" },
+    { id: "4", name: "Star Badminton Center", logo: "✨" },
+    { id: "5", name: "Elite Sports Club", logo: "👑" },
   ];
   const statusOptions = [
-    { key: "OPEN", value: "Đang mở đăng ký" },
-    { key: "ONGOING", value: "Sắp diễn ra" },
-    { key: "FINISHED", value: "Đã kết thúc" },
-    { key: "CLOSED", value: "Đã đóng" },
-    { key: "CANCELLED", value: "Đã hủy" },
+    { key: "OPEN", value: "Đang mở", color: "emerald" },
+    { key: "ONGOING", value: "Sắp diễn ra", color: "blue" },
+    { key: "FINISHED", value: "Đã kết thúc", color: "gray" },
+    { key: "CLOSED", value: "Đã đóng", color: "orange" },
+    { key: "CANCELLED", value: "Đã hủy", color: "red" },
   ];
-  const quickTimeFilters = ["Tuyển gấp", "Hôm nay", "Cuối tuần", "Tuần này"];
+  const quickTimeFilters = [
+    { key: "urgent", value: "Tuyển gấp" },
+    { key: "today", value: "Hôm nay" },
+    { key: "weekend", value: "Cuối tuần" },
+    { key: "week", value: "Tuần này" },
+  ];
   const quickSizeFilters = [
-    { key: "NHO", value: "Nhóm nhỏ (<10)" },
-    { key: "VUA", value: "Vừa (10-20)" },
-    { key: "DONG", value: "Đông (>20)" },
+    { key: "NHO", value: "Nhóm nhỏ", desc: "<10 người" },
+    { key: "VUA", value: "Vừa", desc: "10-20 người" },
+    { key: "DONG", value: "Đông", desc: ">20 người" },
   ];
 
   useEffect(() => {
@@ -148,18 +154,15 @@ export default function FilterForm({
         setLoadingProvinces(false);
       }
     };
-
     fetchProvinces();
   }, []);
 
-  // Fetch wards when province is selected
   useEffect(() => {
     const fetchWards = async () => {
       if (!selectedProvince) {
         setWards([]);
         return;
       }
-
       setLoadingWards(true);
       try {
         const response = await addressApiRequest.getWardsByProvinceId(
@@ -173,52 +176,46 @@ export default function FilterForm({
         setLoadingWards(false);
       }
     };
-
     fetchWards();
   }, [selectedProvince]);
 
-  // Helper functions
-  const handleLevelToggle = (level: string) => {
+  const handleLevelToggle = useCallback((level: string) => {
     setSelectedLevels((prev) =>
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
-  };
+  }, []);
 
-  const handleCategoryToggle = (key: string) => {
+  const handleCategoryToggle = useCallback((key: string) => {
     setSelectedCategories((prev) =>
       prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
     );
-  };
+  }, []);
 
-  const handleClubToggle = (clubName: string) => {
-    setSelectedClubs((prev) =>
-      prev.includes(clubName)
-        ? prev.filter((c) => c !== clubName)
-        : [...prev, clubName]
-    );
-  };
-
-  const handleStatusToggle = (status: string) => {
+  const handleStatusToggle = useCallback((status: string) => {
     setSelectedStatus((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
         : [...prev, status]
     );
-  };
+  }, []);
 
-  const handleQuickTimeFilter = (filter: string) => {
-    setQuickTime(quickTime === filter ? "" : filter);
-    if (filter !== quickTime) {
-      setDateRange({ start: "", end: "" });
-    }
-  };
+  const handleQuickTimeFilter = useCallback((filter: string) => {
+    setQuickTime((prevQuickTime) => {
+      const newQuickTime = prevQuickTime === filter ? "" : filter;
+      if (filter !== prevQuickTime) {
+        setDateRange({ start: "", end: "" });
+      }
+      return newQuickTime;
+    });
+  }, []);
 
-  const handleQuickSizeFilter = (filter: string) => {
-    setQuickSizeFilter(quickSizeFilter === filter ? "" : filter);
-  };
+  const handleQuickSizeFilter = useCallback((filter: string) => {
+    setQuickSizeFilter((prevFilter) => (prevFilter === filter ? "" : filter));
+  }, []);
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     setSearchValue("");
+    setDebouncedSearchValue("");
     setSelectedProvince("");
     setSelectedWard("");
     setWards([]);
@@ -232,9 +229,12 @@ export default function FilterForm({
     setMinRating(0);
     setSelectedClubs([]);
     setSelectedStatus([]);
-  };
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
+  }, []);
 
-  const getActiveFilterCount = () => {
+  const activeFilterCount = useMemo(() => {
     let count = 0;
     if (searchValue) count++;
     if (selectedProvince) count++;
@@ -248,9 +248,23 @@ export default function FilterForm({
     if (selectedClubs.length > 0) count++;
     if (selectedStatus.length > 0) count++;
     return count;
-  };
+  }, [
+    searchValue,
+    selectedProvince,
+    selectedWard,
+    dateRange,
+    quickTime,
+    feeRange,
+    freeOnly,
+    selectedLevels,
+    selectedCategories,
+    quickSizeFilter,
+    minRating,
+    selectedClubs,
+    selectedStatus,
+  ]);
 
-  const handleApplyFilters = () => {
+  const handleApplyFilters = useCallback(() => {
     const provinceSelected = provinces.find((p) => p.id === selectedProvince);
     const wardSelected = wards.find((w) => w.id === selectedWard);
 
@@ -275,7 +289,6 @@ export default function FilterForm({
         dayjs(dateRange.end, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
       );
 
-    // Advanced filters (encode as comma-separated values)
     if (selectedLevels.length > 0)
       params.append("levels", selectedLevels.join(","));
     if (selectedCategories.length > 0)
@@ -288,421 +301,473 @@ export default function FilterForm({
       params.append("status", selectedStatus.join(","));
 
     router.push(`/events${params.toString() ? `?${params.toString()}` : ""}`);
+  }, [
+    provinces,
+    selectedProvince,
+    wards,
+    selectedWard,
+    searchValue,
+    quickTime,
+    freeOnly,
+    feeRange,
+    dateRange,
+    selectedLevels,
+    selectedCategories,
+    quickSizeFilter,
+    minRating,
+    selectedClubs,
+    selectedStatus,
+    router,
+  ]);
 
-    // // TODO: Implement filter application logic
-    // const filters = {
-    //   search: searchValue,
-    //   province: selectedProvince,
-    //   ward: selectedWard,
-    //   dateRange,
-    //   quickTimeFilter: quickTime,
-    //   feeRange,
-    //   isFree: freeOnly,
-    //   levels: selectedLevels,
-    //   categories: selectedCategories,
-    //   quickSizeFilter,
-    //   minRating,
-    //   clubs: selectedClubs,
-    //   status: selectedStatus,
-    // };
-  };
-
-  // Reusable filter content component
-  const FilterContent = () => (
-    <div className="space-y-6">
-      {/* Search Input */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Tìm kiếm
-        </label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Tên hoạt động, địa điểm..."
-            className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500 focus:border-transparent text-sm"
-          />
+  return (
+    <div className="w-full mb-6">
+      <Card className="w-full bg-white dark:bg-gray-800 border-0 shadow-xl rounded-xl overflow-hidden">
+        {/* Header with Gradient */}
+        <div
+          className="relative flex items-center justify-between px-6 py-4 cursor-pointer bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <Filter className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                Bộ lọc
+                {activeFilterCount > 0 && (
+                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                Lọc và tìm kiếm hoạt động phù hợp
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {activeFilterCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearAllFilters();
+                }}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Xóa tất cả
+              </Button>
+            )}
+            {isFilterOpen ? (
+              <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Filters */}
-      <div className="space-y-6">
-        {/* 1. Thông tin cơ bản */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4" />
-            Thông tin cơ bản
-          </h3>
+        {/* Filter Content */}
+        {isFilterOpen && (
+          <div className="p-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-800 dark:to-gray-900">
+            {/* Search Bar - Prominent */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <Search className="h-5 w-5" />
+              </div>
+              <input
+                type="text"
+                ref={searchInputRef}
+                defaultValue={searchValue}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const timeoutId = setTimeout(() => {
+                    setDebouncedSearchValue(value);
+                    setSearchValue(value);
+                  }, 500);
+                  return () => clearTimeout(timeoutId);
+                }}
+                placeholder="Tìm kiếm theo tên, địa điểm, câu lạc bộ..."
+                className="w-full pl-12 pr-4 py-4 border-2 border-transparent rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 shadow-lg focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all"
+              />
+            </div>
 
-          {/* Thời gian */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-              Thời gian
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
+            {/* Quick Filters Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {quickTimeFilters.map((filter) => (
                 <button
-                  key={filter}
-                  onClick={() => handleQuickTimeFilter(filter)}
-                  className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    quickTime === filter
-                      ? "bg-blue-500 text-white border-blue-500"
-                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
+                  key={filter.key}
+                  onClick={() => handleQuickTimeFilter(filter.key)}
+                  className={`p-3 rounded-lg border transition-all ${
+                    quickTime === filter.key
+                      ? "bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750 hover:border-gray-300 dark:hover:border-gray-600"
                   }`}
                 >
-                  {filter}
+                  <div className="text-sm font-medium">{filter.value}</div>
                 </button>
               ))}
             </div>
-            <div className="space-y-2">
-              <RangePicker
-                className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-                value={
-                  dateRange.start && dateRange.end
-                    ? [
-                        dayjs(dateRange.start, "DD/MM/YYYY HH:mm"),
-                        dayjs(dateRange.end, "DD/MM/YYYY HH:mm"),
-                      ]
-                    : undefined
-                }
-                onChange={(dates, dateStrings) => {
-                  setDateRange({
-                    start: dateStrings[0] || "",
-                    end: dateStrings[1] || "",
-                  });
-                  console.log(dateStrings);
-                  console.log(dates);
-                }}
-                placeholder={["Từ ngày", "Đến ngày"]}
-                showTime={true}
-                format="DD/MM/YYYY hh:mm"
-              />
-            </div>
-          </div>
 
-          {/* Địa điểm */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Địa điểm
-            </h4>
-            <div className="space-y-2">
-              <div className="relative">
-                <select
-                  value={selectedProvince}
-                  onChange={(e) => {
-                    setSelectedProvince(e.target.value);
-                    setSelectedWard(""); // Reset ward when province changes
-                  }}
-                  disabled={loadingProvinces}
-                  className="w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500 appearance-none disabled:opacity-50"
-                >
-                  <option value="">Chọn tỉnh thành</option>
-                  {provinces.map((province) => (
-                    <option key={province.id} value={province.id}>
-                      {province.full_name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                {loadingProvinces && (
-                  <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
-                    {/* Loading spinner */}
+            {/* Main Filters - Cards Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Location Card */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
-                )}
-              </div>
-
-              {selectedProvince && (
-                <div className="relative">
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Địa điểm
+                  </h4>
+                </div>
+                <div className="space-y-3">
                   <select
-                    value={selectedWard}
-                    onChange={(e) => setSelectedWard(e.target.value)}
-                    disabled={loadingWards || !selectedProvince}
-                    className="w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500 appearance-none disabled:opacity-50"
+                    value={selectedProvince}
+                    onChange={(e) => {
+                      setSelectedProvince(e.target.value);
+                      setSelectedWard("");
+                    }}
+                    disabled={loadingProvinces}
+                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50"
                   >
-                    <option value="">Chọn quận/huyện</option>
-                    {wards.map((ward) => (
-                      <option key={ward.id} value={ward.id}>
-                        {ward.full_name}
+                    <option value="">Chọn tỉnh/thành phố</option>
+                    {provinces.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.full_name}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                  {loadingWards && (
-                    <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
-                      {/* Loading spinner */}
-                    </div>
+                  {selectedProvince && (
+                    <select
+                      value={selectedWard}
+                      onChange={(e) => setSelectedWard(e.target.value)}
+                      disabled={loadingWards}
+                      className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all disabled:opacity-50"
+                    >
+                      <option value="">Chọn quận/huyện</option>
+                      {wards.map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.full_name}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </div>
-              )}
+              </div>
+
+              {/* Time Card */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Khoảng thời gian
+                  </h4>
+                </div>
+                <RangePicker
+                  className="w-full dark:bg-gray-800"
+                  value={
+                    dateRange.start && dateRange.end
+                      ? [
+                          dayjs(dateRange.start, "DD/MM/YYYY HH:mm"),
+                          dayjs(dateRange.end, "DD/MM/YYYY HH:mm"),
+                        ]
+                      : undefined
+                  }
+                  onChange={(dates, dateStrings) => {
+                    setDateRange({
+                      start: dateStrings[0] || "",
+                      end: dateStrings[1] || "",
+                    });
+                    setQuickTime("");
+                  }}
+                  placeholder={["Từ ngày", "Đến ngày"]}
+                  showTime={true}
+                  format="DD/MM/YYYY HH:mm"
+                  size="large"
+                />
+              </div>
+
+              {/* Fee Card */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Phí tham gia
+                  </h4>
+                </div>
+                <label className="flex items-center gap-2 mb-4 p-3 rounded-lg cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={freeOnly}
+                    onChange={(e) => setFreeOnly(e.target.checked)}
+                    className="w-5 h-5 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Miễn phí
+                  </span>
+                </label>
+                <div className="px-2">
+                  <Slider
+                    range
+                    min={0}
+                    max={500}
+                    value={[feeRange.min, feeRange.max]}
+                    onChange={(value) =>
+                      setFeeRange({ min: value[0], max: value[1] })
+                    }
+                    styles={{
+                      track: { background: "#10b981" },
+                      tracks: { background: "#10b981" },
+                    }}
+                  />
+                  <div className="flex justify-between mt-3">
+                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {feeRange.min}K VNĐ
+                    </span>
+                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {feeRange.max}K VNĐ
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Club Card with Select */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                    <Building2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    CLB tổ chức
+                  </h4>
+                </div>
+                <Select
+                  mode="multiple"
+                  showSearch
+                  placeholder="Tìm và chọn câu lạc bộ"
+                  value={selectedClubs}
+                  onChange={setSelectedClubs}
+                  style={{ width: "100%" }}
+                  size="large"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={clubs.map((club) => ({
+                    value: club.id,
+                    label: `${club.logo} ${club.name}`,
+                  }))}
+                  className="dark:bg-gray-800"
+                  maxTagCount={2}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Phí tham gia */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              Phí tham gia
-            </h4>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={freeOnly}
-                onChange={(e) => setFreeOnly(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Miễn phí
-              </span>
-            </label>
-            <div className="space-y-2">
-              <Slider
-                range
-                value={[feeRange.min, feeRange.max]}
-                onChange={(value) =>
-                  setFeeRange({ min: value[0], max: value[1] })
-                }
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 2. Đối tượng & Trình độ */}
-        <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-            <Award className="h-4 w-4" />
-            Đối tượng & Trình độ
-          </h3>
-
-          {/* Level */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-              Trình độ
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {levels.map((level) => (
-                <button
-                  key={level}
-                  onClick={() => handleLevelToggle(level)}
-                  className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    selectedLevels.includes(level)
-                      ? "bg-emerald-500 text-white border-emerald-500"
-                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-emerald-400"
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-              Hạng mục
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {categories.map((category) => (
-                <button
-                  key={category.key}
-                  onClick={() => handleCategoryToggle(category.key)}
-                  className={`px-2.5 py-1.5 text-xs rounded-lg border transition-all flex items-center gap-1 ${
-                    selectedCategories.includes(category.key)
-                      ? "bg-blue-500 text-white border-blue-500"
-                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
-                  }`}
-                >
-                  {selectedCategories.includes(category.key) && (
-                    <Check className="h-3 w-3" />
-                  )}
-                  {category.value}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Số lượng người tham gia */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Số lượng người
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {quickSizeFilters.map((filter) => (
-                <button
-                  key={filter.key}
-                  onClick={() => handleQuickSizeFilter(filter.key)}
-                  className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    quickSizeFilter === filter.key
-                      ? "bg-purple-500 text-white border-purple-500"
-                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
-                  }`}
-                >
-                  {filter.value}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Uy tín & CLB */}
-        <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-            <Building2 className="h-4 w-4" />
-            Uy tín & CLB
-          </h3>
-
-          {/* Rating */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-              Rating tối thiểu
-            </h4>
-            <div className="flex items-center gap-2">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
+            {/* Categories Section */}
+            <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
+                  <Award className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                  Hạng mục thi đấu
+                </h4>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
                   <button
-                    key={star}
-                    onClick={() => setMinRating(star === minRating ? 0 : star)}
-                    className={`p-0.5 ${
-                      star <= minRating ? "text-yellow-400" : "text-gray-300"
+                    key={cat.key}
+                    onClick={() => handleCategoryToggle(cat.key)}
+                    className={`px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                      selectedCategories.includes(cat.key)
+                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent"
                     }`}
                   >
-                    <Star className="h-4 w-4 fill-current" />
+                    {selectedCategories.includes(cat.key) && (
+                      <Check className="inline h-4 w-4 mr-1" />
+                    )}
+                    {cat.value}
                   </button>
                 ))}
               </div>
-              <span className="text-xs text-gray-600 dark:text-gray-400">
-                {minRating > 0 ? `${minRating}+ sao` : "Tất cả"}
-              </span>
             </div>
-          </div>
 
-          {/* CLB */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm">
-              CLB tổ chức
-            </h4>
-            <div className="space-y-2">
-              {clubs.map((club) => (
-                <label
-                  key={club.id}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedClubs.includes(club.id)}
-                    onChange={() => handleClubToggle(club.name)}
-                    className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm">{club.logo}</span>
-                  <span className="text-xs text-gray-700 dark:text-gray-300 flex-1">
-                    {club.name}
+            {/* Levels & Size */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Levels */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <Star className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Trình độ
+                  </h4>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {levels.map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => handleLevelToggle(level)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        selectedLevels.includes(level)
+                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Size */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
+                    <Users className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Quy mô
+                  </h4>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {quickSizeFilters.map((filter) => (
+                    <button
+                      key={filter.key}
+                      onClick={() => handleQuickSizeFilter(filter.key)}
+                      className={`p-3 rounded-lg text-center transition-all border ${
+                        quickSizeFilter === filter.key
+                          ? "bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                          : "bg-gray-100 dark:bg-gray-800 border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      }`}
+                    >
+                      <div className="font-semibold text-sm">
+                        {filter.value}
+                      </div>
+                      <div
+                        className={`text-xs mt-1 ${
+                          quickSizeFilter === filter.key
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-gray-500 dark:text-gray-400"
+                        }`}
+                      >
+                        {filter.desc}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Rating & Status */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Rating */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                    <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Đánh giá tối thiểu
+                  </h4>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() =>
+                          setMinRating(star === minRating ? 0 : star)
+                        }
+                        className={`p-2 transition-all hover:scale-110 ${
+                          star <= minRating
+                            ? "text-yellow-400"
+                            : "text-gray-300 dark:text-gray-600"
+                        }`}
+                      >
+                        <Star className="h-7 w-7 fill-current" />
+                      </button>
+                    ))}
+                  </div>
+                  <span className="px-4 py-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-sm font-semibold text-yellow-700 dark:text-yellow-300">
+                    {minRating > 0 ? `${minRating}+ sao` : "Tất cả"}
                   </span>
-                </label>
-              ))}
-            </div>
-          </div>
+                </div>
+              </div>
 
-          {/* Trạng thái */}
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-700 dark:text-gray-300 text-sm flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Trạng thái
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {statusOptions.map((status) => (
-                <button
-                  key={status.key}
-                  onClick={() => handleStatusToggle(status.key)}
-                  className={`px-2.5 py-1.5 text-xs rounded-lg border transition-all flex items-center gap-1 ${
-                    selectedStatus.includes(status.key)
-                      ? "bg-indigo-500 text-white border-indigo-500"
-                      : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400"
-                  }`}
+              {/* Status */}
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-5 shadow-md border border-gray-100 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+                    <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Trạng thái
+                  </h4>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {statusOptions.map((status) => (
+                    <button
+                      key={status.key}
+                      onClick={() => handleStatusToggle(status.key)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                        selectedStatus.includes(status.key)
+                          ? `bg-${status.color}-500 text-white shadow-md scale-105`
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      }`}
+                    >
+                      {selectedStatus.includes(status.key) && (
+                        <Check className="h-3.5 w-3.5" />
+                      )}
+                      {status.value}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Apply Button - Sticky */}
+            <div className="sticky bottom-0 pt-6 -mx-6 -mb-6 px-6 pb-6 bg-gradient-to-t from-white via-white dark:from-gray-800 dark:via-gray-800 to-transparent">
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    clearAllFilters();
+                    router.push("/events");
+                    setIsFilterOpen(false);
+                  }}
+                  variant="outline"
+                  className="flex-1 py-6 text-base font-semibold border-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  {selectedStatus.includes(status.key) && (
-                    <Check className="h-3 w-3" />
+                  <X className="h-5 w-5 mr-2" />
+                  Xóa bộ lọc
+                </Button>
+                <Button
+                  onClick={handleApplyFilters}
+                  className="flex-[2] py-6 text-base font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
+                >
+                  <Search className="h-5 w-5 mr-2" />
+                  Tìm kiếm
+                  {activeFilterCount > 0 && (
+                    <span className="ml-2 px-2 py-0.5 bg-white/30 rounded-full text-sm">
+                      {activeFilterCount}
+                    </span>
                   )}
-                  {status.value}
-                </button>
-              ))}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
-        <Button onClick={clearAllFilters} variant="outline" className="w-full">
-          <X className="h-4 w-4 mr-2" />
-          Xóa tất cả bộ lọc
-        </Button>
-
-        <Button
-          onClick={handleApplyFilters}
-          className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700"
-        >
-          <Search className="h-4 w-4 mr-2" />
-          Áp dụng ({getActiveFilterCount()})
-        </Button>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      {/* Desktop Sidebar */}
-      <Card className="hidden lg:block w-full sticky top-8 h-fit bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <Filter className="h-5 w-5 text-blue-600 dark:text-emerald-400" />
-                Bộ lọc tìm kiếm
-              </CardTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {getActiveFilterCount()} bộ lọc đang áp dụng
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <FilterContent />
-        </CardContent>
+        )}
       </Card>
-
-      {/* Mobile Sheet */}
-      <div className="lg:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full mb-4 flex items-center justify-center gap-2"
-            >
-              <Filter className="h-4 w-4" />
-              Bộ lọc ({getActiveFilterCount()})
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-full sm:max-w-md">
-            <SheetHeader>
-              <SheetTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5 text-blue-600 dark:text-emerald-400" />
-                Bộ lọc tìm kiếm
-              </SheetTitle>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {getActiveFilterCount()} bộ lọc đang áp dụng
-              </p>
-            </SheetHeader>
-            <div className="mt-6">
-              <FilterContent />
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </>
+    </div>
   );
 }

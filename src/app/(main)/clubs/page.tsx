@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { isClubOwner } from "@/lib/utils";
 import Link from "next/link";
 import { tree } from "next/dist/build/templates/app-page";
+import ClubFilterForm from "@/app/(main)/clubs/_components/club-filter-form";
 
 const ClubList = async ({
   searchParams,
@@ -42,6 +43,10 @@ const ClubList = async ({
             Tìm kiếm và tham gia các câu lạc bộ cầu lông phù hợp với bạn
           </p>
           {<CreateClubButton />}
+        </div>
+
+        <div className="mb-6">
+          <ClubFilterForm />
         </div>
 
         {/* Clubs Grid */}
