@@ -5,6 +5,7 @@ import ProfileHeader from "@/app/(main)/profile/_components/profile-header";
 import ProfileEditModal from "@/app/(main)/profile/_components/profile-edit-modal";
 import { AccountResType } from "@/schemaValidations/account.schema";
 import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
+import ScheduleDialog from "@/app/(main)/profile/_components/view-schedule";
 
 type Profile = AccountResType["data"];
 
@@ -34,15 +35,16 @@ export default function ProfileHeaderSection({
         relationship={relationship}
         currentUserId={currentUserId}
       />
+
       {canEdit && (
-        <ProfileEditModal
-          profile={profile}
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-        />
+        <>
+          <ProfileEditModal
+            profile={profile}
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+          />
+        </>
       )}
     </>
   );
 }
-
-

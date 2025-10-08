@@ -2,6 +2,7 @@ import http from "@/lib/http";
 
 import { FileResType } from "@/schemaValidations/common.schema";
 import {
+  CanJoinSchemaResponseType,
   CreateEventClubBodyType,
   EventDetailResponseType,
   EventFilterType,
@@ -97,6 +98,12 @@ const eventClubApiRequest = {
     }),
   joinEvent: (id: string, accessToken: string) =>
     http.post(`/club-event/join/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+  checkCanJoinEvent: (id: string, accessToken: string) =>
+    http.get<CanJoinSchemaResponseType>(`/club-event/can-join/${id}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

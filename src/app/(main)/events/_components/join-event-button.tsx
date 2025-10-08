@@ -37,8 +37,22 @@ export const JoinEventButton = ({
     }
 
     try {
-      const res = await eventClubApiRequest.joinEvent(eventId, accessToken);
-      if (res.status === 200) {
+      // 🟢 Bước 1: Kiểm tra có thể tham gia hay không
+      const checkRes = await eventClubApiRequest.checkCanJoinEvent(
+        eventId,
+        accessToken
+      );
+      if (checkRes.payload.data && checkRes.payload.data.canJoin === false) {
+        toast.warning(
+          checkRes.payload.data.message ||
+            "Thời gian hoạt động bị trùng với lịch khác."
+        );
+        return; //
+      }
+
+      //  Gửi request tham gia
+      const joinRes = await eventClubApiRequest.joinEvent(eventId, accessToken);
+      if (joinRes.status === 200) {
         toast.success("Bạn đã tham gia hoạt động thành công!");
         router.refresh();
       } else {
@@ -76,7 +90,7 @@ export const JoinEventButton = ({
             <AlertDialogDescription>
               Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
               gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng. Vui
-              lòng chờ sự phê duyệt của Chủ CLB
+              lòng chờ sự phê duyệt của Chủ CLB.
             </AlertDialogDescription>
           )}
         </AlertDialogHeader>

@@ -323,3 +323,16 @@ export const EventFilterSchema = z.object({
   status: z.array(EventStatusEnum).optional(),
 });
 export type EventFilterType = z.infer<typeof EventFilterSchema>;
+
+export const CanJoinSchema = z.object({
+  canJoin: z.boolean(),
+  message: z.string(),
+});
+export const CanJoinSchemaResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: CanJoinSchema,
+});
+
+export type CanJoinSchemaType = z.infer<typeof CanJoinSchema>;
+export type CanJoinSchemaResponseType = z.infer<typeof CanJoinSchemaResponse>;

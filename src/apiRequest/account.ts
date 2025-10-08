@@ -2,6 +2,7 @@ import http from "@/lib/http";
 
 import {
   AccountResType,
+  PagedAccountScheduleResponseType,
   PlayerRatingCreateBodyType,
   PlayerRatingResponseType,
   ReputationHistoryResponseType,
@@ -60,5 +61,18 @@ const accountApiRequest = {
           }
         : {}),
     }),
+  getSchedule: (page: number, size: number, accessToken?: string) =>
+    http.get<PagedAccountScheduleResponseType>(
+      `/account/schedule?page=${page}&size=${size}`,
+      {
+        ...(accessToken
+          ? {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          : {}),
+      }
+    ),
 };
 export default accountApiRequest;

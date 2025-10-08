@@ -28,6 +28,7 @@ import friendApiRequest from "@/apiRequest/friend";
 import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
 import { clientSessionToken } from "@/lib/http";
 import ReputationHistoryDialog from "@/app/(main)/profile/_components/view-reputation-history";
+import ScheduleDialog from "@/app/(main)/profile/_components/view-schedule";
 
 type Profile = AccountResType["data"];
 
@@ -256,6 +257,7 @@ export default function ProfileHeader({
                   )}
                 </Button>
                 <ReputationHistoryDialog />
+                <ScheduleDialog />
               </>
             ) : (
               // Other User Actions

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import accountApiRequest from "@/apiRequest/account";
 import { ReputationHistoryType } from "@/schemaValidations/account.schema";
+import { CalendarClock } from "lucide-react";
 
 export default function ReputationHistoryDialog() {
   const [open, setOpen] = useState(false);
@@ -35,14 +36,17 @@ export default function ReputationHistoryDialog() {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full sm:w-auto px-4 py-2 
-              bg-white text-gray-900 border-gray-300 
-              hover:bg-gray-100 
-              dark:bg-white/10 dark:text-white dark:border-white/20 
-              dark:hover:bg-white/20
-              rounded-lg transition-colors duration-200"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-medium
+            bg-gradient-to-r from-white to-gray-50 text-gray-900 border-gray-200 
+            hover:from-gray-50 hover:to-gray-100 hover:border-gray-300 
+            hover:shadow-md transition-all duration-200
+            dark:from-gray-800 dark:to-gray-800/80 dark:text-white 
+            dark:border-gray-700 dark:hover:from-gray-700 dark:hover:to-gray-700/80
+            dark:hover:border-gray-600 dark:hover:shadow-lg dark:hover:shadow-gray-900/20
+            flex items-center gap-2"
         >
-          Lịch sử uy tín
+          <CalendarClock className="w-4 h-4 " />
+          <span>Lịch sử uy tín</span>
         </Button>
       </DialogTrigger>
 

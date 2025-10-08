@@ -1,7 +1,14 @@
 import z, { array } from "zod";
 
 const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER"]);
-
+const StatusScheduleEnum = z.enum([
+  "PENDING",
+  "CONFIRMED",
+  "ONGOING",
+  "COMPLETED",
+  "CANCELLED",
+  "REJECTED",
+]);
 export const OwnerClub = z.object({
   clubName: z.string(),
   slug: z.string(),
@@ -172,4 +179,32 @@ export const PagedAccountAdminResponse = z.object({
 export type AccountAdminType = z.infer<typeof AccountAdminSchema>;
 export type PagedAccountAdminResponseType = z.infer<
   typeof PagedAccountAdminResponse
+>;
+
+export const AccountScheduleSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
+  status: StatusScheduleEnum,
+  slug: z.string(),
+  createdAt: z.coerce.date(),
+});
+
+export const PagedAccountScheduleResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(AccountScheduleSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type AccountScheduleType = z.infer<typeof AccountScheduleSchema>;
+export type PagedAccountScheduleResponseType = z.infer<
+  typeof PagedAccountScheduleResponse
 >;
