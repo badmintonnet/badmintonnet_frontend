@@ -7,6 +7,7 @@ const StatusScheduleEnum = z.enum([
   "ONGOING",
   "COMPLETED",
   "CANCELLED",
+  "ABSENT",
   "REJECTED",
 ]);
 export const OwnerClub = z.object({

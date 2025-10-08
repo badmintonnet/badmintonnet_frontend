@@ -76,9 +76,11 @@ export default function ScheduleDialog() {
       case "ONGOING":
         return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20";
       case "COMPLETED":
-        return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:border-slate-500/20";
+        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/20";
       case "CANCELLED":
         return "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20";
+      case "ABSENT":
+        return "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
       default:
         return "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-500/10 dark:text-gray-300 dark:border-gray-500/20";
     }
@@ -87,7 +89,7 @@ export default function ScheduleDialog() {
   const getStatusText = (status: AccountScheduleType["status"]) => {
     switch (status) {
       case "CONFIRMED":
-        return "Xác nhận";
+        return "Xác nhận tham gia";
       case "REJECTED":
         return "Từ chối";
       case "PENDING":
@@ -95,9 +97,11 @@ export default function ScheduleDialog() {
       case "ONGOING":
         return "Đang diễn ra";
       case "COMPLETED":
-        return "Hoàn thành";
+        return "Đã tham gia";
       case "CANCELLED":
         return "Đã hủy";
+      case "ABSENT":
+        return "Vắng mặt";
       default:
         return "Tham gia";
     }
@@ -116,11 +120,7 @@ export default function ScheduleDialog() {
     return acc;
   }, {} as Record<string, AccountScheduleType[]>);
 
-  const sortedDates = Object.keys(groupedItems).sort((a, b) => {
-    const dateA = new Date(a.split("/").reverse().join("-"));
-    const dateB = new Date(b.split("/").reverse().join("-"));
-    return dateA.getTime() - dateB.getTime();
-  });
+  const sortedDates = Object.keys(groupedItems);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -148,10 +148,7 @@ export default function ScheduleDialog() {
       >
         <DialogHeader className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-white dark:from-gray-800/50 dark:to-gray-900/50">
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500 dark:bg-blue-600">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            Lịch trình sự kiện
+            Lịch trình hoạt động
           </DialogTitle>
         </DialogHeader>
 
