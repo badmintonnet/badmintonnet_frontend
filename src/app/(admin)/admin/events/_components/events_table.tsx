@@ -266,7 +266,9 @@ export default function EventsTable({
                         {format(event.endTime, "HH:mm", { locale: vi })}{" "}
                         {format(event.startTime, "dd/MM/yyyy", { locale: vi })}
                       </TableCell>
-                      <TableCell>{event.location}</TableCell>
+                      <TableCell>
+                        {event.facility?.location ?? event.location}
+                      </TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
                           <Users className="h-4 w-4 text-gray-500" />

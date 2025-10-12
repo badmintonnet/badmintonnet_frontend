@@ -32,11 +32,20 @@ import {
 import {
   EventDetailResponseType,
   EventType,
+  FacilityType,
 } from "@/schemaValidations/event.schema";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import addressApiRequest from "@/apiRequest/address";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import facilityApiRequest from "@/apiRequest/facility";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Interfaces for address data
 interface Province {
@@ -128,6 +137,10 @@ export default function EditEventModal({
   const [isLoadingWards, setIsLoadingWards] = useState(false);
   const [additionalAddress, setAdditionalAddress] = useState("");
 
+  const [facilities, setFacilities] = useState<FacilityType[]>([]);
+  const [selectedFacility, setSelectedFacility] = useState<string | null>(null);
+  const [loadingFacilities, setLoadingFacilities] = useState(true);
+
   const router = useRouter();
 
   // Parse existing location to extract address parts
@@ -147,9 +160,42 @@ export default function EditEventModal({
     return { additional: location, province: "", ward: "" };
   };
 
-  // Load provinces when modal opens
   useEffect(() => {
     if (isOpen) {
+      const loadFacilities = async () => {
+        try {
+          const response = await facilityApiRequest.getAllFacilitiesFilter();
+          setFacilities(response.payload.data || []);
+
+          if (eventData.facility?.id) {
+            setSelectedFacility(eventData.facility?.id);
+          }
+        } catch (error) {
+          console.error("Error loading facilities:", error);
+        } finally {
+          setLoadingFacilities(false);
+        }
+      };
+
+      loadFacilities();
+    }
+  }, [isOpen, eventData.facility?.id]);
+
+  useEffect(() => {
+    if (selectedFacility) {
+      const facility = facilities.find((f) => f.id === selectedFacility);
+      if (facility) {
+        setFormData((prev) => ({
+          ...prev,
+          location: facility.location || facility.address,
+        }));
+      }
+    }
+  }, [selectedFacility, facilities]);
+
+  // Load provinces when modal opens
+  useEffect(() => {
+    if (isOpen && !selectedFacility) {
       const loadProvinces = async () => {
         try {
           const response = await addressApiRequest.getProvinces();
@@ -178,7 +224,7 @@ export default function EditEventModal({
 
       loadProvinces();
     }
-  }, [isOpen, eventData.location]);
+  }, [isOpen, eventData.location, selectedFacility]);
 
   // Load wards when province changes
   useEffect(() => {
@@ -264,6 +310,16 @@ export default function EditEventModal({
       setImagePreview(eventData.image || "");
       setErrors({});
       setImageFile(null);
+      // Set selectedFacility từ eventData nếu có
+      if (eventData.facility?.id) {
+        setSelectedFacility(eventData.facility?.id);
+        // Reset province/ward khi có facility
+        setSelectedProvinceId("");
+        setSelectedWardId("");
+        setAdditionalAddress("");
+      } else {
+        setSelectedFacility(null);
+      }
     } else {
       // Reset address states when modal closes
       setSelectedProvinceId("");
@@ -272,6 +328,7 @@ export default function EditEventModal({
       setProvinces([]);
       setWards([]);
       setIsLoadingProvinces(true);
+      setSelectedFacility(null);
     }
   }, [eventData, isOpen]);
 
@@ -372,6 +429,7 @@ export default function EditEventModal({
       const res = await eventClubApiRequest.updateEventClub({
         ...formData,
         image: imageUrl,
+        ...(selectedFacility && { facilityId: selectedFacility }),
       });
       if (res.status === 200) {
         toast.success("Cập nhật sự kiện thành công");
@@ -436,6 +494,8 @@ export default function EditEventModal({
     // Trả về đúng định dạng ISO LocalDateTime Java hiểu
     return localDate.toISOString().slice(0, 19); // => "YYYY-MM-DDTHH:mm:ss"
   };
+  console.log("Facilities loaded:", facilities);
+  console.log("Selected facility:", selectedFacility);
 
   if (!isOpen) return null;
 
@@ -539,77 +599,127 @@ export default function EditEventModal({
                     </span>
                   </div>
 
-                  {/* Province and Ward Selection */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {/* Province Select */}
-                    <div className="relative">
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Tỉnh thành
-                      </label>
-                      <select
-                        value={selectedProvinceId}
-                        onChange={handleProvinceChange}
-                        disabled={isLoadingProvinces}
-                        className="appearance-none block w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                      >
-                        <option value="">
-                          {isLoadingProvinces
-                            ? "Đang tải..."
-                            : "Chọn tỉnh thành"}
-                        </option>
-                        {provinces.map((province) => (
-                          <option key={province.id} value={province.id}>
-                            {province.full_name}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 top-6 pr-2 flex items-center pointer-events-none">
-                        <ChevronDown className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-
-                    {/* Ward Select */}
-                    {selectedProvinceId && (
-                      <div className="relative animate-in slide-in-from-top-2 duration-300">
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Phường/Xã
-                        </label>
-                        <select
-                          value={selectedWardId}
-                          onChange={handleWardChange}
-                          disabled={isLoadingWards}
-                          className="appearance-none block w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                        >
-                          <option value="">
-                            {isLoadingWards
-                              ? "Đang tải..."
-                              : "Chọn phường xã (tùy chọn)"}
-                          </option>
-                          {wards.map((ward) => (
-                            <option key={ward.id} value={ward.id}>
-                              {ward.full_name}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 top-6 pr-2 flex items-center pointer-events-none">
-                          <ChevronDown className="h-4 w-4 text-gray-400" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Additional Address Details */}
+                  {/* Facility Selection */}
                   <div>
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Địa chỉ chi tiết (tùy chọn)
+                      Chọn sân <span className="text-gray-500">(Ưu tiên)</span>
                     </label>
-                    <Input
-                      placeholder="Ví dụ: Sân cầu lông ABC, Số 123, đường DEF..."
-                      value={additionalAddress}
-                      onChange={(e) => setAdditionalAddress(e.target.value)}
-                      className="h-10 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    <div className="flex gap-2">
+                      <Select
+                        value={selectedFacility || ""}
+                        onValueChange={setSelectedFacility}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Tìm và chọn sân" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[10000]">
+                          {loadingFacilities ? (
+                            <div className="p-2 text-center text-sm text-gray-500">
+                              Đang tải...
+                            </div>
+                          ) : facilities.length === 0 ? (
+                            <div className="p-2 text-center text-sm text-gray-500">
+                              Không có sân nào
+                            </div>
+                          ) : (
+                            facilities.map((facility) => (
+                              <SelectItem key={facility.id} value={facility.id}>
+                                <span>{facility.name}</span>
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      {selectedFacility && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedFacility(null)}
+                          className="px-3"
+                        >
+                          Xóa
+                        </Button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Location Input - Show only if no facility selected */}
+                  {!selectedFacility && (
+                    <>
+                      {/* Province and Ward Selection */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        {/* Province Select */}
+                        <div className="relative">
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Tỉnh thành
+                          </label>
+                          <select
+                            value={selectedProvinceId}
+                            onChange={handleProvinceChange}
+                            disabled={isLoadingProvinces}
+                            className="appearance-none block w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                          >
+                            <option value="">
+                              {isLoadingProvinces
+                                ? "Đang tải..."
+                                : "Chọn tỉnh thành"}
+                            </option>
+                            {provinces.map((province) => (
+                              <option key={province.id} value={province.id}>
+                                {province.full_name}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 top-6 pr-2 flex items-center pointer-events-none">
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                          </div>
+                        </div>
+
+                        {/* Ward Select */}
+                        {selectedProvinceId && (
+                          <div className="relative animate-in slide-in-from-top-2 duration-300">
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              Phường/Xã
+                            </label>
+                            <select
+                              value={selectedWardId}
+                              onChange={handleWardChange}
+                              disabled={isLoadingWards}
+                              className="appearance-none block w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            >
+                              <option value="">
+                                {isLoadingWards
+                                  ? "Đang tải..."
+                                  : "Chọn phường xã (tùy chọn)"}
+                              </option>
+                              {wards.map((ward) => (
+                                <option key={ward.id} value={ward.id}>
+                                  {ward.full_name}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 top-6 pr-2 flex items-center pointer-events-none">
+                              <ChevronDown className="h-4 w-4 text-gray-400" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Additional Address Details */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Địa chỉ chi tiết (tùy chọn)
+                        </label>
+                        <Input
+                          placeholder="Ví dụ: Sân cầu lông ABC, Số 123, đường DEF..."
+                          value={additionalAddress || ""}
+                          onChange={(e) => setAdditionalAddress(e.target.value)}
+                          className="h-10 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   {/* Final Location Display */}
                   <div>
@@ -617,7 +727,7 @@ export default function EditEventModal({
                       Địa chỉ đầy đủ
                     </label>
                     <Input
-                      value={formData.location}
+                      value={formData.location || ""}
                       onChange={(e) =>
                         handleInputChange("location", e.target.value)
                       }
@@ -625,7 +735,9 @@ export default function EditEventModal({
                         errors.location ? "border-red-500" : ""
                       } h-10 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700`}
                       placeholder="Địa chỉ sẽ được tạo tự động từ lựa chọn trên"
-                      readOnly={selectedProvinceId !== ""}
+                      readOnly={
+                        selectedProvinceId !== "" || selectedFacility !== null
+                      }
                     />
                     {errors.location && (
                       <p className="text-red-500 text-xs sm:text-sm flex items-center mt-1">
@@ -635,7 +747,6 @@ export default function EditEventModal({
                     )}
                   </div>
                 </div>
-
                 {/* Image URL */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">

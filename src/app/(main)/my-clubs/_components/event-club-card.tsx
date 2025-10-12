@@ -113,7 +113,15 @@ export const EventClubCard = ({ event }: EventClubCardProps) => {
           <div className="grid grid-cols-1 gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-4">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span className="truncate">{event.location}</span>
+              {event.facility ? (
+                <span className="truncate">
+                  {event.facility.name}
+                  {event.facility.district && `, ${event.facility.district}`}
+                  {event.facility.city && `, ${event.facility.city}`}
+                </span>
+              ) : (
+                <span className="truncate">{event.location}</span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

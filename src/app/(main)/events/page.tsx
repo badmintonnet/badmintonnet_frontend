@@ -352,9 +352,29 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                             <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
                               <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
                             </div>
-                            <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
-                              {event.location}
-                            </p>
+
+                            {event.facility ? (
+                              <div className="flex flex-col">
+                                {/* Hiển thị tên sân và địa chỉ */}
+                                <p className="text-sm text-blue-600 dark:text-emerald-400 font-medium line-clamp-1">
+                                  {event.facility.name}
+                                </p>
+                                <a
+                                  href={`https://www.google.com/maps?q=${event.facility.latitude},${event.facility.longitude}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-gray-600 dark:text-gray-400 underline hover:text-blue-700 dark:hover:text-emerald-300 transition-colors"
+                                >
+                                  {event.facility.address
+                                    ? `${event.facility.address}, ${event.facility.district}, ${event.facility.city}`
+                                    : event.facility.location}
+                                </a>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
+                                {event.location}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">

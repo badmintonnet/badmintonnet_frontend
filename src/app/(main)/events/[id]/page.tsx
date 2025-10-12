@@ -343,11 +343,37 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       Địa điểm
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 break-words">
-                      {eventDetail.location}
-                    </p>
+
+                    {eventDetail.facility ? (
+                      <>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                          {eventDetail.facility.name}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 break-words">
+                          {eventDetail.facility.address},{" "}
+                          {eventDetail.facility.district},{" "}
+                          {eventDetail.facility.city}
+                        </p>
+                        {eventDetail.facility.latitude &&
+                          eventDetail.facility.longitude && (
+                            <a
+                              href={`https://www.google.com/maps?q=${eventDetail.facility.latitude},${eventDetail.facility.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 dark:text-blue-400 underline text-sm"
+                            >
+                              Xem trên Google Maps
+                            </a>
+                          )}
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 break-words">
+                        {eventDetail.location}
+                      </p>
+                    )}
                   </div>
                 </div>
+
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                   <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <GraduationCap className="w-5 h-5 text-purple-600 dark:text-purple-400" />

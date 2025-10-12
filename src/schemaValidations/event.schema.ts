@@ -164,12 +164,26 @@ export type CreateEventBodyType = z.infer<typeof CreateEventBody>;
 export type CreateEventClubBodyType = z.infer<typeof CreateEventClubBody>;
 export type UpdateEventClubBodyType = z.infer<typeof UpdateEventClubBody>;
 
+export const FacilitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  address: z.string(),
+  city: z.string(),
+  district: z.string(),
+  location: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  image: z.string(),
+});
+export type FacilityType = z.infer<typeof FacilitySchema>;
+
 export const EventSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
   image: z.string().optional(),
   location: z.string(),
+  facility: FacilitySchema,
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
   totalMember: z.number().int(),
@@ -207,6 +221,7 @@ export const EventAdminSchema = z.object({
   slug: z.string(),
   title: z.string(),
   location: z.string(),
+  facility: FacilitySchema,
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
   totalMember: z.number().int(),
@@ -244,6 +259,7 @@ export const EventDetailSchema = z.object({
   description: z.string(), // có thể null
   image: z.string().url().optional().nullable(),
   location: z.string(),
+  facility: FacilitySchema,
 
   requirements: z.string(), // người dùng nhập tay có thể null
 
@@ -338,19 +354,6 @@ export const CanJoinSchemaResponse = z.object({
 export type CanJoinSchemaType = z.infer<typeof CanJoinSchema>;
 export type CanJoinSchemaResponseType = z.infer<typeof CanJoinSchemaResponse>;
 
-export const FacilitySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  address: z.string(),
-  city: z.string(),
-  district: z.string(),
-  location: z.string(),
-  latitude: z.number(),
-  longitude: z.number(),
-  image: z.string(),
-});
-export type FacilityType = z.infer<typeof FacilitySchema>;
-
 export const FacilitiesResponse = z.object({
   status: z.number(),
   message: z.string(),
@@ -380,6 +383,7 @@ export const CreateFacilityBody = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   image: z.string().optional(),
+  facilityId: z.string().optional(),
 });
 
 export type CreateFacilityBodyType = z.infer<typeof CreateFacilityBody>;
