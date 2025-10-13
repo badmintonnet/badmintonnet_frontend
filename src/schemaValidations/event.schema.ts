@@ -336,7 +336,7 @@ export const EventFilterSchema = z.object({
   categories: z.array(BadmintonCategoryEnum).optional(),
   participantSize: z.string().optional(),
   minRating: z.number().min(0).max(5).optional(),
-  clubNames: z.string().array().optional(),
+  facilityNames: z.string().array().optional(),
   status: z.array(EventStatusEnum).optional(),
 });
 export type EventFilterType = z.infer<typeof EventFilterSchema>;

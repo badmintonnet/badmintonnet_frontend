@@ -38,7 +38,7 @@ interface ClubEventsProps {
     categories?: string;
     participantSize?: string;
     minRating?: string;
-    clubNames?: string;
+    facilityNames?: string;
     status?: string;
   }>;
 }
@@ -139,7 +139,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const participantSize = params.participantSize || "";
   const minRatingParam = params.minRating || "";
   const minRating = minRatingParam ? Number(minRatingParam) : undefined;
-  const clubNames = (params.clubNames || "").split(",").filter(Boolean);
+  const facilityNames = (params.facilityNames || "").split(",").filter(Boolean);
   const status = (params.status || "").split(",").filter(Boolean);
 
   let events = [];
@@ -170,7 +170,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
           : undefined,
         participantSize: participantSize || undefined,
         minRating,
-        clubNames: clubNames.length ? clubNames : undefined,
+        facilityNames: facilityNames.length ? facilityNames : undefined,
         status: status.length ? (status as EventStatus[]) : undefined,
       }
     );
@@ -357,18 +357,14 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                               <div className="flex flex-col">
                                 {/* Hiển thị tên sân và địa chỉ */}
                                 <p className="text-sm text-blue-600 dark:text-emerald-400 font-medium line-clamp-1">
-                                  {event.facility.name}
+                                  <a
+                                    href={`https://www.google.com/maps?q=${event.facility.latitude},${event.facility.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {event.facility.name}
+                                  </a>
                                 </p>
-                                <a
-                                  href={`https://www.google.com/maps?q=${event.facility.latitude},${event.facility.longitude}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs text-gray-600 dark:text-gray-400 underline hover:text-blue-700 dark:hover:text-emerald-300 transition-colors"
-                                >
-                                  {event.facility.address
-                                    ? `${event.facility.address}, ${event.facility.district}, ${event.facility.city}`
-                                    : event.facility.location}
-                                </a>
                               </div>
                             ) : (
                               <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
@@ -527,9 +523,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         minRating !== undefined ? `&minRating=${minRating}` : ""
                       }${
-                        clubNames.length
+                        facilityNames.length
                           ? `&clubNames=${encodeURIComponent(
-                              clubNames.join(",")
+                              facilityNames.join(",")
                             )}`
                           : ""
                       }${
@@ -593,9 +589,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         minRating !== undefined ? `&minRating=${minRating}` : ""
                       }${
-                        clubNames.length
+                        facilityNames.length
                           ? `&clubNames=${encodeURIComponent(
-                              clubNames.join(",")
+                              facilityNames.join(",")
                             )}`
                           : ""
                       }${
@@ -654,9 +650,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         minRating !== undefined ? `&minRating=${minRating}` : ""
                       }${
-                        clubNames.length
+                        facilityNames.length
                           ? `&clubNames=${encodeURIComponent(
-                              clubNames.join(",")
+                              facilityNames.join(",")
                             )}`
                           : ""
                       }${
