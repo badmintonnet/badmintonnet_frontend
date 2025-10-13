@@ -3,6 +3,12 @@ import { MapPin, Users, Calendar, GraduationCap } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
 import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ClubDetailPageProps {
   params: Promise<{ id: string }>;
@@ -67,10 +73,43 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
               Thông tin
             </h2>
             <div className="space-y-3">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
-                {club.location}
-              </div>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center text-gray-600 dark:text-gray-400 cursor-default">
+                      <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400 flex-shrink-0" />
+                      <span className="line-clamp-1">
+                        {club.facility
+                          ? [
+                              club.facility.name,
+                              club.facility.district,
+                              club.facility.city,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")
+                          : club.location}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    className="bg-gray-800 text-white dark:bg-gray-700 dark:text-gray-100 text-sm px-3 py-2 rounded-md shadow-md max-w-xs"
+                  >
+                    <p>
+                      {club.facility
+                        ? [
+                            club.facility.name,
+                            club.facility.address,
+                            club.facility.district,
+                            club.facility.city,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")
+                        : club.location}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <GraduationCap className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
                 <span className="font-medium">Trình độ yêu cầu:</span>

@@ -38,8 +38,21 @@ export const CreateClubBody = z.object({
     .array(z.string().max(50, "Mỗi tag không được vượt quá 50 ký tự"))
     .max(20, "Không được nhập quá 20 tags")
     .optional(),
+  facilityId: z.string().optional(),
 });
 export type CreateClubBodyType = z.infer<typeof CreateClubBody>;
+
+export const FacilitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  address: z.string(),
+  city: z.string(),
+  district: z.string(),
+  location: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  image: z.string(),
+});
 
 export const ClubSchema = z.object({
   id: z.string(),
@@ -48,6 +61,7 @@ export const ClubSchema = z.object({
   description: z.string(),
   logoUrl: z.string().optional(),
   location: z.string(),
+  facility: FacilitySchema,
   memberCount: z.number().int(),
   maxMembers: z.int(),
   minLevel: z.number(),

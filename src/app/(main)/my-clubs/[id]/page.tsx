@@ -30,6 +30,12 @@ import ApprovedMembers from "@/app/(main)/my-clubs/_components/approved-members"
 import PendingMembers from "@/app/(main)/my-clubs/_components/pending-members";
 import TabWrapper from "@/app/(main)/my-clubs/_components/tab-wrapper";
 import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -103,9 +109,43 @@ export default async function MyClubDetail({
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" /> {clubDetail.location}
-                </div>
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400 cursor-default">
+                        <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <span className="line-clamp-1">
+                          {clubDetail.facility
+                            ? [
+                                clubDetail.facility.name,
+                                clubDetail.facility.district,
+                                clubDetail.facility.city,
+                              ]
+                                .filter(Boolean)
+                                .join(", ")
+                            : clubDetail.location}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="bg-gray-800 text-white dark:bg-gray-700 dark:text-gray-100 text-sm px-3 py-2 rounded-md shadow-md max-w-xs"
+                    >
+                      <p>
+                        {clubDetail.facility
+                          ? [
+                              clubDetail.facility.name,
+                              clubDetail.facility.address,
+                              clubDetail.facility.district,
+                              clubDetail.facility.city,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")
+                          : clubDetail.location}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" /> {clubDetail.memberCount}/
                   {clubDetail.maxMembers} thành viên

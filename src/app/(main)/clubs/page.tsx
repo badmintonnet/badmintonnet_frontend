@@ -7,6 +7,12 @@ import { cookies } from "next/headers";
 import { isClubOwner } from "@/lib/utils";
 import Link from "next/link";
 import ClubFilterForm from "@/app/(main)/clubs/_components/club-filter-form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ClubList = async ({
   searchParams,
@@ -107,10 +113,48 @@ const ClubList = async ({
                     </p>
 
                     {/* Location */}
-                    <div className="flex items-center text-gray-500 dark:text-gray-400  text-sm mb-2">
+                    {/* <div className="flex items-center text-gray-500 dark:text-gray-400  text-sm mb-2">
                       <MapPin className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
                       <span className="line-clamp-1">{club.location}</span>
-                    </div>
+                    </div> */}
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2 cursor-default">
+                            <MapPin className="w-4 h-4 mr-2 text-green-600 dark:text-green-400 flex-shrink-0" />
+                            <span className="line-clamp-1">
+                              {club.facility
+                                ? [
+                                    club.facility.name,
+                                    club.facility.district,
+                                    club.facility.city,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ")
+                                : club.location}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+
+                        <TooltipContent
+                          side="top"
+                          className="bg-gray-800 text-white dark:bg-gray-700 dark:text-gray-100 text-sm px-3 py-2 rounded-md shadow-md max-w-xs"
+                        >
+                          <p>
+                            {club.facility
+                              ? [
+                                  club.facility.name,
+                                  club.facility.address,
+                                  club.facility.district,
+                                  club.facility.city,
+                                ]
+                                  .filter(Boolean)
+                                  .join(", ")
+                              : club.location}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
 
                     {/* Members Count */}
                     <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
