@@ -276,6 +276,7 @@ export const EventDetailSchema = z.object({
   status: EventStatusEnum,
 
   clubId: z.string(),
+  clubSlug: z.string(),
 
   joined: z.boolean(),
   openForOutside: z.boolean(),

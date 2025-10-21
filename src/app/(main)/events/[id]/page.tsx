@@ -34,6 +34,7 @@ import AbsenceDialog from "@/app/(main)/events/_components/absent-reason/absence
 import accountApiRequest from "@/apiRequest/account";
 import { CancelEventDialog } from "@/app/(main)/events/_components/cancel-event-button";
 import { CancelJoinEventButton } from "@/app/(main)/events/_components/cancel-join-button";
+import Link from "next/link";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -264,9 +265,15 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2 leading-tight">
                 {eventDetail.title}
               </h1>
-              <div className="mb-1 flex items-center text-white/90 text-sm">
-                <CircleStar className="w-4 h-4 mr-2" />
-                <span>{eventDetail.nameClub}</span>
+              <div className="mb-2 flex items-center text-white/90 text-sm">
+                <CircleStar className="w-4 h-4 mr-2 text-yellow-400" />
+                <span className="mr-1">Câu lạc bộ:</span>
+                <Link
+                  href={`/clubs/${eventDetail.clubSlug}`}
+                  className="font-medium hover:text-white transition-colors underline decoration-dotted underline-offset-2"
+                >
+                  {eventDetail.nameClub}
+                </Link>
               </div>
               <div className="flex items-center text-white/90 text-sm">
                 <Calendar className="w-4 h-4 mr-2" />
