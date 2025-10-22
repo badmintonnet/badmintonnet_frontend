@@ -270,7 +270,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                 <span className="mr-1">Câu lạc bộ:</span>
                 <Link
                   href={`/clubs/${eventDetail.clubSlug}`}
-                  className="font-medium hover:text-white transition-colors underline decoration-dotted underline-offset-2"
+                  className="font-medium hover:text-white transition-colors"
                 >
                   {eventDetail.nameClub}
                 </Link>

@@ -36,6 +36,10 @@ import ApprovedMembers from "@/app/(main)/my-clubs/_components/approved-members"
 import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
 import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
 import ClubEvents from "@/app/(main)/my-clubs/[id]/events/club-event";
+import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
+import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -67,7 +71,10 @@ export default async function ClubDetailPage({
 
   let clubDetail = null;
   try {
-    const response = await clubServiceApi.getClubById(id);
+    const response = await clubServiceApi.getClubById(
+      id,
+      accessToken?.value || ""
+    );
     clubDetail = response.payload.data || null;
   } catch (error) {
     console.log("Error fetching club detail:", error);
@@ -81,11 +88,69 @@ export default async function ClubDetailPage({
   }
 
   // Check if user has joined this club
-  // const isJoined = clubDetail?.isJoined || false;
-  // const isOwner = clubDetail?.owner || false;
+  const isJoined = clubDetail.joined;
+  const isOwner = clubDetail.owner;
+  console.log("Club Detail:", clubDetail, isJoined, isOwner);
 
-  const isJoined = false;
-  const isOwner = false;
+  // Check if user is logged in
+  const isLoggedIn = !!accessToken?.value;
+
+  const LoginRequiredMessage = ({ tabName }: { tabName: string }) => (
+    <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+      <CardContent className="pt-6">
+        <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+          <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500" />
+          <AlertTitle className="text-yellow-800 dark:text-yellow-400 font-semibold">
+            Yêu cầu đăng nhập
+          </AlertTitle>
+          <AlertDescription className="text-yellow-700 dark:text-yellow-300 mt-2">
+            <p className="mb-4">
+              Bạn cần đăng nhập để xem {tabName} của câu lạc bộ.
+            </p>
+            <div className="flex gap-3">
+              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <Link href="/login">Đăng nhập ngay</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/register">Đăng ký tài khoản</Link>
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      </CardContent>
+    </Card>
+  );
+
+  const JoinRequiredMessage = ({
+    tabName,
+    clubId,
+    clubName,
+  }: {
+    tabName: string;
+    clubId: string;
+    clubName: string;
+  }) => (
+    <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+      <CardContent className="pt-6">
+        <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
+          <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-500" />
+          <AlertTitle className="text-blue-800 dark:text-blue-400 font-semibold">
+            Yêu cầu tham gia CLB
+          </AlertTitle>
+          <AlertDescription className="text-blue-700 dark:text-blue-300 mt-2">
+            <p className="mb-4">
+              Bạn cần tham gia câu lạc bộ để xem {tabName}.
+            </p>
+            <JoinClubButton
+              clubId={clubId}
+              clubName={clubName}
+              isRefresh={true}
+            />
+          </AlertDescription>
+        </Alert>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
@@ -125,13 +190,7 @@ export default async function ClubDetailPage({
                         <MapPin className="w-5 h-5 mr-2 text-green-600 dark:text-green-400 flex-shrink-0" />
                         <span className="line-clamp-1">
                           {clubDetail.facility
-                            ? [
-                                clubDetail.facility.name,
-                                clubDetail.facility.district,
-                                clubDetail.facility.city,
-                              ]
-                                .filter(Boolean)
-                                .join(", ")
+                            ? clubDetail.facility.location
                             : clubDetail.location}
                         </span>
                       </div>
@@ -142,14 +201,7 @@ export default async function ClubDetailPage({
                     >
                       <p>
                         {clubDetail.facility
-                          ? [
-                              clubDetail.facility.name,
-                              clubDetail.facility.address,
-                              clubDetail.facility.district,
-                              clubDetail.facility.city,
-                            ]
-                              .filter(Boolean)
-                              .join(", ")
+                          ? clubDetail.facility.location
                           : clubDetail.location}
                       </p>
                     </TooltipContent>
@@ -159,10 +211,14 @@ export default async function ClubDetailPage({
                   <Users className="h-4 w-4" /> {clubDetail.memberCount}/
                   {clubDetail.maxMembers} thành viên
                 </div>
-                {isJoined && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" /> Ngày tạo:{" "}
+                  {new Date(clubDetail.createdAt).toLocaleDateString("vi-VN")}
+                </div>
+                {!isOwner && (
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" /> Tham gia:{" "}
-                    {/* {new Date(clubDetail.dateJoined).toLocaleDateString()} */}
+                    <Users className="h-4 w-4" /> Chủ CLB:{" "}
+                    {clubDetail.ownerName}
                   </div>
                 )}
               </div>
@@ -186,9 +242,11 @@ export default async function ClubDetailPage({
                   Rời CLB
                 </Button>
               ) : (
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Tham gia CLB
-                </Button>
+                <JoinClubButton
+                  clubId={clubDetail.id}
+                  clubName={clubDetail.name}
+                  isRefresh={false}
+                />
               )}
             </div>
           </CardHeader>
@@ -206,14 +264,14 @@ export default async function ClubDetailPage({
             </TabsTrigger>
             <TabsTrigger
               value="activity"
-              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300"
+              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">Hoạt động</span>
             </TabsTrigger>
             <TabsTrigger
               value="members"
-              className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-600 dark:data-[state=active]:bg-green-900 dark:data-[state=active]:text-green-300"
+              className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-600 dark:data-[state=active]:bg-green-900 dark:data-[state=active]:text-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Thành viên</span>
@@ -292,29 +350,46 @@ export default async function ClubDetailPage({
 
           {/* Activity Tab */}
           <TabsContent value="activity" className="mt-6">
-            <ClubEvents
-              page={page}
-              status={status}
-              type={type}
-              search={search}
-              owner={isOwner}
-              clubId={clubDetail.slug}
-              // isJoined={isJoined}
-            />
+            {!isLoggedIn ? (
+              <LoginRequiredMessage tabName="hoạt động" />
+            ) : !isJoined ? (
+              <JoinRequiredMessage
+                tabName="hoạt động"
+                clubId={clubDetail.id}
+                clubName={clubDetail.name}
+              />
+            ) : (
+              <ClubEvents
+                page={page}
+                status={status}
+                type={type}
+                search={search}
+                owner={isOwner}
+                clubId={clubDetail.slug}
+              />
+            )}
           </TabsContent>
 
           {/* Members Tab */}
           <TabsContent value="members" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Main Members List */}
-              <div className="lg:col-span-3">
-                <ApprovedMembers
-                  id={clubDetail.id}
-                  accessToken={accessToken?.value || ""}
-                />
-              </div>
+            {!isLoggedIn ? (
+              <LoginRequiredMessage tabName="danh sách thành viên" />
+            ) : !isJoined ? (
+              <JoinRequiredMessage
+                tabName="danh sách thành viên"
+                clubId={clubDetail.id}
+                clubName={clubDetail.name}
+              />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Main Members List */}
+                <div className="lg:col-span-3">
+                  <ApprovedMembers
+                    id={clubDetail.id}
+                    accessToken={accessToken?.value || ""}
+                  />
+                </div>
 
-              {isJoined && (
                 <div className="lg:col-span-1 space-y-4">
                   {isOwner && (
                     <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
@@ -372,15 +447,15 @@ export default async function ClubDetailPage({
                     </CardContent>
                   </Card>
                 </div>
-              )}
 
-              <div className="lg:col-span-3">
-                <GuestMembers
-                  id={clubDetail.id}
-                  accessToken={accessToken?.value || ""}
-                />
+                <div className="lg:col-span-3">
+                  <GuestMembers
+                    id={clubDetail.id}
+                    accessToken={accessToken?.value || ""}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </TabsContent>
 
           {/* Reviews & Comments Tab */}

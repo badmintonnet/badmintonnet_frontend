@@ -69,6 +69,8 @@ export const ClubSchema = z.object({
   visibility: ClubVisibilityEnum,
   tags: z.array(z.string()),
   ownerName: z.string(),
+  owner: z.boolean(),
+  joined: z.boolean(),
   status: ClubStatusEnum,
   createdAt: z.coerce.date(),
 });

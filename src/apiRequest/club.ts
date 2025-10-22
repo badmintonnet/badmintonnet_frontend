@@ -69,7 +69,10 @@ const clubServiceApi = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     ),
-  getClubById: (slug: string) => http.get<ClubResType>(`/clubs/${slug}`),
+  getClubById: (slug: string, token = "") =>
+    http.get<ClubResType>(`/clubs/${slug}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
   getMyClubById: (slug: string, token = "") =>
     http.get<MyClubResType>(`/clubs/my_clubs/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
