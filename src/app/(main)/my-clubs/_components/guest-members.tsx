@@ -18,9 +18,11 @@ async function getGuestMembers(
 export default async function GuestMembers({
   id,
   accessToken,
+  isOwner,
 }: {
   id: string;
   accessToken: string;
+  isOwner: boolean;
 }) {
   const members = await getGuestMembers(id, accessToken);
 
@@ -46,7 +48,7 @@ export default async function GuestMembers({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col overflow-hidden px-6">
-        <GuestList members={members} clubId={id} />
+        <GuestList members={members} clubId={id} isOwner={isOwner} />
       </CardContent>
     </Card>
   );

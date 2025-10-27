@@ -457,6 +457,7 @@ export default async function ClubDetailPage({
                   <GuestMembers
                     id={clubDetail.id}
                     accessToken={accessToken?.value || ""}
+                    isOwner={isOwner}
                   />
                 </div>
               </div>

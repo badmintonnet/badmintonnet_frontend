@@ -12,9 +12,11 @@ import ClubInvitationDialog from "./create-club-invitation"; // import dialog
 export default function GuestList({
   members,
   clubId,
+  isOwner,
 }: {
   members: GuestType[];
   clubId: string;
+  isOwner: boolean;
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
 
@@ -99,7 +101,7 @@ export default function GuestList({
 
                 {/* Invitation actions */}
                 <div className="flex-shrink-0">
-                  {member.invitationStatus === null ? (
+                  {member.invitationStatus === null && isOwner ? (
                     <ClubInvitationDialog
                       initialValues={{ receiverId: member.id, clubId }}
                     />

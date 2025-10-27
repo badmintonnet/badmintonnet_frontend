@@ -326,6 +326,7 @@ export default async function MyClubDetail({
                 <GuestMembers
                   id={clubDetail.id}
                   accessToken={accessToken?.value || ""}
+                  isOwner={clubDetail.owner}
                 />
               </div>
               {/* Sidebar - Pending Requests & Member Actions */}
