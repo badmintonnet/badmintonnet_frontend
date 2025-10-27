@@ -40,6 +40,7 @@ import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button"
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -226,12 +227,10 @@ export default async function ClubDetailPage({
             <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
               {isOwner ? (
                 <>
-                  <Button
-                    variant="outline"
-                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    <Edit className="h-4 w-4 mr-1" /> Chỉnh sửa CLB
-                  </Button>
+                  <EditClubButton
+                    clubDetail={clubDetail}
+                    token={accessToken?.value || ""}
+                  />
                   <CreateEventClubButton club={clubDetail.slug} />
                 </>
               ) : isJoined ? (

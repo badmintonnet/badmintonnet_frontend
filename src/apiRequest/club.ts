@@ -18,10 +18,10 @@ const clubServiceApi = {
 
   createClub: (body: CreateClubBodyType) =>
     http.post<ClubResType>("/clubs", body),
-  // getAllPublicClubs: (page = 0, size = 10, token = "") =>
-  //   http.get<ClubPageResType>(`/clubs/all_public?page=${page}&size=${size}`, {
-  //     headers: token ? { Authorization: `Bearer ${token}` } : {},
-  //   }),
+  updateClub: (id: string, body: CreateClubBodyType, token = "") =>
+    http.put<ClubResType>(`/clubs/${id}`, body, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
 
   getAllPublicClubs: ({
     page = 0,

@@ -37,6 +37,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
+import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -159,12 +160,10 @@ export default async function MyClubDetail({
             </div>
             {clubDetail.owner && (
               <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
-                <Button
-                  variant="outline"
-                  className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Edit className="h-4 w-4 mr-1" /> Chỉnh sửa CLB
-                </Button>
+                <EditClubButton
+                  clubDetail={clubDetail}
+                  token={accessToken?.value || ""}
+                />
                 <CreateEventClubButton club={clubDetail.slug} />
               </div>
             )}
