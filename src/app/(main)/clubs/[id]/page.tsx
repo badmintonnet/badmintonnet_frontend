@@ -40,6 +40,7 @@ import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button"
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import UpdateInvitationStatusDialog from "@/app/(main)/clubs/_components/update-invitation-status-dialog";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -141,11 +142,6 @@ export default async function ClubDetailPage({
             <p className="mb-4">
               Bạn cần tham gia câu lạc bộ để xem {tabName}.
             </p>
-            <JoinClubButton
-              clubId={clubId}
-              clubName={clubName}
-              isRefresh={true}
-            />
           </AlertDescription>
         </Alert>
       </CardContent>
@@ -242,11 +238,21 @@ export default async function ClubDetailPage({
                   Rời CLB
                 </Button>
               ) : (
-                <JoinClubButton
-                  clubId={clubDetail.id}
-                  clubName={clubDetail.name}
-                  isRefresh={false}
-                />
+                <>
+                  {clubDetail.invitationId ? (
+                    <UpdateInvitationStatusDialog
+                      id={clubDetail.invitationId}
+                      message={clubDetail.invitationMessage || undefined}
+                      slug={clubDetail.slug}
+                    />
+                  ) : (
+                    <JoinClubButton
+                      clubId={clubDetail.id}
+                      clubName={clubDetail.name}
+                      isRefresh={false}
+                    />
+                  )}
+                </>
               )}
             </div>
           </CardHeader>

@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 const ClubList = async ({
   searchParams,
@@ -31,7 +32,7 @@ const ClubList = async ({
   const accessToken = cookieStore.get("accessToken");
   // const clubOwner = isClubOwner(accessToken?.value || "");
   // Extract page number from query params, default to 0
-  const params = await searchParams || {};
+  const params = (await searchParams) || {};
   const page = parseInt(params.page || "0", 10);
   const size = 20; // Match the API's default page size
 
@@ -185,11 +186,17 @@ const ClubList = async ({
 
                 {/* Card Footer with Join Button */}
                 <div className="px-6 pb-6">
-                  <JoinClubButton
-                    clubId={club.id}
-                    clubName={club.name}
-                    isRefresh={true}
-                  />
+                  <Button
+                    asChild
+                    className={`
+    w-full py-2.5 rounded-lg font-semibold text-sm mt-auto
+    bg-green-600 hover:bg-green-700
+    text-white transition-all duration-300 shadow-sm
+    dark:bg-green-500 dark:hover:bg-green-600
+  `}
+                  >
+                    <Link href={`/clubs/${club.slug}`}>Xem chi tiết</Link>
+                  </Button>
                 </div>
               </div>
             ))}

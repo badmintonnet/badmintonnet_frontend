@@ -46,7 +46,7 @@ export default async function GuestMembers({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col overflow-hidden px-6">
-        <GuestList members={members} />
+        <GuestList members={members} clubId={id} />
       </CardContent>
     </Card>
   );

@@ -1,5 +1,10 @@
 import z from "zod";
-
+const InvitationStatusEnum = z.enum([
+  "PENDING",
+  "ACCEPTED",
+  "REJECTED",
+  "CANCELLED",
+]);
 const ClubVisibilityEnum = z.enum(["PRIVATE", "PUBLIC"]);
 const RoleEnum = z.enum(["OWNER", "MEMBER"]);
 const MemberStatusEnum = z.enum(["PENDING", "APPROVED", "REJECTED", "BANNED"]);
@@ -73,6 +78,8 @@ export const ClubSchema = z.object({
   joined: z.boolean(),
   status: ClubStatusEnum,
   createdAt: z.coerce.date(),
+  invitationId: z.string().nullable(),
+  invitationMessage: z.string().nullable(),
 });
 
 export const ClubAdminSchema = z.object({
@@ -189,6 +196,7 @@ export const GuestSchema = z.object({
   name: z.string(),
   avatar: z.string(),
   joinedCount: z.number().int(),
+  invitationStatus: InvitationStatusEnum.nullable(),
   slug: z.string(),
 });
 
