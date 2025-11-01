@@ -388,12 +388,6 @@ export default async function ClubDetailPage({
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Main Members List */}
-                <div className="lg:col-span-3">
-                  <ApprovedMembers
-                    id={clubDetail.id}
-                    accessToken={accessToken?.value || ""}
-                  />
-                </div>
 
                 <div className="lg:col-span-1 space-y-4">
                   {isOwner && (

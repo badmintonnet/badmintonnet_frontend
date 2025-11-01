@@ -1,4 +1,5 @@
 import z from "zod";
+const WarningStatusEnum = z.enum(["ACTIVE", "REVOKED"]);
 const InvitationStatusEnum = z.enum([
   "PENDING",
   "ACCEPTED",
@@ -96,12 +97,43 @@ export const ClubAdminSchema = z.object({
 });
 
 export type ClubAdminSchemaType = z.infer<typeof ClubAdminSchema>;
+export const ClubWarningSchema = z.object({
+  accountId: z.string(),
+  clubId: z.string(),
+  reason: z.string(),
+});
+
+export const GetClubWarningRequest = z.object({
+  clubId: z.string(),
+  accountId: z.string(),
+});
+export type GetClubWarningRequest = z.infer<typeof GetClubWarningRequest>;
+
+export type ClubWarningType = z.infer<typeof ClubWarningSchema>;
+
+export const ClubWarningRes = z.object({
+  id: z.string(),
+  reason: z.string(),
+  status: WarningStatusEnum,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type ClubWarningResType = z.infer<typeof ClubWarningRes>;
+
+export const ClubWarningResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(ClubWarningRes),
+});
+export type ClubWarningResponseType = z.infer<typeof ClubWarningResponse>;
 
 export const MyClubSchema = ClubSchema.extend({
   memberStatus: MemberStatusEnum,
   memberCount: z.number().int(),
   owner: z.boolean(),
   dateJoined: z.coerce.date(),
+  clubWarnings: z.array(ClubWarningRes),
 });
 
 export const PagedClubResponse = z.object({

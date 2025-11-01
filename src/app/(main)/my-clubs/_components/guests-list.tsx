@@ -100,15 +100,17 @@ export default function GuestList({
                 </div>
 
                 {/* Invitation actions */}
-                <div className="flex-shrink-0">
-                  {member.invitationStatus === null && isOwner ? (
-                    <ClubInvitationDialog
-                      initialValues={{ receiverId: member.id, clubId }}
-                    />
-                  ) : (
-                    renderStatusBadge(member.invitationStatus)
-                  )}
-                </div>
+                {isOwner && (
+                  <div className="flex-shrink-0">
+                    {member.invitationStatus === null ? (
+                      <ClubInvitationDialog
+                        initialValues={{ receiverId: member.id, clubId }}
+                      />
+                    ) : (
+                      renderStatusBadge(member.invitationStatus)
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
