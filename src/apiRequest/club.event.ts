@@ -47,12 +47,18 @@ const eventClubApiRequest = {
         Authorization: `Bearer ${accessToken}`,
       },
     }),
-  cancelJoinEventClub: (id: string, accessToken: string) =>
-    http.post<void>(`/club-event/${id}/cancel-join`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }),
+  cancelJoinEventClub: (id: string, reason: string, accessToken: string) =>
+    http.post<string>(
+      `/club-event/${id}/cancel-join${
+        reason ? `?reason=${encodeURIComponent(reason)}` : ""
+      }`,
+      undefined,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ),
 
   //Lấy danh sách event clubs tất cả
   getAllPublicEventClubs: (

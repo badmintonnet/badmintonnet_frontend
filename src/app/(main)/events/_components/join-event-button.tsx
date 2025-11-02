@@ -38,17 +38,17 @@ export const JoinEventButton = ({
 
     try {
       // 🟢 Bước 1: Kiểm tra có thể tham gia hay không
-      const checkRes = await eventClubApiRequest.checkCanJoinEvent(
-        eventId,
-        accessToken
-      );
-      if (checkRes.payload.data && checkRes.payload.data.canJoin === false) {
-        toast.warning(
-          checkRes.payload.data.message ||
-            "Thời gian hoạt động bị trùng với lịch khác."
-        );
-        return; //
-      }
+      // const checkRes = await eventClubApiRequest.checkCanJoinEvent(
+      //   eventId,
+      //   accessToken
+      // );
+      // if (checkRes.payload.data && checkRes.payload.data.canJoin === false) {
+      //   toast.warning(
+      //     checkRes.payload.data.message ||
+      //       "Thời gian hoạt động bị trùng với lịch khác."
+      //   );
+      //   return; //
+      // }
 
       //  Gửi request tham gia
       const joinRes = await eventClubApiRequest.joinEvent(eventId, accessToken);

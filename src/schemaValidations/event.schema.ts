@@ -388,14 +388,3 @@ export const CreateFacilityBody = z.object({
 });
 
 export type CreateFacilityBodyType = z.infer<typeof CreateFacilityBody>;
-
-// export const UpdateFacilityBody = z.object({
-//   id: z.string(),
-//   name: z.string(),
-//   address: z.string(),
-//   province: z.string().min(1, "Tỉnh/Thành phố là bắt buộc"),
-//   ward: z.string().min(1, "Quận/Huyện là bắt buộc"),
-//   latitude: z.number().optional(),
-//   longitude: z.number().optional(),
-//   image: z.string().optional(),
-// });

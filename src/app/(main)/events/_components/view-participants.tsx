@@ -1,6 +1,7 @@
+"use client";
+
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ParticipantType } from "@/schemaValidations/event.schema";
 import {
   Users,
@@ -13,12 +14,13 @@ import {
   Calendar,
   GraduationCap,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import ViewDetailParticipants from "@/app/(main)/events/_components/view-detail-participants";
 import Link from "next/link";
 import Attendance from "@/app/(main)/events/_components/attendance";
-import AbsenceDialog from "@/app/(main)/events/_components/absent-reason/absence-dialog";
 import ReasonDialog from "@/app/(main)/events/_components/absent-reason/view-reason";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import EventCancellationList from "@/app/(main)/events/_components/event-cancellation-list";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:
@@ -48,122 +50,139 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 interface ParticipantsSectionProps {
   participants: ParticipantType[];
   eventId: string;
-  status: string; // trạng thái của sự kiện
+  status: string;
+  token?: string;
 }
 
 export default function ParticipantsSection({
   participants,
   eventId,
   status,
+  token,
 }: ParticipantsSectionProps) {
-  const pending = participants.filter((p) => p.status === "PENDING");
-  const others = participants.filter(
-    (p) => p.status !== "PENDING" && p.status !== "CANCELLED"
+  const [activeTab, setActiveTab] = useState<string>("active");
+
+  const activeParticipants = participants.filter(
+    (p) => p.status !== "CANCELLED"
+  );
+  const pendingParticipants = participants.filter(
+    (p) => p.status === "PENDING"
   );
 
-  const getStatusCounts = () => {
-    return {
-      pending: pending.length,
-      approved: participants.filter((p) => p.status === "APPROVED").length,
-      attended: participants.filter((p) => p.status === "ATTENDED").length,
-      absent: participants.filter((p) => p.status === "ABSENT").length,
-      total: participants.length,
-    };
+  // don't fetch cancellations here — EventCancellationList will fetch its own data
+  const counts = {
+    active: activeParticipants.length,
+    pending: pendingParticipants.length,
+    cancelled: participants.filter((p) => p.status === "CANCELLED").length,
   };
-
-  const counts = getStatusCounts();
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
       {/* Header */}
-      <div className=" p-8 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
             <div className="w-2 h-8 bg-gradient-to-b from-emerald-400 to-teal-600 rounded-full mr-4"></div>
-            Người tham gia hoạt động
+            Quản lý người tham gia
           </h2>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="p-8">
-        {/* Pending Section */}
-        <Section
-          title="Chờ duyệt"
-          empty="Không có ai đang chờ duyệt"
-          icon={<Clock className="w-5 h-5 text-amber-500" />}
-          count={counts.pending}
-        >
-          {pending.map((p) => (
-            <ParticipantCard
-              key={p.id}
-              participant={p}
-              eventId={eventId}
-              status={status}
-            />
-          ))}
-        </Section>
+        <div className="mt-4">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
+            <TabsList className="bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+              <TabsTrigger value="active" className="rounded-md px-4 py-2">
+                Đang tham gia
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-white dark:bg-gray-800"
+                >
+                  {counts.active}
+                </Badge>
+              </TabsTrigger>
+              {counts.pending > 0 && (
+                <TabsTrigger value="pending" className="rounded-md px-4 py-2">
+                  Chờ duyệt
+                  <Badge
+                    variant="outline"
+                    className="ml-2 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
+                  >
+                    {counts.pending}
+                  </Badge>
+                </TabsTrigger>
+              )}
+              <TabsTrigger value="cancelled" className="rounded-md px-4 py-2">
+                Đã hủy
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
+                >
+                  {counts.cancelled}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Other Section */}
-        <Section
-          title="Thành viên tham gia"
-          empty="Chưa có thành viên nào"
-          icon={<Users className="w-5 h-5 text-blue-500" />}
-          count={others.length}
-        >
-          {others.map((p) => (
-            <ParticipantCard
-              key={p.id}
-              participant={p}
-              eventId={eventId}
-              status={status}
-            />
-          ))}
-        </Section>
+            <TabsContent value="active" className="mt-6">
+              <ParticipantsList
+                participants={activeParticipants}
+                eventId={eventId}
+                status={status}
+                emptyMessage="Chưa có thành viên nào tham gia"
+              />
+            </TabsContent>
+
+            <TabsContent value="pending" className="mt-6">
+              <ParticipantsList
+                participants={pendingParticipants}
+                eventId={eventId}
+                status={status}
+                emptyMessage="Không có ai đang chờ duyệt"
+              />
+            </TabsContent>
+
+            <TabsContent value="cancelled" className="mt-6">
+              <EventCancellationList eventId={eventId} token={token} />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
 }
 
-function Section({
-  title,
-  empty,
-  children,
-  icon,
-  count,
+function ParticipantsList({
+  participants,
+  eventId,
+  status,
+  emptyMessage,
 }: {
-  title: string;
-  empty: string;
-  children: React.ReactNode;
-  icon: React.ReactNode;
-  count: number;
+  participants: ParticipantType[];
+  eventId: string;
+  status: string;
+  emptyMessage: string;
 }) {
-  return (
-    <div className="mb-10 last:mb-0">
-      <div className="flex items-center gap-3 mb-6">
-        {icon}
-        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-          {title}
-        </h3>
-        <Badge variant="outline" className="ml-auto">
-          {count} người
-        </Badge>
+  if (participants.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+          <Users className="w-8 h-8 text-gray-400" />
+        </div>
+        <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">
+          {emptyMessage}
+        </p>
       </div>
+    );
+  }
 
-      {React.Children.count(children) > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          {children}
-        </div>
-      ) : (
-        <div className="text-center py-2">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-            <Users className="w-8 h-8 text-gray-400" />
-          </div>
-          <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">
-            {empty}
-          </p>
-        </div>
-      )}
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+      {participants.map((p) => (
+        <ParticipantCard
+          key={p.id}
+          participant={p}
+          eventId={eventId}
+          status={status}
+        />
+      ))}
     </div>
   );
 }
@@ -178,15 +197,13 @@ function ParticipantCard({
   status: string;
 }) {
   return (
-    <div className="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 ">
-      {/* Gradient accent */}
+    <div className="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-600"></div>
 
       <div className="p-6">
         <div className="flex items-start gap-4">
-          {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-700 shadow-xl ring-4 ring-gray-100 dark:ring-gray-800">
+            <div className="w-14 h-14 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-700 shadow-xl ring-4 ring-gray-100 dark:ring-gray-800">
               <Image
                 src={participant.avatarUrl || "/user.png"}
                 alt="Avatar"
@@ -199,67 +216,62 @@ function ParticipantCard({
           </div>
 
           <div className="flex-1 min-w-0">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-2">
               <div className="min-w-0 flex-1">
                 <Link href={`/profile/${participant.slug}`}>
-                  <h4 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white truncate hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                     {participant.fullName}
                   </h4>
                 </Link>
                 <div className="flex items-center gap-2 mt-1">
-                  <Mail className="w-4 h-4 text-gray-400" />
+                  <Mail className="w-3.5 h-3.5 text-gray-400" />
                   <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                     {participant.email}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
-                {/* Ngày tham gia */}
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    {new Date(participant.joinedAt).toLocaleDateString("vi-VN")}
-                  </span>
-                </div>
-
-                {/* Điểm tổng quan */}
-                {participant.overallScore && (
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                      Trình độ: {participant.overallScore.toFixed(1)}
-                    </p>
-                  </div>
-                )}
-              </div>
+              <Badge
+                className={`${
+                  STATUS_COLORS[participant.status]
+                } flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium border ml-2 flex-shrink-0`}
+              >
+                {STATUS_ICONS[participant.status]}
+                {STATUS_LABELS[participant.status]}
+              </Badge>
             </div>
 
-            {/* Info */}
-            <div className="mb-4">
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                Giới tính: {participant.gender == "FEMALE" ? "Nữ" : "Nam"}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {new Date(participant.joinedAt).toLocaleDateString("vi-VN")}
+                </span>
               </div>
 
-              {participant.clubMember && (
-                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 text-purple-700 dark:text-purple-300 ml-2 font-medium">
-                  <Crown className="w-4 h-4 mr-1" />
-                  Thành viên CLB
+              {participant.overallScore && (
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {participant.overallScore.toFixed(1)}
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Status + Actions */}
-            <div className="flex items-center justify-end">
-              {/* <Badge
-                className={`${
-                  STATUS_COLORS[participant.status]
-                } flex items-center gap-2 px-3 py-2 text-sm font-medium border`}
-              >
-                {STATUS_ICONS[participant.status]}
-                {STATUS_LABELS[participant.status]}
-              </Badge> */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  {participant.gender === "FEMALE" ? "Nữ" : "Nam"}
+                </Badge>
+
+                {participant.clubMember && (
+                  <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 text-purple-700 dark:text-purple-300 border-0 text-xs">
+                    <Crown className="w-3 h-3 mr-1" />
+                    CLB
+                  </Badge>
+                )}
+              </div>
 
               {participant.status === "PENDING" ? (
                 <ViewDetailParticipants
@@ -267,8 +279,8 @@ function ParticipantCard({
                   eventId={eventId}
                 />
               ) : (
-                status == "FINISHED" && (
-                  <div className="pl-2 flex items-center gap-2">
+                status === "FINISHED" && (
+                  <div className="flex items-center gap-2">
                     {participant.status === "ABSENT" &&
                       participant.sendReason && (
                         <ReasonDialog idPart={participant.id} />
