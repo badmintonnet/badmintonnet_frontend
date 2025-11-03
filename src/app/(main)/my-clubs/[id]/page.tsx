@@ -75,9 +75,7 @@ export default async function MyClubDetail({
       accessToken?.value || ""
     );
     clubDetail = response.payload.data || null;
-    console.log("Club Detail:", clubDetail);
   } catch (error) {
-    console.log("Error fetching club detail:", error);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <p className="text-red-500">

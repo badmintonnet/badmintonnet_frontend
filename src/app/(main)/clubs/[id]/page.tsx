@@ -79,7 +79,6 @@ export default async function ClubDetailPage({
     );
     clubDetail = response.payload.data || null;
   } catch (error) {
-    console.log("Error fetching club detail:", error);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <p className="text-red-500">
@@ -92,7 +91,6 @@ export default async function ClubDetailPage({
   // Check if user has joined this club
   const isJoined = clubDetail.joined;
   const isOwner = clubDetail.owner;
-  console.log("Club Detail:", clubDetail, isJoined, isOwner);
 
   // Check if user is logged in
   const isLoggedIn = !!accessToken?.value;

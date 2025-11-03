@@ -9,6 +9,7 @@ import { MemberType } from "@/schemaValidations/clubs.schema";
 import { Button } from "@/components/ui/button";
 import MemberScheduleDialog from "@/app/(main)/my-clubs/_components/member-schedule";
 import CreateClubWarningDialog from "@/app/(main)/my-clubs/_components/create-club-warning-dialog";
+import CreateClubMemberNoteDialog from "@/app/(main)/my-clubs/_components/create-club-member-note-dialog";
 
 export default function MembersList({
   members,
@@ -104,6 +105,10 @@ export default function MembersList({
                       <div className="flex items-center">
                         <MemberScheduleDialog id={id} memberId={member.id} />
                         <CreateClubWarningDialog
+                          clubId={id}
+                          memberId={member.id}
+                        />
+                        <CreateClubMemberNoteDialog
                           clubId={id}
                           memberId={member.id}
                         />
