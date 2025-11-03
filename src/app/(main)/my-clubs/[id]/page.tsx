@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/tooltip";
 import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
 import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
+import ClubWarningDialog from "@/app/(main)/my-clubs/_components/warning-list";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -74,6 +75,7 @@ export default async function MyClubDetail({
       accessToken?.value || ""
     );
     clubDetail = response.payload.data || null;
+    console.log("Club Detail:", clubDetail);
   } catch (error) {
     console.log("Error fetching club detail:", error);
     return (
@@ -166,6 +168,9 @@ export default async function MyClubDetail({
                 />
                 <CreateEventClubButton club={clubDetail.slug} />
               </div>
+            )}
+            {clubDetail.clubWarnings?.length > 0 && (
+              <ClubWarningDialog warnings={clubDetail.clubWarnings} />
             )}
           </CardHeader>
         </Card>
@@ -286,6 +291,7 @@ export default async function MyClubDetail({
                 <ApprovedMembers
                   id={clubDetail.id}
                   accessToken={accessToken?.value || ""}
+                  isOwner={clubDetail.owner}
                 />
               </div>
               <div className="lg:col-span-1 space-y-4">

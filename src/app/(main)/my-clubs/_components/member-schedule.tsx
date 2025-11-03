@@ -125,7 +125,45 @@ export default function MemberScheduleDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <CalendarDays className="w-4 h-4" />
+        <div className="relative inline-block">
+          <button
+            type="button"
+            aria-label="Xem lịch của thành viên"
+            title="Xem lịch"
+            className="peer inline-flex items-center justify-center p-1.5 rounded-md text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-400"
+          >
+            <CalendarDays className="w-4 h-4" />
+          </button>
+
+          {/* tooltip: appears only on hover, light/dark friendly */}
+          <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 z-20">
+            <div className="hidden peer-hover:flex transform-gpu scale-95 opacity-0 peer-hover:opacity-100 peer-hover:scale-100 transition-all duration-150 ease-out origin-bottom">
+              <div className="mb-1 flex items-center justify-center">
+                <div className="whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium shadow-lg bg-white text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700">
+                  Lịch
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <svg
+                  width="14"
+                  height="8"
+                  viewBox="0 0 14 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-gray-300 dark:text-gray-700"
+                >
+                  <path
+                    d="M1 1L7 7L13 1"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-3xl max-h-[85vh] p-0 gap-0 rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg">
@@ -139,7 +177,7 @@ export default function MemberScheduleDialog({
 
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">
-              {items.length} mục
+              {items.length} hoạt động
             </span>
           </div>
         </DialogHeader>

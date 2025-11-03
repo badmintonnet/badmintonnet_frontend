@@ -23,9 +23,11 @@ async function getApprovedMembers(
 export default async function ApprovedMembers({
   id,
   accessToken,
+  isOwner,
 }: {
   id: string;
   accessToken: string;
+  isOwner: boolean;
 }) {
   const members = await getApprovedMembers(id, accessToken);
 
@@ -51,7 +53,7 @@ export default async function ApprovedMembers({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col overflow-hidden px-6">
-        <MembersList members={members} id={id} />
+        <MembersList members={members} id={id} isOwner={isOwner} />
       </CardContent>
     </Card>
   );

@@ -2,19 +2,22 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Users, Crown, CalendarDays } from "lucide-react";
+import { Users, Crown, CalendarDays, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MemberType } from "@/schemaValidations/clubs.schema";
 import { Button } from "@/components/ui/button";
 import MemberScheduleDialog from "@/app/(main)/my-clubs/_components/member-schedule";
+import CreateClubWarningDialog from "@/app/(main)/my-clubs/_components/create-club-warning-dialog";
 
 export default function MembersList({
   members,
   id,
+  isOwner = false,
 }: {
   members: MemberType[];
   id: string;
+  isOwner?: boolean;
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
   const MAX_MEMBERS = 100;
@@ -66,6 +69,7 @@ export default function MembersList({
                           {member.name}
                         </h4>
                       </Link>
+
                       {member.role === "OWNER" && (
                         <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">
                           <Crown className="h-3 w-3 text-white" />
@@ -74,6 +78,8 @@ export default function MembersList({
                           </span>
                         </div>
                       )}
+
+                      {/* Create warning dialog placed next to name (recommended) */}
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                       <span className="flex items-center gap-1">
@@ -91,17 +97,22 @@ export default function MembersList({
                 </div>
 
                 {/* activity count + schedule button (right-aligned) */}
-                {member.role !== "OWNER" && (
-                  <div className="ml-4 text-sm text-gray-600 dark:text-gray-300 text-right min-w-[130px] flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {member.joinedCount && member.joinedCount > 0
-                          ? "Đã tham gia"
-                          : "Chưa tham gia"}
-                      </span>
-
-                      {/* inline small trigger for schedule dialog */}
-                      <MemberScheduleDialog id={id} memberId={member.id} />
+                {member.role !== "OWNER" && isOwner && (
+                  <div className="text-sm text-gray-600 dark:text-gray-300 text-right min-w-[130px] flex flex-col items-end gap-1">
+                    <div className=" flex items-end ">
+                      {/* actions: warning + schedule */}
+                      <div className="flex items-center">
+                        <MemberScheduleDialog id={id} memberId={member.id} />
+                        <CreateClubWarningDialog
+                          clubId={id}
+                          memberId={member.id}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {member.joinedCount && member.joinedCount > 0
+                        ? "Đã tham gia"
+                        : "Chưa tham gia"}
                     </div>
 
                     <div className="mt-0 font-semibold text-gray-900 dark:text-white text-base">

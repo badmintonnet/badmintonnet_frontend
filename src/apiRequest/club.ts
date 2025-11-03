@@ -4,7 +4,10 @@ import {
   ClubMemberDetailResType,
   ClubPageResType,
   ClubResType,
+  ClubWarningResponseType,
+  ClubWarningType,
   CreateClubBodyType,
+  GetClubWarningRequest,
   GuestResponseType,
   MemberPageResType,
   MyClubPageResType,
@@ -128,5 +131,11 @@ const clubServiceApi = {
         cache: "no-store",
       }
     ),
+  createClubWarning: (body: ClubWarningType) =>
+    http.post(`/club_warning`, body),
+
+  getClubWarning: (clubId: string, accountId: string) =>
+    http.get<ClubWarningResponseType>(`/club_warning/${clubId}/${accountId}`),
+  revokeWarning: (id: string) => http.put(`/club_warning/${id}`),
 };
 export default clubServiceApi;
