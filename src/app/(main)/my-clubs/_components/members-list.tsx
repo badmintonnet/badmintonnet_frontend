@@ -15,10 +15,12 @@ export default function MembersList({
   members,
   id,
   isOwner = false,
+  currentUserId,
 }: {
   members: MemberType[];
   id: string;
   isOwner?: boolean;
+  currentUserId?: string;
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
   const MAX_MEMBERS = 100;
@@ -65,11 +67,20 @@ export default function MembersList({
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Link href={`/profile/${member.slug}`}>
-                        <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
-                          {member.name}
-                        </h4>
-                      </Link>
+                      {/* name: show "Tôi" and link to /profile when this is current user */}
+                      {member.id === currentUserId ? (
+                        <Link href="/profile">
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
+                            Tôi
+                          </h4>
+                        </Link>
+                      ) : (
+                        <Link href={`/profile/${member.slug}`}>
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
+                            {member.name}
+                          </h4>
+                        </Link>
+                      )}
 
                       {member.role === "OWNER" && (
                         <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">

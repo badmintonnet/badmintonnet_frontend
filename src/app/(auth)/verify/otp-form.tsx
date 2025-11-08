@@ -3,11 +3,14 @@
 import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 
 function OtpForm({ email }: { email: string | null }) {
   const [otp, setOtp] = useState(Array(6).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+  const [resendLoading, setResendLoading] = useState(false);
+
   useEffect(() => {
     // Focus vào ô đầu tiên khi component mount
     if (inputRefs.current[0]) {
@@ -83,13 +86,20 @@ function OtpForm({ email }: { email: string | null }) {
     }
   };
 
-  const handleResend = () => {
-    console.log("Gửi lại mã OTP");
-    // TODO: Gọi API gửi lại OTP ở đây
-    // await resendOTP();
-
-    setOtp(Array(6).fill(""));
-    inputRefs.current[0]?.focus();
+  const handleResend = async () => {
+    if (!email || resendLoading) return;
+    setResendLoading(true);
+    try {
+      await authApiRequest.sendOtp(email);
+      toast.success("Mã OTP đã được gửi lại đến email của bạn.");
+      setOtp(Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+    } catch (error) {
+      console.error("Resend OTP failed", error);
+      toast.error("Không thể gửi lại mã OTP. Vui lòng thử lại.");
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   const isComplete = otp.every((digit) => digit !== "");
@@ -136,9 +146,43 @@ function OtpForm({ email }: { email: string | null }) {
         </p>
         <button
           onClick={handleResend}
-          className="text-blue-600 hover:text-blue-700 font-semibold text-sm hover:underline transition-all"
+          disabled={resendLoading}
+          aria-busy={resendLoading}
+          className={`inline-flex items-center gap-2 text-blue-600 font-semibold text-sm transition-all ${
+            resendLoading
+              ? "opacity-60 cursor-not-allowed"
+              : "hover:text-blue-700 hover:underline"
+          }`}
         >
-          🔄 Gửi lại mã OTP
+          {resendLoading ? (
+            <>
+              <svg
+                className="animate-spin w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+              Đang gửi...
+            </>
+          ) : (
+            <>
+              <span>🔄</span> Gửi lại mã OTP
+            </>
+          )}
         </button>
       </div>
     </div>

@@ -30,6 +30,7 @@ const accountApiRequest = {
       },
     }),
 
+  protectProfile: () => http.put<AccountResType>(`/account/protect_profile`),
   updateProfile: (body: UpdateProfileBodyType) =>
     http.put<AccountResType>("/account/profile", body),
   getAllClubId: (accessToken: string) =>
@@ -43,6 +44,16 @@ const accountApiRequest = {
 
   getPlayerRating: (accessToken?: string) =>
     http.get<PlayerRatingResponseType>("/account/player-rating", {
+      ...(accessToken
+        ? {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        : {}),
+    }),
+  getOtherPlayerRating: (accessToken: string, accountId: string) =>
+    http.get<PlayerRatingResponseType>(`/account/player-rating/${accountId}`, {
       ...(accessToken
         ? {
             headers: {

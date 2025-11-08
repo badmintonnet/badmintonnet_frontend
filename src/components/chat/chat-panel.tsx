@@ -14,10 +14,6 @@ interface JwtPayload {
   iat: number;
   authorities: string[];
 }
-import { jwtDecode } from "jwt-decode";
-import { clientSessionToken } from "@/lib/http";
-import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationType | null>(null);

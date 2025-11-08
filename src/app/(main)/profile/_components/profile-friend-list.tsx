@@ -252,7 +252,7 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
                       {friend.skillLevel || "Chưa có"}
                     </p>
                     <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
-                      {Math.floor(Math.random() * 200) + 1} bạn chung
+                      {friend.mutualFriends} bạn chung
                     </p>
                   </div>
 
@@ -296,28 +296,6 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
               </div>
 
               {/* Card Footer with Action Buttons */}
-              <div className="px-6 pb-6 pt-2">
-                <div className="flex gap-3">
-                  {/* Primary Action - Message */}
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                  >
-                    <ChatBubbleLeftIcon className="h-4 w-4 mr-2" />
-                    Nhắn tin
-                  </Button>
-
-                  {/* Secondary Action - View Profile */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
-                  >
-                    <UserIcon className="h-4 w-4 mr-2" />
-                    Hồ sơ
-                  </Button>
-                </div>
-              </div>
             </div>
           ))}
         </div>

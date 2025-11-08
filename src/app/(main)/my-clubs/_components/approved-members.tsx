@@ -4,6 +4,7 @@ import { Users } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { MemberType } from "@/schemaValidations/clubs.schema";
 import MembersList from "@/app/(main)/my-clubs/_components/members-list";
+import accountApiRequest from "@/apiRequest/account";
 // component client hiển thị thành viên
 
 async function getApprovedMembers(
@@ -30,7 +31,10 @@ export default async function ApprovedMembers({
   isOwner: boolean;
 }) {
   const members = await getApprovedMembers(id, accessToken);
-
+  let currentUserId: string | null = null;
+  // fetch current user to know requester/receiver role for actions
+  const me = await accountApiRequest.getAccount(accessToken);
+  currentUserId = me.payload.data.id;
   return (
     <Card className="h-full flex flex-col shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
       <CardHeader className="pb-2">
@@ -53,7 +57,12 @@ export default async function ApprovedMembers({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col overflow-hidden px-6">
-        <MembersList members={members} id={id} isOwner={isOwner} />
+        <MembersList
+          members={members}
+          id={id}
+          isOwner={isOwner}
+          currentUserId={currentUserId}
+        />
       </CardContent>
     </Card>
   );

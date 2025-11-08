@@ -29,6 +29,7 @@ import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
 import { clientSessionToken } from "@/lib/http";
 import ReputationHistoryDialog from "@/app/(main)/profile/_components/view-reputation-history";
 import ScheduleDialog from "@/app/(main)/profile/_components/view-schedule";
+import ProtectProfileButton from "@/app/(main)/profile/_components/protect-profile-button";
 
 type Profile = AccountResType["data"];
 
@@ -258,6 +259,7 @@ export default function ProfileHeader({
                 </Button>
                 <ReputationHistoryDialog />
                 <ScheduleDialog />
+                <ProtectProfileButton defaultValue={profile.profileProtected} />
               </>
             ) : (
               // Other User Actions

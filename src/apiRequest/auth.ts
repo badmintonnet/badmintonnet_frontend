@@ -16,5 +16,6 @@ const authApiRequest = {
   refreshSession: () => http.get<LoginResType>("auth/refresh", {}),
   verify: (body: VerifyBodyType) =>
     http.post<LoginResType>("auth/verify", body),
+  sendOtp: (email: string) => http.get(`auth/send-otp/${email}`),
 };
 export default authApiRequest;

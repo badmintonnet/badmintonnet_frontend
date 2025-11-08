@@ -43,6 +43,7 @@ export const AccountFriendSchema = z.object({
   fullName: z.string(),
   avatarUrl: z.string(),
   skillLevel: z.string(),
+  mutualFriends: z.number(),
   slug: z.string(),
 });
 
