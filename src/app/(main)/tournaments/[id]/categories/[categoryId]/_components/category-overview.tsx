@@ -47,52 +47,93 @@ export default function CategoryOverview({ category }: CategoryOverviewProps) {
         </Card>
       )}
 
-      {category.firstPrize && (
-        <Card>
-          <CardHeader>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Cơ cấu giải thưởng
-            </h3>
+      {(category.firstPrize || category.secondPrize || category.thirdPrize) && (
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Cơ cấu giải thưởng
+              </h3>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {category.firstPrize && (
-                <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4 rounded-lg border-2 border-amber-300 dark:border-amber-700">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="w-5 h-5 text-amber-600" />
-                    <span className="font-semibold text-amber-900 dark:text-amber-300">
-                      Giải nhất
-                    </span>
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 dark:from-yellow-900/30 dark:via-amber-900/20 dark:to-orange-900/20 p-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-amber-200 dark:border-amber-800">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/30 dark:bg-amber-700/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-amber-500 dark:bg-amber-600 flex items-center justify-center shadow-md">
+                          <Trophy className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-lg font-bold text-amber-900 dark:text-amber-200">
+                          Giải nhất
+                        </span>
+                      </div>
+                      <div className="text-4xl font-bold text-amber-500/20 dark:text-amber-400/10">
+                        🥇
+                      </div>
+                    </div>
+                    <div className="mt-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
+                      <p className="text-xl text-center font-bold text-amber-800 dark:text-amber-300 break-words">
+                        {category.firstPrize}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">
-                    {category.firstPrize}
-                  </p>
                 </div>
               )}
+
               {category.secondPrize && (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 p-4 rounded-lg border-2 border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="w-5 h-5 text-gray-600" />
-                    <span className="font-semibold text-gray-900 dark:text-gray-300">
-                      Giải nhì
-                    </span>
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-slate-800/30 dark:via-gray-800/20 dark:to-zinc-800/20 p-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gray-200/30 dark:bg-gray-700/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-500 flex items-center justify-center shadow-md">
+                          <Trophy className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-200">
+                          Giải nhì
+                        </span>
+                      </div>
+                      <div className="text-4xl font-bold text-gray-400/20 dark:text-gray-500/10">
+                        🥈
+                      </div>
+                    </div>
+                    <div className="mt-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
+                      <p className="text-xl text-center font-bold text-gray-700 dark:text-gray-300 break-words">
+                        {category.secondPrize}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-gray-700 dark:text-gray-400">
-                    {category.secondPrize}
-                  </p>
                 </div>
               )}
+
               {category.thirdPrize && (
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-lg border-2 border-orange-300 dark:border-orange-700">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="w-5 h-5 text-orange-600" />
-                    <span className="font-semibold text-orange-900 dark:text-orange-300">
-                      Giải ba
-                    </span>
+                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-900/30 dark:via-amber-900/20 dark:to-yellow-900/20 p-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-800">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-orange-200/30 dark:bg-orange-700/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-orange-500 dark:bg-orange-600 flex items-center justify-center shadow-md">
+                          <Trophy className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-lg font-bold text-orange-900 dark:text-orange-200">
+                          Giải ba
+                        </span>
+                      </div>
+                      <div className="text-4xl font-bold text-orange-400/20 dark:text-orange-500/10">
+                        🥉
+                      </div>
+                    </div>
+                    <div className="mt-4 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm">
+                      <p className="text-xl text-center font-bold text-orange-700 dark:text-orange-300 break-words">
+                        {category.thirdPrize}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">
-                    {category.thirdPrize}
-                  </p>
                 </div>
               )}
             </div>

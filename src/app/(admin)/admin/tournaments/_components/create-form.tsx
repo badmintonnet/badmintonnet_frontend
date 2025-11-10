@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,6 +10,7 @@ import Image from "next/image";
 import {
   TournamentCreateRequest,
   BadmintonCategoryEnum,
+  CategoryFormatEnum,
 } from "@/schemaValidations/tournament.schema";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,10 +60,20 @@ export function getCategoryLabel(category: string): string {
   return map[category] ?? category;
 }
 
+// Helper function to get format labels
+export function getFormatLabel(format: string): string {
+  const map: Record<string, string> = {
+    LOAI_TRUC_TIEP: "Loại trực tiếp",
+    VONG_TRON: "Vòng tròn",
+    VONG_BANG: "Vòng bảng",
+    KET_HOP: "Kết hợp",
+  };
+  return map[format] ?? format;
+}
+
 // Helper function to format date string for backend
 function toLocalDateTime(dateString: string) {
   if (!dateString) return null;
-  // Nếu đã có "T" (đã bao gồm giờ) thì giữ nguyên
   return dateString.includes("T") ? dateString : `${dateString}T00:00:00`;
 }
 
@@ -76,8 +86,6 @@ export default function TournamentCreateForm({
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-
-  // Address related states
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState("");
@@ -85,7 +93,6 @@ export default function TournamentCreateForm({
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
   const [isLoadingWards, setIsLoadingWards] = useState(false);
   const [additionalAddress, setAdditionalAddress] = useState("");
-
   const [facilities, setFacilities] = useState<FacilityType[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<string | null>(null);
   const [loadingFacilities, setLoadingFacilities] = useState(true);
@@ -111,18 +118,25 @@ export default function TournamentCreateForm({
           minLevel: 1,
           maxLevel: 5,
           maxParticipants: 16,
+          format: "LOAI_TRUC_TIEP",
+          registrationFee: 0,
+          description: "",
+          rules: [],
+          firstPrize: "",
+          secondPrize: "",
+          thirdPrize: "",
+          registrationDeadline: "",
         },
       ],
     },
   });
 
-  const { control, register } = form;
+  const { control, register, setValue } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "categories",
   });
-  const { setValue } = form;
 
   useEffect(() => {
     const loadFacilities = async () => {
@@ -138,11 +152,9 @@ export default function TournamentCreateForm({
         setLoadingFacilities(false);
       }
     };
-
     loadFacilities();
   }, []);
 
-  // Load provinces when component mounts
   useEffect(() => {
     if (!selectedFacility) {
       const loadProvinces = async () => {
@@ -165,7 +177,6 @@ export default function TournamentCreateForm({
     }
   }, [selectedFacility]);
 
-  // Load wards when province changes
   useEffect(() => {
     if (!selectedProvinceId || selectedFacility) {
       setWards([]);
@@ -190,22 +201,17 @@ export default function TournamentCreateForm({
     loadWards();
   }, [selectedProvinceId, selectedFacility]);
 
-  // Update location field when address parts change
   useEffect(() => {
     const updateLocation = () => {
-      // Nếu có facility được chọn, không cập nhật location từ province/ward
       if (selectedFacility) return;
-
       const selectedProvince = provinces.find(
         (p) => p.id === selectedProvinceId
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
       const locationParts: string[] = [];
-
       if (additionalAddress) locationParts.push(additionalAddress);
       if (selectedWard) locationParts.push(selectedWard.full_name);
       if (selectedProvince) locationParts.push(selectedProvince.full_name);
-
       const fullLocation = locationParts.join(", ");
       setValue("location", fullLocation, { shouldValidate: true });
     };
@@ -228,7 +234,6 @@ export default function TournamentCreateForm({
         setValue("location", location, {
           shouldValidate: true,
         });
-        // Reset province/ward khi có facility
         setSelectedProvinceId("");
         setSelectedWardId("");
         setAdditionalAddress("");
@@ -254,11 +259,11 @@ export default function TournamentCreateForm({
     if (type === "banner") {
       setBannerPreview(url);
       setBannerImage(file);
-      form.setValue("bannerUrl", file.name, { shouldValidate: true }); // For validation
+      form.setValue("bannerUrl", file.name, { shouldValidate: true });
     } else {
       setLogoPreview(url);
       setLogoImage(file);
-      form.setValue("logoUrl", file.name, { shouldValidate: true }); // For validation
+      form.setValue("logoUrl", file.name, { shouldValidate: true });
     }
   };
 
@@ -293,6 +298,22 @@ export default function TournamentCreateForm({
         registrationStartDate:
           toLocalDateTime(data.registrationStartDate) || "",
         registrationEndDate: toLocalDateTime(data.registrationEndDate) || "",
+        rules: data.rules || undefined,
+        categories: data.categories.map((cat) => {
+          // Convert category rules from textarea string to array
+          const categoryRulesArray = cat.rules
+            ?.map((line) => line.trim())
+            .filter((line) => line.length > 0);
+
+          return {
+            ...cat,
+            // Category rules as array
+            rules: categoryRulesArray,
+            registrationDeadline: cat.registrationDeadline
+              ? toLocalDateTime(cat.registrationDeadline) || undefined
+              : undefined,
+          };
+        }),
         ...(selectedFacility && { facilityId: selectedFacility }),
       });
 
@@ -614,6 +635,7 @@ export default function TournamentCreateForm({
                 />
               </div>
             </div>
+
             <FormField
               control={form.control}
               name="fee"
@@ -711,6 +733,14 @@ export default function TournamentCreateForm({
                       minLevel: 1,
                       maxLevel: 5,
                       maxParticipants: 16,
+                      format: "LOAI_TRUC_TIEP",
+                      registrationFee: 0,
+                      description: "",
+                      rules: [],
+                      firstPrize: "",
+                      secondPrize: "",
+                      thirdPrize: "",
+                      registrationDeadline: "",
                     })
                   }
                 >
@@ -719,85 +749,207 @@ export default function TournamentCreateForm({
               </div>
 
               {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-4 gap-4 items-end border p-4 rounded-lg"
-                >
-                  {/* Chọn loại */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Loại
-                    </label>
-                    <select
-                      {...register(`categories.${index}.categoryType` as const)}
-                      className="border rounded-md p-2 w-full dark:bg-gray-700 dark:text-white"
-                    >
-                      {BadmintonCategoryEnum.options.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {getCategoryLabel(opt)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Trình độ */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Trình độ tối thiểu
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min={0}
-                      max={5}
-                      {...register(`categories.${index}.minLevel`, {
-                        valueAsNumber: true,
-                      })}
-                      className="border rounded-md p-2 w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Trình độ tối đa
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min={0}
-                      max={5}
-                      {...register(`categories.${index}.maxLevel`, {
-                        valueAsNumber: true,
-                      })}
-                      className="border rounded-md p-2 w-full"
-                    />
-                  </div>
-
-                  {/* Số lượng */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Người tham gia tối đa
-                    </label>
-                    <input
-                      type="number"
-                      {...register(`categories.${index}.maxParticipants`, {
-                        valueAsNumber: true,
-                      })}
-                      className="border rounded-md p-2 w-full"
-                    />
-                  </div>
-
-                  {/* Nút xoá */}
-                  <div className="col-span-4 flex justify-end">
-                    <button
+                <Card key={field.id} className="border-2 p-6 space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">
+                      Hạng mục {index + 1}
+                    </h3>
+                    <Button
                       type="button"
+                      variant="destructive"
+                      size="sm"
                       onClick={() => remove(index)}
-                      className="text-red-600 text-sm mt-2"
                     >
-                      Xóa hạng mục
-                    </button>
+                      <Trash size={16} className="mr-1" /> Xóa
+                    </Button>
                   </div>
-                </div>
+
+                  {/* Basic Info Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Category Type */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Loại hạng mục <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        {...register(
+                          `categories.${index}.categoryType` as const
+                        )}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500"
+                      >
+                        {BadmintonCategoryEnum.options.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {getCategoryLabel(opt)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Format */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Hình thức thi đấu{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        {...register(`categories.${index}.format` as const)}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500"
+                      >
+                        {CategoryFormatEnum.options.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {getFormatLabel(opt)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Min Level */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Trình độ tối thiểu{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min={0}
+                        max={5}
+                        {...register(`categories.${index}.minLevel`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </div>
+
+                    {/* Max Level */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Trình độ tối đa <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min={0}
+                        max={5}
+                        {...register(`categories.${index}.maxLevel`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </div>
+
+                    {/* Max Participants */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Số người tham gia tối đa{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="number"
+                        {...register(`categories.${index}.maxParticipants`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </div>
+
+                    {/* Registration Fee */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Lệ phí đăng ký (VNĐ)
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        {...register(`categories.${index}.registrationFee`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </div>
+
+                    {/* Registration Deadline */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Hạn đăng ký
+                      </label>
+                      <Input
+                        type="date"
+                        {...register(
+                          `categories.${index}.registrationDeadline` as const
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Mô tả hạng mục
+                    </label>
+                    <Textarea
+                      placeholder="Nhập mô tả chi tiết về hạng mục..."
+                      {...register(`categories.${index}.description` as const)}
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Rules */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Điều lệ hạng mục
+                    </label>
+                    <FormField
+                      control={form.control}
+                      name={`categories.${index}.rules`}
+                      render={({ field }) => (
+                        <Textarea
+                          placeholder="Nhập điều lệ riêng cho hạng mục này (mỗi dòng một điều)..."
+                          value={
+                            Array.isArray(field.value)
+                              ? field.value.join("\n")
+                              : ""
+                          }
+                          onChange={(e) => {
+                            const lines = e.target.value.split("\n");
+                            field.onChange(lines);
+                          }}
+                          rows={4}
+                          className="whitespace-pre-line"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  {/* Prizes */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Giải nhất
+                      </label>
+                      <Input
+                        placeholder="VD: Cúp vàng + 5.000.000 VNĐ"
+                        {...register(`categories.${index}.firstPrize` as const)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Giải nhì
+                      </label>
+                      <Input
+                        placeholder="VD: Cúp bạc + 3.000.000 VNĐ"
+                        {...register(
+                          `categories.${index}.secondPrize` as const
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Giải ba
+                      </label>
+                      <Input
+                        placeholder="VD: Cúp đồng + 2.000.000 VNĐ"
+                        {...register(`categories.${index}.thirdPrize` as const)}
+                      />
+                    </div>
+                  </div>
+                </Card>
               ))}
             </div>
 

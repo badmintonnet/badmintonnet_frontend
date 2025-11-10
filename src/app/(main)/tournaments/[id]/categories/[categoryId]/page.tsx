@@ -2,18 +2,17 @@ import { Suspense } from "react";
 import CategoryDetail from "./_components/category-detail";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function CategoryDetailPage({
+export default async function CategoryDetailPage({
   params,
 }: {
-  params: { id: string; categoryId: string };
+  params: Promise<{ id: string; categoryId: string }>;
 }) {
+  const { id, categoryId } = await params;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<CategoryDetailSkeleton />}>
-        <CategoryDetail
-          tournamentId={params.id}
-          categoryId={params.categoryId}
-        />
+        <CategoryDetail tournamentId={id} categoryId={categoryId} />
       </Suspense>
     </div>
   );

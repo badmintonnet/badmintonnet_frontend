@@ -8,17 +8,17 @@ import CategoryBreadcrumb from "@/app/(main)/tournaments/[id]/categories/[catego
 import CategoryHeader from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-header";
 import CategoryStats from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-stats";
 import CategoryTabs from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-tabs";
-
+import { CategoryDetail } from "@/schemaValidations/tournament.schema";
 interface CategoryDetailProps {
   tournamentId: string;
   categoryId: string;
 }
 
-export default function CategoryDetail({
+export default function TournamentCategoryDetail({
   tournamentId,
   categoryId,
 }: CategoryDetailProps) {
-  const [category, setCategory] = useState<any>(null);
+  const [category, setCategory] = useState<CategoryDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -29,6 +29,7 @@ export default function CategoryDetail({
           categoryId
         );
         setCategory(response.payload.data);
+        console.log("Fetched category detail:", response.payload.data);
       } catch (error) {
         toast.error("Không thể tải thông tin hạng mục");
       } finally {
