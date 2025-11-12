@@ -235,7 +235,7 @@ export default function EventCancellationList({ eventId, token }: Props) {
                         >
                           {actionLoadingId === it.cancellationId
                             ? "Đang..."
-                            : "Phê duyệt"}
+                            : "Chấp nhận"}
                         </Button>
                         <Button
                           size="sm"
@@ -324,7 +324,7 @@ export default function EventCancellationList({ eventId, token }: Props) {
                 >
                   {actionLoadingId === selected?.cancellationId
                     ? "Đang..."
-                    : "Phê duyệt"}
+                    : "Chấp nhận"}
                 </Button>
                 <Button
                   variant="destructive"

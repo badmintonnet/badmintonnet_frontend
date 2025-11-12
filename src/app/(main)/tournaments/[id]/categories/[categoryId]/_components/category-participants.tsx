@@ -78,7 +78,7 @@ export default function CategoryParticipants({
   const handleApprove = async (participantId: string) => {
     setProcessingId(participantId);
     try {
-      // await tournamentApiRequest.approveParticipant(participantId);
+      await tournamentApiRequest.approveParticipant(participantId);
       toast.success("Đã duyệt thành công!");
       // Refresh both lists
       fetchPendingParticipants();
@@ -93,7 +93,7 @@ export default function CategoryParticipants({
   const handleReject = async (participantId: string) => {
     setProcessingId(participantId);
     try {
-      // await tournamentApiRequest.rejectParticipant(participantId);
+      await tournamentApiRequest.rejectParticipant(participantId);
       toast.success("Đã từ chối!");
       fetchPendingParticipants();
     } catch (error) {

@@ -60,5 +60,10 @@ const tournamentApiRequest = {
       `/tournament-participants/${categoryId}?${params.toString()}`
     );
   },
+
+  approveParticipant: (participantId: string) =>
+    http.put(`/tournament-participants/${participantId}/approve`),
+  rejectParticipant: (participantId: string) =>
+    http.put(`/tournament-participants/${participantId}/reject`),
 };
 export default tournamentApiRequest;
