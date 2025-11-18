@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -21,17 +21,13 @@ import {
 import {
   EllipsisVerticalIcon,
   UserMinusIcon,
-  ShieldExclamationIcon,
-  FlagIcon,
   UsersIcon,
-  MagnifyingGlassIcon,
-  ChatBubbleLeftIcon,
-} from "@heroicons/react/24/outline";
+  UserPlusIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
 import friendApiRequest from "@/apiRequest/friend";
-import { UserIcon, UserPlusIcon } from "lucide-react";
-import Link from "next/link";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 interface FriendTabProps {
   accountId: string;
@@ -44,11 +40,9 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
   const [loading, setLoading] = useState(true);
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
-    type: "unfriend" | "block" | "report" | null;
     friend: AccountFriendSchemaType | null;
   }>({
     isOpen: false,
-    type: null,
     friend: null,
   });
 
@@ -61,9 +55,9 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
           accountId,
           accessToken
         );
-        setFriends(res.payload.data);
+        setFriends(res.payload.data ?? []);
       } catch (error) {
-        console.log("Error fetching friends:", error);
+        console.error(error);
         toast.error("Đã có lỗi xảy ra khi tải danh sách bạn bè.");
       } finally {
         setLoading(false);
@@ -78,96 +72,28 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
     friend.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAction = (
-    type: "unfriend" | "block" | "report",
-    friend: AccountFriendSchemaType
-  ) => {
-    setConfirmDialog({
-      isOpen: true,
-      type,
-      friend,
-    });
+  const handleActionUnfriend = (friend: AccountFriendSchemaType) => {
+    setConfirmDialog({ isOpen: true, friend });
   };
 
-  const handleConfirmAction = async () => {
-    if (!confirmDialog.friend || !confirmDialog.type) return;
-
+  const handleConfirmUnfriend = async () => {
+    if (!confirmDialog.friend) return;
     try {
-      switch (confirmDialog.type) {
-        case "unfriend":
-          // await friendApiRequest.unfriend(confirmDialog.friend.id);
-          // Remove friend from local state
-          setFriends((prev) =>
-            prev.filter((f) => f.id !== confirmDialog.friend!.id)
-          );
-          toast.success(`Đã hủy kết bạn với ${confirmDialog.friend.fullName}`);
-          break;
-        case "block":
-          // await friendApiRequest.block(confirmDialog.friend.id);
-          // Remove friend from local state
-          setFriends((prev) =>
-            prev.filter((f) => f.id !== confirmDialog.friend!.id)
-          );
-          toast.success(`Đã chặn ${confirmDialog.friend.fullName}`);
-          break;
-        case "report":
-          // await friendApiRequest.report(confirmDialog.friend.id);
-          toast.success(`Đã báo cáo ${confirmDialog.friend.fullName}`);
-          break;
-      }
-
-      setConfirmDialog({ isOpen: false, type: null, friend: null });
+      // uncomment / adapt API call if available:
+      await friendApiRequest.unfriend(confirmDialog.friend.id);
+      setFriends((prev) =>
+        prev.filter((f) => f.id !== confirmDialog.friend!.id)
+      );
+      toast.success(`Đã hủy kết bạn với ${confirmDialog.friend.fullName}`);
+      setConfirmDialog({ isOpen: false, friend: null });
     } catch (error) {
+      console.error(error);
       toast.error("Có lỗi xảy ra. Vui lòng thử lại!");
     }
   };
 
-  const handleCancelAction = () => {
-    setConfirmDialog({ isOpen: false, type: null, friend: null });
-  };
-
-  const getDialogContent = () => {
-    if (!confirmDialog.friend)
-      return {
-        title: "",
-        description: "",
-        confirmText: "",
-        variant: "default" as const,
-      };
-
-    switch (confirmDialog.type) {
-      case "unfriend":
-        return {
-          title: "Hủy kết bạn",
-          description: `Bạn có chắc chắn muốn hủy kết bạn với ${confirmDialog.friend.fullName}?`,
-          confirmText: "Hủy kết bạn",
-          variant: "destructive" as const,
-        };
-      case "block":
-        return {
-          title: "Chặn người dùng",
-          description: `Bạn có chắc chắn muốn chặn ${confirmDialog.friend.fullName}? Họ sẽ không thể nhắn tin hoặc tương tác với bạn.`,
-          confirmText: "Chặn",
-          variant: "destructive" as const,
-        };
-      case "report":
-        return {
-          title: "Báo cáo người dùng",
-          description: `Bạn có chắc chắn muốn báo cáo ${confirmDialog.friend.fullName}? Chúng tôi sẽ xem xét báo cáo này.`,
-          confirmText: "Báo cáo",
-          variant: "destructive" as const,
-        };
-      default:
-        return {
-          title: "",
-          description: "",
-          confirmText: "",
-          variant: "default" as const,
-        };
-    }
-  };
-
-  const dialogContent = getDialogContent();
+  const handleCancelAction = () =>
+    setConfirmDialog({ isOpen: false, friend: null });
 
   if (loading) {
     return (
@@ -252,7 +178,7 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
                       {friend.skillLevel || "Chưa có"}
                     </p>
                     <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
-                      {Math.floor(Math.random() * 200) + 1} bạn chung
+                      {friend.mutualFriends} bạn chung
                     </p>
                   </div>
 
@@ -267,28 +193,13 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
                         <EllipsisVerticalIcon className="h-5 w-5 text-gray-500" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-44">
                       <DropdownMenuItem
-                        onClick={() => handleAction("unfriend", friend)}
+                        onClick={() => handleActionUnfriend(friend)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                       >
                         <UserMinusIcon className="h-4 w-4 mr-2" />
                         Hủy kết bạn
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleAction("block", friend)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <ShieldExclamationIcon className="h-4 w-4 mr-2" />
-                        Chặn
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleAction("report", friend)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <FlagIcon className="h-4 w-4 mr-2" />
-                        Báo cáo
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -296,28 +207,6 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
               </div>
 
               {/* Card Footer with Action Buttons */}
-              <div className="px-6 pb-6 pt-2">
-                <div className="flex gap-3">
-                  {/* Primary Action - Message */}
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                  >
-                    <ChatBubbleLeftIcon className="h-4 w-4 mr-2" />
-                    Nhắn tin
-                  </Button>
-
-                  {/* Secondary Action - View Profile */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
-                  >
-                    <UserIcon className="h-4 w-4 mr-2" />
-                    Hồ sơ
-                  </Button>
-                </div>
-              </div>
             </div>
           ))}
         </div>
@@ -328,15 +217,6 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
             <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center">
               <UsersIcon className="h-12 w-12 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </div>
           </div>
 
           <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
@@ -345,8 +225,8 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
 
           <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
             {searchTerm
-              ? `Không có bạn bè nào có tên "${searchTerm}". Hãy thử tìm kiếm với từ khóa khác.`
-              : "Bắt đầu kết nối với mọi người xung quanh bạn để xây dựng mạng lưới bạn bè phong phú!"}
+              ? `Không có bạn bè nào có tên "${searchTerm}".`
+              : "Bắt đầu kết nối với mọi người xung quanh bạn để xây dựng mạng lưới bạn bè!"}
           </p>
 
           {!searchTerm && (
@@ -372,10 +252,11 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-white">
-              {dialogContent.title}
+              Hủy kết bạn
             </DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-gray-400">
-              {dialogContent.description}
+              Bạn có chắc chắn muốn hủy kết bạn với{" "}
+              {confirmDialog.friend?.fullName}?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -386,11 +267,8 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
             >
               Hủy
             </Button>
-            <Button
-              variant={dialogContent.variant}
-              onClick={handleConfirmAction}
-            >
-              {dialogContent.confirmText}
+            <Button variant="destructive" onClick={handleConfirmUnfriend}>
+              Hủy kết bạn
             </Button>
           </DialogFooter>
         </DialogContent>

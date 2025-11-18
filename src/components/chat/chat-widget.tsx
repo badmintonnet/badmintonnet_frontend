@@ -4,7 +4,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, ArrowLeft, Send } from "lucide-react";
+import { MessageCircle, MessageSquare, X, ArrowLeft, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ConversationType } from "@/schemaValidations/chat.schema";
 import chatApiRequest from "@/apiRequest/chat";
 import { jwtDecode } from "jwt-decode";
@@ -25,6 +26,7 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationType | null>(null);
+  const router = useRouter();
   const [messages, setMessages] = useState<any[]>([]);
   const [conversations, setConversations] = useState<ConversationType[]>([]);
   const [text, setText] = useState("");
@@ -40,6 +42,7 @@ export default function ChatWidget() {
   const stompTypingRef = useRef<Client | null>(null);
   const typingSubRef = useRef<any>(null);
   const [isTypingUsers, setIsTypingUsers] = useState<string[]>([]); // danh sách user đang typing
+  const [searchTerm, setSearchTerm] = useState("");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -323,24 +326,27 @@ export default function ChatWidget() {
   return (
     <div className="relative">
       {/* Nút mở */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 relative"
-        onClick={() => {
-          setOpen(!open);
-        }}
-      >
-        <MessageCircle className="w-5 h-5" />
-        {unread > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
-            {unread}
-          </span>
-        )}
-      </Button>
+      {/* Nút mở + chuyển tới trang Tin nhắn */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 relative"
+          onClick={() => setOpen(!open)}
+          aria-label="Mở widget Tin nhắn"
+          title="Mở widget Tin nhắn"
+        >
+          <MessageCircle className="w-5 h-5" />
+          {unread > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+              {unread}
+            </span>
+          )}
+        </Button>
+      </div>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-96 h-[600px] bg-white dark:bg-gray-900 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 z-50 flex flex-col">
+        <div className="absolute right-0 mt-2 w-118 h-[600px] bg-white dark:bg-gray-900 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 z-50 flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
             <div className="flex items-center gap-3">
@@ -362,7 +368,7 @@ export default function ChatWidget() {
                       src={selectedConversation?.avatarUrl || "/user.png"}
                       alt={selectedConversation?.name || "Avatar"}
                       fill
-                      sizes="48px"
+                      sizes="64px"
                       className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600 transition-transform hover:scale-105 duration-200"
                       quality={100}
                       placeholder="blur"
@@ -372,9 +378,30 @@ export default function ChatWidget() {
                 </>
               )}
 
-              <h2 className="font-bold text-gray-900 dark:text-white text-base">
-                {selectedConversation ? selectedConversation.name : "Tin nhắn"}
-              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                // onClick={() => {
+                //   setOpen(false);
+                //   router.push("/chat");
+                // }}
+                className="hidden sm:inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 
+             px-3 py-1 rounded-md font-medium transition-all duration-200 
+             hover:bg-gray-100 dark:hover:bg-gray-800 
+             hover:text-gray-900 dark:hover:text-white 
+             hover:scale-[1.03] active:scale-[0.98]"
+                aria-label="Mở trang Tin nhắn"
+                title="Mở trang Tin nhắn"
+              >
+                {!selectedConversation && (
+                  <MessageSquare className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+                )}
+                <span>
+                  {selectedConversation
+                    ? selectedConversation?.name
+                    : "Tin nhắn"}
+                </span>
+              </Button>
             </div>
             <Button
               variant="ghost"
@@ -392,50 +419,66 @@ export default function ChatWidget() {
           {/* Danh sách hội thoại */}
           {!selectedConversation && (
             <div className="flex-1 overflow-y-auto">
-              {conversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  className="flex items-center p-4 gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200 border-b border-gray-100 dark:border-gray-800 relative"
-                  onClick={() => {
-                    setUnread((u) => u - conversation.unreadCount);
-                    setConversations((prev) =>
-                      prev.map((c) =>
-                        c.id === conversation.id ? { ...c, unreadCount: 0 } : c
-                      )
-                    );
-                    setSelectedConversation(conversation);
-                  }}
-                >
-                  <div className="relative w-12 h-12">
-                    <Image
-                      src={conversation.avatarUrl || "/user.png"}
-                      alt={conversation.name}
-                      fill
-                      sizes="48px"
-                      className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600 transition-transform hover:scale-105 duration-200"
-                      quality={100}
-                      placeholder="blur"
-                      blurDataURL="/user.png"
-                    />
-                  </div>
+              <div className="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Tìm kiếm hội thoại..."
+                  className="w-full rounded-full px-4 py-2 text-sm bg-white dark:bg-gray-900"
+                />
+              </div>
 
-                  <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                      {conversation.name}
-                    </span>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
-                      {conversation.firstMessage || "Chưa có tin nhắn"}
-                    </p>
-                  </div>
+              {conversations
+                .filter((conversation) =>
+                  conversation.name
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase().trim())
+                )
+                .map((conversation) => (
+                  <div
+                    key={conversation.id}
+                    className="flex items-center p-4 gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200 border-b border-gray-100 dark:border-gray-800 relative"
+                    onClick={() => {
+                      setUnread((u) => u - conversation.unreadCount);
+                      setConversations((prev) =>
+                        prev.map((c) =>
+                          c.id === conversation.id
+                            ? { ...c, unreadCount: 0 }
+                            : c
+                        )
+                      );
+                      setSelectedConversation(conversation);
+                    }}
+                  >
+                    <div className="relative w-12 h-12">
+                      <Image
+                        src={conversation.avatarUrl || "/user.png"}
+                        alt={conversation.name}
+                        fill
+                        sizes="56px"
+                        className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600 transition-transform hover:scale-105 duration-200"
+                        quality={100}
+                        placeholder="blur"
+                        blurDataURL="/user.png"
+                      />
+                    </div>
 
-                  {/* 🔴 Badge hiển thị số tin chưa đọc */}
-                  {conversation.unreadCount > 0 && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                      {conversation.unreadCount}
-                    </span>
-                  )}
-                </div>
-              ))}
+                    <div className="flex-1 min-w-0">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {conversation.name}
+                      </span>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
+                        {conversation.firstMessage || "Chưa có tin nhắn"}
+                      </p>
+                    </div>
+
+                    {conversation.unreadCount > 0 && (
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                        {conversation.unreadCount}
+                      </span>
+                    )}
+                  </div>
+                ))}
             </div>
           )}
 

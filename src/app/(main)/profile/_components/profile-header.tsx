@@ -29,6 +29,7 @@ import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
 import { clientSessionToken } from "@/lib/http";
 import ReputationHistoryDialog from "@/app/(main)/profile/_components/view-reputation-history";
 import ScheduleDialog from "@/app/(main)/profile/_components/view-schedule";
+import ProtectProfileButton from "@/app/(main)/profile/_components/protect-profile-button";
 
 type Profile = AccountResType["data"];
 
@@ -123,18 +124,8 @@ export default function ProfileHeader({
     if (!accessToken || !relationship) return;
     try {
       console.log("Hủy kết bạn với:", profile.id);
+      await friendApiRequest.unfriend(profile.id);
       toast.success("Đã hủy kết bạn");
-      router.refresh();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
-    }
-  };
-
-  const handleBlock = async () => {
-    if (!accessToken) return;
-    try {
-      console.log("Chặn người dùng:", profile.id);
-      toast.success("Đã chặn người dùng");
       router.refresh();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
@@ -258,6 +249,7 @@ export default function ProfileHeader({
                 </Button>
                 <ReputationHistoryDialog />
                 <ScheduleDialog />
+                <ProtectProfileButton defaultValue={profile.profileProtected} />
               </>
             ) : (
               // Other User Actions
@@ -312,13 +304,6 @@ export default function ProfileHeader({
                         >
                           <UserMinusIcon className="h-4 w-4 mr-2" />
                           Hủy kết bạn
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={handleBlock}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <ShieldExclamationIcon className="h-4 w-4 mr-2" />
-                          Chặn
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

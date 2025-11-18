@@ -3,10 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, ArrowLeft, Send, User } from "lucide-react";
+import {
+  X,
+  ArrowLeft,
+  Send,
+  User,
+  ChevronDown,
+  Link,
+  MessageCircle,
+} from "lucide-react";
 import chatApiRequest from "@/apiRequest/chat";
 import { ConversationType } from "@/schemaValidations/chat.schema";
 import Image from "next/image";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 interface JwtPayload {
   sub: string;
   id: string;
@@ -14,10 +28,6 @@ interface JwtPayload {
   iat: number;
   authorities: string[];
 }
-import { jwtDecode } from "jwt-decode";
-import { clientSessionToken } from "@/lib/http";
-import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationType | null>(null);
@@ -199,9 +209,25 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
               />
             </>
           )}
-          <h2 className="font-bold text-gray-900 dark:text-white text-base">
-            {selectedConversation ? selectedConversation.name : "Tin nhắn"}
-          </h2>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 text-gray-900 dark:text-white font-bold text-base"
+              >
+                {selectedConversation ? selectedConversation.name : "Tin nhắn"}
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/messages" className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Mở trang tin nhắn
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Button
           variant="ghost"

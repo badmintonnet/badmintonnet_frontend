@@ -2,6 +2,23 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* Sửa lỗi Quill không hiển thị list khi render HTML ra ngoài */
+/* Hiển thị số thứ tự cho Quill list ở ngoài editor */
+ol li[data-list="ordered"] {
+  list-style-type: decimal;
+  display: list-item;
+  margin-left: 1.5rem;
+}
+
+ol li[data-list="bullet"] {
+  list-style-type: disc;
+  display: list-item;
+  margin-left: 1.5rem;
+}
+/* Xóa cái span rác của Quill */
+.ql-ui {
+  display: none !important;
+}
 
 @theme inline {
   --color-background: var(--background);

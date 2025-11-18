@@ -21,7 +21,6 @@ export default function ClubWarningDialog({ warnings }: Props) {
   const [open, setOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

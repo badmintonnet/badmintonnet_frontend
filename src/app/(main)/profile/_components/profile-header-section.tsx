@@ -6,6 +6,7 @@ import ProfileEditModal from "@/app/(main)/profile/_components/profile-edit-moda
 import { AccountResType } from "@/schemaValidations/account.schema";
 import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
 import ScheduleDialog from "@/app/(main)/profile/_components/view-schedule";
+import ProtectProfileButton from "@/app/(main)/profile/_components/protect-profile-button";
 
 type Profile = AccountResType["data"];
 

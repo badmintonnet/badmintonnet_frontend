@@ -39,6 +39,9 @@ const friendApiRequest = {
       },
     });
   },
+  unfriend: (friendId: string) => {
+    return http.delete(`/friends/unfriend/${friendId}`);
+  },
 };
 
 export default friendApiRequest;

@@ -489,13 +489,19 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 {eventDetail.participantRole === "OWNER" && (
                   <div className="flex flex-col gap-3">
-                    <EditEventButton eventData={eventDetail} />
-                    {eventDetail.status !== "CANCELLED" && (
-                      <CancelEventDialog
-                        eventId={eventDetail.id}
-                        token={accessToken?.value || ""}
-                      />
-                    )}
+                    {eventDetail.status !== "CANCELLED" &&
+                      eventDetail.status !== "FINISHED" &&
+                      eventDetail.status !== "ONGOING" && (
+                        <EditEventButton eventData={eventDetail} />
+                      )}
+                    {eventDetail.status !== "CANCELLED" &&
+                      eventDetail.status !== "FINISHED" &&
+                      eventDetail.status !== "ONGOING" && (
+                        <CancelEventDialog
+                          eventId={eventDetail.id}
+                          token={accessToken?.value || ""}
+                        />
+                      )}
                   </div>
                 )}
 

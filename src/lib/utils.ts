@@ -42,3 +42,7 @@ export function isAdmin(token: string): boolean {
     return false; // token không hợp lệ
   }
 }
+export function isHTML(str: string): boolean {
+  const htmlPattern = /^\s*<([a-z]+)([^>]*)>.*<\/\1>\s*$/i;
+  return htmlPattern.test(str);
+}

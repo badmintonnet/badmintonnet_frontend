@@ -27,7 +27,6 @@ export const AccountRes = z
       bio: z.string().nullable(),
       avatarUrl: z.string().nullable(),
       phone: z.string().nullable(),
-
       enabled: z.boolean(),
       createdAt: z.coerce.date(),
       updatedAt: z.coerce.date(),
@@ -36,6 +35,7 @@ export const AccountRes = z
       slug: z.string(),
       reputationScore: z.int(),
       totalParticipatedEvents: z.int(),
+      profileProtected: z.boolean(),
       ownerClubs: array(OwnerClub),
       myClubs: array(OwnerClub),
     }),

@@ -67,33 +67,50 @@ export default async function ProfileDetailPage({
         />
 
         <div className="mt-8">
-          <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <TabsTrigger value="info">Thông tin</TabsTrigger>
-              <TabsTrigger value="friend">Bạn bè</TabsTrigger>
-              <TabsTrigger value="activity">Hoạt động</TabsTrigger>
-              <TabsTrigger value="stats">Kỹ năng</TabsTrigger>
-            </TabsList>
+          {!profile.profileProtected || profile.id === currentUserId ? (
+            <>
+              <Tabs defaultValue="info" className="w-full">
+                <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <TabsTrigger value="info">Thông tin</TabsTrigger>
+                  <TabsTrigger value="friend">Bạn bè</TabsTrigger>
+                  <TabsTrigger value="activity">Hoạt động</TabsTrigger>
+                  <TabsTrigger value="stats">Kỹ năng</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="info" className="mt-6">
-              <ProfileInformation profile={profile} />
-            </TabsContent>
+                <TabsContent value="info" className="mt-6">
+                  <ProfileInformation profile={profile} />
+                </TabsContent>
 
-            <TabsContent value="friend" className="mt-6">
-              <FriendList
-                accountId={profile.id}
-                accessToken={accessToken.value}
-              />
-            </TabsContent>
+                <TabsContent value="friend" className="mt-6">
+                  <FriendList
+                    accountId={profile.id}
+                    accessToken={accessToken.value}
+                  />
+                </TabsContent>
 
-            <TabsContent value="activity" className="mt-6">
-              <ProfileActivity userId={profile.id} user={profile} />
-            </TabsContent>
+                <TabsContent value="activity" className="mt-6">
+                  <ProfileActivity userId={profile.id} user={profile} />
+                </TabsContent>
 
-            <TabsContent value="stats" className="mt-6">
-              <ProfileStats canEdit={profile.id === currentUserId} />
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="stats" className="mt-6">
+                  <ProfileStats
+                    canEdit={profile.id === currentUserId}
+                    id={profile.id}
+                  />
+                </TabsContent>
+              </Tabs>
+            </>
+          ) : (
+            <div className="text-center py-20 px-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                Trang cá nhân này đang được bảo vệ
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Chủ tài khoản đã bật chế độ bảo vệ trang cá nhân. Vui lòng gửi
+                yêu cầu kết bạn để xem thông tin chi tiết.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

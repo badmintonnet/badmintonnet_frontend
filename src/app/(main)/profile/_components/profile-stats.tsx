@@ -15,15 +15,25 @@ function getLevelGradient(score: number) {
 }
 interface ProfileStatsProps {
   canEdit?: boolean;
+  id?: string;
 }
 
 export default async function ProfileStats({
   canEdit = true,
+  id,
 }: ProfileStatsProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 
-  const res = await accountApiRequest.getPlayerRating(accessToken?.value || "");
+  let res;
+  if (id) {
+    res = await accountApiRequest.getOtherPlayerRating(
+      accessToken?.value || "",
+      id
+    );
+  } else {
+    res = await accountApiRequest.getPlayerRating(accessToken?.value || "");
+  }
   const playerRating = res.payload.data;
 
   if (!playerRating) {

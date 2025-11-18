@@ -224,7 +224,7 @@ export type TournamentCategoryDetailResponse = z.infer<
 export const TournamentResponse = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().nullable().optional(),
+  description: z.string(),
   location: z.string().nullable().optional(),
   facility: FacilitySchema,
   slug: z.string().nullable(),
@@ -264,7 +264,7 @@ export type PagedTournamentResponse = z.infer<typeof PagedTournamentResponse>;
 export const TournamentDetail = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().nullable().optional(),
+  description: z.string(),
   location: z.string().nullable().optional(),
   facility: FacilitySchema,
   slug: z.string().nullable(),

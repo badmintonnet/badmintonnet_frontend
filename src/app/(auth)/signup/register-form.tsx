@@ -30,6 +30,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Loader2, MapPin } from "lucide-react";
 import authApiRequest from "@/apiRequest/auth";
 import addressApiRequest from "@/apiRequest/address";
+import GoogleSignUpButton from "@/app/(auth)/signup/gg-signup-button";
 
 interface Province {
   id: string;
@@ -161,7 +162,8 @@ const RegisterForm = () => {
       toast.success("Đăng ký thành công", {
         description: "Tài khoản của bạn đã được tạo thành công!",
       });
-      router.push("/profile/player-rating");
+      // router.push("/profile/player-rating");
+      router.push("/verify?email=" + encodeURIComponent(values.email));
     } catch (error: unknown) {
       toast.error("Đăng ký thất bại", {
         description: "Vui lòng kiểm tra lại thông tin đăng ký.",
@@ -442,6 +444,7 @@ const RegisterForm = () => {
               "Đăng ký"
             )}
           </Button>
+          <GoogleSignUpButton />
         </div>
       </form>
     </Form>
