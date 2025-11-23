@@ -65,5 +65,6 @@ const tournamentApiRequest = {
     http.put(`/tournament-participants/${participantId}/approve`),
   rejectParticipant: (participantId: string) =>
     http.put(`/tournament-participants/${participantId}/reject`),
+  getPartnerList: () => http.get<string[]>("/admin/partners"),
 };
 export default tournamentApiRequest;

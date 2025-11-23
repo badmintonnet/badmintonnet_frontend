@@ -101,7 +101,7 @@ export default function CategorySection({
             className="relative overflow-hidden group border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white via-gray-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
           >
             {/* Header */}
-            <CardHeader className="pb-3">
+            <CardHeader>
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {getCategoryLabel(cat.category)}
@@ -136,25 +136,18 @@ export default function CategorySection({
                     Còn trống:{" "}
                     {cat.maxParticipants - cat.currentParticipantCount}
                   </span>
-
-                  <Link
-                    href={`/tournaments/${tournamentSlug}/categories/${cat.id}`}
-                    className="flex items-center gap-1 text-sm font-medium text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 transition"
-                  >
-                    <Info className="w-4 h-4" />
-                    Xem chi tiết
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
                 </div>
 
                 {/* Nút tham gia */}
-                <div className="mt-4">
-                  <JoinCategoryButton
-                    categoryId={cat.id}
-                    isDisabled={buttonConfig.disabled}
-                    buttonText={buttonConfig.text}
-                    className={buttonConfig.className}
-                  />
+                <div className="mt-4 flex items-center justify-center">
+                  <Link
+                    href={`/tournaments/${tournamentSlug}/categories/${cat.id}`}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
+                  >
+                    <Info className="w-4 h-4" />
+                    <span>Xem chi tiết</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                  </Link>
                 </div>
               </div>
             </CardContent>
