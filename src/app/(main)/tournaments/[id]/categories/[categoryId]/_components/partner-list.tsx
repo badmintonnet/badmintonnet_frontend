@@ -18,9 +18,9 @@ import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function SelectPartnerModal({
-  onSelected,
+  categoryId,
 }: {
-  onSelected: (p: AccountFriendSchemaType, message: string) => void;
+  categoryId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,13 @@ export default function SelectPartnerModal({
 
   const sendInvite = () => {
     if (!selectedPartner) return;
-    onSelected(selectedPartner, message);
+    tournamentApiRequest.invitePartner({
+      inviteeId: selectedPartner.id,
+      categoryId: categoryId,
+      message: message,
+    });
+    setSelectedPartner(null);
+
     setMessage("");
     setOpenMessageBox(false);
     setOpen(false);
@@ -65,7 +71,7 @@ export default function SelectPartnerModal({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button variant="default" className="rounded-xl">
-            Chọn đồng đội
+            Mời đồng đội
           </Button>
         </DialogTrigger>
 

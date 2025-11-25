@@ -128,13 +128,11 @@ export default function CategoryHeader({
               buttonText={buttonConfig.text}
               className={buttonConfig.className}
             />
-            {category.double && (
-              <SelectPartnerModal
-                onSelected={(p) => {
-                  console.log("Đã chọn đồng đội:", p);
-                  toast.success(`Đã chọn ${p.fullName} làm đồng đội`);
-                }}
-              />
+            {category.double && category.response == null && (
+              <SelectPartnerModal categoryId={categoryId} />
+            )}
+            {category.double && category.response != null && (
+              
             )}
           </div>
         </div>

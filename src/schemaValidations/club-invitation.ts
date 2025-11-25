@@ -1,5 +1,5 @@
 import z, { array } from "zod";
-const InvitationStatusEnum = z.enum([
+export const InvitationStatusEnum = z.enum([
   "PENDING",
   "ACCEPTED",
   "REJECTED",

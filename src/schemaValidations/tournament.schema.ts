@@ -2,6 +2,7 @@ import { isAdmin } from "@/lib/utils";
 import { Tour } from "antd";
 import { email, z } from "zod";
 import { InvitationStatusEnum } from "./club-invitation";
+import { AccountFriendSchema } from "@/schemaValidations/friend.schema";
 
 // Enum giống backend (nên đồng bộ với BadmintonCategoryEnum)
 export const BadmintonCategoryEnum = z.enum([
@@ -327,6 +328,20 @@ export type PagedTournamentAdminResponse = z.infer<
   typeof PagedTournamentAdminResponse
 >;
 
+export const TournamentPartnerInvitationResponse = z.object({
+  id: z.string(),
+  inviter: AccountFriendSchema.nullable().optional(),
+  invitee: AccountFriendSchema.nullable().optional(),
+  status: InvitationStatusEnum,
+  message: z.string().nullable().optional(),
+  send: z.boolean(),
+  createdAt: z.coerce.date(),
+});
+
+export type TournamentPartnerInvitationResponse = z.infer<
+  typeof TournamentPartnerInvitationResponse
+>;
+
 export const CategoryDetail = z.object({
   id: z.string(),
   tournamentName: z.string(),
@@ -353,6 +368,8 @@ export const CategoryDetail = z.object({
   admin: z.boolean(),
   double: z.boolean(),
   participantStatus: TournamentParticipantEnum.nullable().optional(),
+  requests: z.array(TournamentPartnerInvitationResponse),
+  response: TournamentPartnerInvitationResponse.nullable().optional(),
 });
 
 export type CategoryDetail = z.infer<typeof CategoryDetail>;
