@@ -350,6 +350,7 @@ export const CategoryDetail = z.object({
   format: CategoryFormatEnum,
   registrationDeadline: z.string(), // nhận ISO string từ BE
   admin: z.boolean(),
+  paid: z.boolean(),
   participantStatus: TournamentParticipantEnum.nullable().optional(),
 });
 
