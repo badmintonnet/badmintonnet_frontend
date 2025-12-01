@@ -398,6 +398,27 @@ export type TournamentCategoryParticipant = z.infer<
   typeof TournamentCategoryParticipantSchema
 >;
 
+export const TournamentCategoryTeamParticipantSchema = z.object({
+  id: z.string(),
+  teamName: z.string(),
+  player1FullName: z.string(),
+  player2FullName: z.string(),
+  player1Slug: z.string(),
+  player2Slug: z.string(),
+  player1AvatarUrl: z.string().nullable().optional(),
+  player2AvatarUrl: z.string().nullable().optional(),
+  player1Email: z.string(),
+  player2Email: z.string(),
+  player1Gender: z.string(),
+  player2Gender: z.string(),
+  status: TournamentParticipantEnum,
+  createdAt: z.coerce.date(),
+});
+
+export type TournamentCategoryTeamParticipant = z.infer<
+  typeof TournamentCategoryTeamParticipantSchema
+>;
+
 export const PagedTournamentCategoryParticipantsResponse = z.object({
   status: z.number(),
   message: z.string(),
@@ -415,6 +436,22 @@ export type PagedTournamentCategoryParticipantsResponse = z.infer<
   typeof PagedTournamentCategoryParticipantsResponse
 >;
 
+export const PagedTournamentCategoryTeamParticipantsResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(TournamentCategoryTeamParticipantSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type PagedTournamentCategoryTeamParticipantsResponse = z.infer<
+  typeof PagedTournamentCategoryTeamParticipantsResponse
+>;
 export const TournamentPartnerInvitationRequest = z.object({
   categoryId: z.string().min(1, { message: "categoryId is required" }),
   inviteeId: z.string().min(1, { message: "inviteeId is required" }),

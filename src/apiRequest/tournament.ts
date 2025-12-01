@@ -4,6 +4,7 @@ import { FriendListResponseType } from "@/schemaValidations/friend.schema";
 import {
   CategoryDetailResponse,
   PagedTournamentCategoryParticipantsResponse,
+  PagedTournamentCategoryTeamParticipantsResponse,
   PagedTournamentResponse,
   TournamentCreateRequest,
   TournamentDetailResponse,
@@ -40,6 +41,8 @@ const tournamentApiRequest = {
     http.post(`/tournaments/${categoryId}/register/single`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
+  joinDoubleTournament: (categoryId: string) =>
+    http.post(`/tournaments/${categoryId}/register/double`),
 
   getCategoryDetail: (categoryId: string, token = "") =>
     http.get<CategoryDetailResponse>(`/tournaments/categories/${categoryId}`, {
@@ -66,7 +69,25 @@ const tournamentApiRequest = {
       `/tournament-participants/${categoryId}?${params.toString()}`
     );
   },
+  getAllTeamParticipants: (
+    categoryId: string,
+    status?: TournamentParticipantEnum[],
+    page: number = 0,
+    size: number = 10
+  ) => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("size", size.toString());
 
+    // Add status params if provided
+    if (status && status.length > 0) {
+      status.forEach((s) => params.append("status", s));
+    }
+
+    return http.get<PagedTournamentCategoryTeamParticipantsResponse>(
+      `/tournament-participants/${categoryId}/double?${params.toString()}`
+    );
+  },
   approveParticipant: (participantId: string) =>
     http.put(`/tournament-participants/${participantId}/approve`),
   rejectParticipant: (participantId: string) =>

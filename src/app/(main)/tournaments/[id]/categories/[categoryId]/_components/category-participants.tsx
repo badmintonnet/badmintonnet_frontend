@@ -308,7 +308,7 @@ export default function CategoryParticipants({
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Danh sách người chơi
+                  Danh sách người tham gia
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Đã được phê duyệt tham gia

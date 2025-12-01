@@ -137,7 +137,10 @@ export default function CategoryHeader({
               <InviterList inviterList={category.requests} />
             )}
             {category.double && category.partner != null && (
-              <PartnerMatchedModal partner={category.partner} />
+              <PartnerMatchedModal
+                partner={category.partner}
+                categoryId={category.id}
+              />
             )}
           </div>
         </div>

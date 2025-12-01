@@ -7,6 +7,7 @@ import CategoryParticipants from "./category-participants";
 import CategorySchedule from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-schedule";
 import CategoryOverview from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-overview";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
+import CategoryTeamParticipants from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-team-participants";
 
 interface CategoryTabsProps {
   category: CategoryDetail;
@@ -22,10 +23,17 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
           <Info className="w-4 h-4 mr-2" />
           Thông tin
         </TabsTrigger>
-        <TabsTrigger value="participants">
-          <Users className="w-4 h-4 mr-2" />
-          Người chơi ({category.currentParticipantCount})
-        </TabsTrigger>
+        {!category.double ? (
+          <TabsTrigger value="participants">
+            <Users className="w-4 h-4 mr-2" />
+            Người tham gia ({category.currentParticipantCount})
+          </TabsTrigger>
+        ) : (
+          <TabsTrigger value="team-participants">
+            <Users className="w-4 h-4 mr-2" />
+            Đội tham gia ({category.currentParticipantCount})
+          </TabsTrigger>
+        )}
         <TabsTrigger value="schedule">
           <Calendar className="w-4 h-4 mr-2" />
           Lịch thi đấu
@@ -35,13 +43,21 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
       <TabsContent value="overview" className="mt-6">
         <CategoryOverview category={category} />
       </TabsContent>
-
-      <TabsContent value="participants" className="mt-6">
-        <CategoryParticipants
-          categoryId={category.id}
-          isAdmin={category.admin}
-        />
-      </TabsContent>
+      {!category.double ? (
+        <TabsContent value="participants" className="mt-6">
+          <CategoryParticipants
+            categoryId={category.id}
+            isAdmin={category.admin}
+          />
+        </TabsContent>
+      ) : (
+        <TabsContent value="team-participants" className="mt-6">
+          <CategoryTeamParticipants
+            categoryId={category.id}
+            isAdmin={category.admin}
+          />
+        </TabsContent>
+      )}
 
       <TabsContent value="schedule" className="mt-6">
         <CategorySchedule category={category} />

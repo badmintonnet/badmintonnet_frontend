@@ -14,14 +14,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
+import tournamentApiRequest from "@/apiRequest/tournament";
 
 export default function PartnerMatchedModal({
   partner,
+  categoryId,
 }: {
   partner: AccountFriendSchemaType;
+  categoryId: string;
 }) {
   const [open, setOpen] = useState(false);
-
+  const handleSignUp = () => {
+    tournamentApiRequest.joinDoubleTournament(categoryId);
+    setOpen(false); // Đóng modal sau khi đăng ký
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -77,7 +83,10 @@ export default function PartnerMatchedModal({
             </p>
 
             {/* Nút đăng ký */}
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-3 py-2 rounded-xl text-sm font-medium shadow-md">
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-3 py-2 rounded-xl text-sm font-medium shadow-md"
+              onClick={handleSignUp}
+            >
               Đăng ký giải đấu
             </Button>
           </div>
