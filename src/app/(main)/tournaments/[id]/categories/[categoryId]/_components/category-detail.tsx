@@ -6,6 +6,7 @@ import tournamentApiRequest from "@/apiRequest/tournament";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
 import PaymentSection from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/payment-section";
 import { CheckCircle2 } from "lucide-react";
+import { cookies } from "next/headers";
 interface CategoryDetailProps {
   tournamentId: string;
   categoryId: string;
