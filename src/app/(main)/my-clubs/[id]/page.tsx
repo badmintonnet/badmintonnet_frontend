@@ -40,6 +40,7 @@ import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
 import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
 import ClubWarningDialog from "@/app/(main)/my-clubs/_components/warning-list";
 import { isHTML } from "@/lib/utils";
+import LeaveClubModal from "@/app/(main)/my-clubs/_components/leave-club-modal";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -159,6 +160,7 @@ export default async function MyClubDetail({
                 </div>
               </div>
             </div>
+            {!clubDetail.owner && <LeaveClubModal clubId={clubDetail.id} />}
             {clubDetail.owner && (
               <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
                 <EditClubButton

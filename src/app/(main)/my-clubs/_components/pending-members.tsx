@@ -93,7 +93,7 @@ export default function PendingMembers({
     setSelectedMember(pendingMembers.find((m) => m.id === memberId) || null);
     setDetailLoading(true);
     try {
-      const res = await clubServiceApi.getClubMemberDetail(memberId);
+      const res = await clubServiceApi.getClubMemberDetail(id, memberId);
       setDetailData(res.payload.data);
     } catch (error) {
       toast.error("Không thể tải thông tin thành viên.");

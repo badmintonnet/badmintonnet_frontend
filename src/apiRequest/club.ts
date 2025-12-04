@@ -120,8 +120,10 @@ const clubServiceApi = {
       }
     ),
 
-  getClubMemberDetail: (id: string) =>
-    http.get<ClubMemberDetailResType>(`/clubs/my_clubs/detail_member/${id}`),
+  getClubMemberDetail: (clubId: string, id: string) =>
+    http.get<ClubMemberDetailResType>(
+      `/clubs/my_clubs/${clubId}/detail_member/${id}`
+    ),
 
   getClubMemberSchedule: (id: string, memberId: string, token = "") =>
     http.get<MemberScheduleResponse>(
@@ -131,6 +133,8 @@ const clubServiceApi = {
         cache: "no-store",
       }
     ),
+  outClubMember: (clubId: string) =>
+    http.delete(`/clubs/my_clubs/${clubId}/out`),
   createClubWarning: (body: ClubWarningType) =>
     http.post(`/club_warning`, body),
 
