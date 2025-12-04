@@ -37,7 +37,7 @@ export default function SelectPartnerModal({
   useEffect(() => {
     const fetchPartner = async () => {
       try {
-        const res = await tournamentApiRequest.getPartnerList();
+        const res = await tournamentApiRequest.getPartnerList(categoryId);
         setPartners(res.payload.data);
       } catch (err) {
         toast.error("Không thể tải danh sách người chơi");
@@ -45,8 +45,10 @@ export default function SelectPartnerModal({
         setLoading(false);
       }
     };
-    fetchPartner();
-  }, []);
+    if (open) {
+      fetchPartner();
+    }
+  }, [open]);
 
   const openMessageModal = (p: AccountFriendSchemaType) => {
     setSelectedPartner(p);
@@ -87,6 +89,15 @@ export default function SelectPartnerModal({
 
           {loading ? (
             <div className="text-center py-6">Đang tải...</div>
+          ) : partners.length === 0 ? (
+            <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-semibold">
+                Không có đối tác nào hoặc có thể bạn của bạn đã có người mới
+              </p>
+              <p className="text-sm mt-1">
+                Hãy kết bạn thêm để mời tham gia nhé!
+              </p>
+            </div>
           ) : (
             <div className="space-y-3">
               {partners.map((p) => (

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
 import tournamentApiRequest from "@/apiRequest/tournament";
+import { useRouter } from "next/navigation";
 
 export default function PartnerMatchedModal({
   partner,
@@ -24,9 +25,11 @@ export default function PartnerMatchedModal({
   categoryId: string;
 }) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const handleSignUp = () => {
     tournamentApiRequest.joinDoubleTournament(categoryId);
     setOpen(false); // Đóng modal sau khi đăng ký
+    router.refresh();
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
