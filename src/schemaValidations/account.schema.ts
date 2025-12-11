@@ -234,7 +234,6 @@ export const TournamentInfoSchema = z.object({
   name: z.string(),
   location: z.string(),
   logoUrl: z.string(),
-  bannerUrl: z.string(),
   slug: z.string(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),

@@ -62,7 +62,7 @@ export default function ProfileTournamentHistory({
     if (rank === 1) return "🥇";
     if (rank === 2) return "🥈";
     if (rank === 3) return "🥉";
-    return `#${rank}`;
+    return `#${rank ?? ""}`;
   };
 
   const getWinRate = (rounds: PlayerTournamentHistorySchemaType["rounds"]) => {
@@ -201,11 +201,11 @@ export default function ProfileTournamentHistory({
                   className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-blue-500 transition-all"
                 >
                   <Image
-                    src={
-                      item.tournament.logoUrl || "/tournament-placeholder.png"
-                    }
+                    src={item.tournament.logoUrl}
                     alt={item.tournament.name}
+                    sizes="(max-width: 640px) 60px, (max-width: 1024px) 80px, 80px"
                     fill
+                    priority
                     className="object-cover"
                   />
                 </Link>
