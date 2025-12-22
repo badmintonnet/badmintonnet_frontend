@@ -132,7 +132,7 @@ export const TournamentCategoryRequest = z.object({
     .max(2000, "Mô tả không được quá 2000 ký tự")
     .optional(),
 
-  rules: z.array(z.string()).optional(),
+  rules: z.string().optional(),
 
   firstPrize: z.string().optional(),
   secondPrize: z.string().optional(),

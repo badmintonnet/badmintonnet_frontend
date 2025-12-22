@@ -124,7 +124,7 @@ export default function TournamentCreateForm({
           format: "LOAI_TRUC_TIEP",
           registrationFee: 0,
           description: "",
-          rules: [],
+          rules: "",
           firstPrize: "",
           secondPrize: "",
           thirdPrize: "",
@@ -304,14 +304,12 @@ export default function TournamentCreateForm({
         rules: data.rules || undefined,
         categories: data.categories.map((cat) => {
           // Convert category rules from textarea string to array
-          const categoryRulesArray = cat.rules
-            ?.map((line) => line.trim())
-            .filter((line) => line.length > 0);
+          const rules = cat.rules || "";
 
           return {
             ...cat,
             // Category rules as array
-            rules: categoryRulesArray,
+            rules: rules,
             registrationDeadline: cat.registrationDeadline
               ? toLocalDateTime(cat.registrationDeadline) || undefined
               : undefined,
@@ -636,25 +634,6 @@ export default function TournamentCreateForm({
               </div>
             </div>
 
-            <FormField
-              control={form.control}
-              name="fee"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phí tham gia (VNĐ)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Ví dụ: 50000"
-                      className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             {/* Date Fields */}
             <div className="grid sm:grid-cols-2 gap-6">
               <FormField
@@ -736,7 +715,7 @@ export default function TournamentCreateForm({
                       format: "LOAI_TRUC_TIEP",
                       registrationFee: 0,
                       description: "",
-                      rules: [],
+                      rules: "",
                       firstPrize: "",
                       secondPrize: "",
                       thirdPrize: "",
@@ -780,24 +759,6 @@ export default function TournamentCreateForm({
                         {BadmintonCategoryEnum.options.map((opt) => (
                           <option key={opt} value={opt}>
                             {getCategoryLabel(opt)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Format */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Hình thức thi đấu{" "}
-                        <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        {...register(`categories.${index}.format` as const)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500"
-                      >
-                        {CategoryFormatEnum.options.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {getFormatLabel(opt)}
                           </option>
                         ))}
                       </select>
@@ -883,10 +844,17 @@ export default function TournamentCreateForm({
                     <label className="block text-sm font-medium mb-2">
                       Mô tả hạng mục
                     </label>
-                    <Textarea
-                      placeholder="Nhập mô tả chi tiết về hạng mục..."
-                      {...register(`categories.${index}.description` as const)}
-                      rows={3}
+                    <FormField
+                      control={form.control}
+                      name={`categories.${index}.description`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <RichTextEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                      )}
                     />
                   </div>
 
@@ -899,20 +867,12 @@ export default function TournamentCreateForm({
                       control={form.control}
                       name={`categories.${index}.rules`}
                       render={({ field }) => (
-                        <Textarea
-                          placeholder="Nhập điều lệ riêng cho hạng mục này (mỗi dòng một điều)..."
-                          value={
-                            Array.isArray(field.value)
-                              ? field.value.join("\n")
-                              : ""
-                          }
-                          onChange={(e) => {
-                            const lines = e.target.value.split("\n");
-                            field.onChange(lines);
-                          }}
-                          rows={4}
-                          className="whitespace-pre-line"
-                        />
+                        <FormControl>
+                          <RichTextEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
                       )}
                     />
                   </div>
