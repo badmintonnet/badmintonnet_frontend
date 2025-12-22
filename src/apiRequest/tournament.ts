@@ -1,6 +1,7 @@
 import http from "@/lib/http";
 import { FileResType } from "@/schemaValidations/common.schema";
 import { FriendListResponseType } from "@/schemaValidations/friend.schema";
+import { TournamentResultResponseType } from "@/schemaValidations/tournament-result";
 import {
   CategoryDetailResponse,
   PagedTournamentCategoryParticipantsResponse,
@@ -104,5 +105,20 @@ const tournamentApiRequest = {
     http.post("/tournament-participants/invite-partner", body),
   updateInvitationStatus: (body: TournamentPartnerInvitationUpdateType) =>
     http.put("/tournament-participants/partner/update-status", body),
+
+  getTournamentResults: (tournamentId: string, accessToken?: string) =>
+    http.get<TournamentResultResponseType>(
+      `/tournament-result/${tournamentId}/results`,
+      {
+        ...(accessToken
+          ? {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          : {}),
+        cache: "no-store",
+      }
+    ),
 };
 export default tournamentApiRequest;

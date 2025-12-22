@@ -20,6 +20,7 @@ import { getTournamentStatusInfo } from "@/schemaValidations/tournament.schema";
 import OverviewSection from "@/app/(main)/tournaments/[id]/_components/overview-section";
 import CategorySection from "@/app/(main)/tournaments/[id]/_components/category-section";
 import PlaceholderSection from "@/app/(main)/tournaments/[id]/_components/placeholder-section";
+import ResultsSection from "@/app/(main)/tournaments/[id]/_components/results-section";
 
 export default async function TournamentDetailPage({
   params,
@@ -33,6 +34,19 @@ export default async function TournamentDetailPage({
   const response = await tournamentApiRequest.getDetailBySlug(id, accessToken);
   const tournament = response.payload.data;
   const statusInfo = getTournamentStatusInfo(tournament.status);
+
+  // Fetch tournament results
+  let tournamentResults = null;
+  try {
+    const resultsResponse = await tournamentApiRequest.getTournamentResults(
+      tournament.id,
+      accessToken
+    );
+    tournamentResults = resultsResponse.payload.data;
+  } catch (error) {
+    // Results might not be available yet
+    console.error("Error fetching tournament results:", error);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -134,7 +148,7 @@ export default async function TournamentDetailPage({
           </TabsContent>
 
           <TabsContent value="results">
-            <PlaceholderSection label="Kết quả" />
+            <ResultsSection categories={tournamentResults?.categories || []} />
           </TabsContent>
 
           <TabsContent value="matches">
