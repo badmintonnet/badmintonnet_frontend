@@ -114,40 +114,41 @@ export default function CategoryHeader({
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col gap-2 w-full sm:w-auto">
-            {(!category.double ||
-              (category.participantStatus &&
-                category.participantStatus != "DRAFT")) && (
-              <JoinCategoryButton
-                categoryId={categoryId}
-                isDisabled={buttonConfig.disabled}
-                buttonText={buttonConfig.text}
-                className={buttonConfig.className}
-              />
-            )}
-            {category.double &&
-              category.response == null &&
-              category.partner == null && (
-                <SelectPartnerModal categoryId={categoryId} />
-              )}
-            {category.double &&
-              category.response != null &&
-              category.partner == null && (
-                <SentPartnerInvitationModal invitation={category.response} />
-              )}
-            {category.double && category.partner == null && (
-              <InviterList inviterList={category.requests} />
-            )}
-            {category.double &&
-              category.partner != null &&
-              category.participantStatus == "DRAFT" && (
-                <PartnerMatchedModal
-                  partner={category.partner}
-                  categoryId={category.id}
+          {!category.admin && (
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+              {(!category.double ||
+                (category.participantStatus &&
+                  category.participantStatus != "DRAFT")) && (
+                <JoinCategoryButton
+                  categoryId={categoryId}
+                  isDisabled={buttonConfig.disabled}
+                  buttonText={buttonConfig.text}
+                  className={buttonConfig.className}
                 />
               )}
-          </div>
+              {category.double &&
+                category.response == null &&
+                category.partner == null && (
+                  <SelectPartnerModal categoryId={categoryId} />
+                )}
+              {category.double &&
+                category.response != null &&
+                category.partner == null && (
+                  <SentPartnerInvitationModal invitation={category.response} />
+                )}
+              {category.double && category.partner == null && (
+                <InviterList inviterList={category.requests} />
+              )}
+              {category.double &&
+                category.partner != null &&
+                category.participantStatus == "DRAFT" && (
+                  <PartnerMatchedModal
+                    partner={category.partner}
+                    categoryId={category.id}
+                  />
+                )}
+            </div>
+          )}
         </div>
       </div>
 

@@ -5,15 +5,6 @@ interface CategoryStatsProps {
   category: CategoryDetail;
 }
 
-const getFormatLabel = (format: string) => {
-  const formatLabels: Record<string, string> = {
-    LOAI_TRUC_TIEP: "Loại trực tiếp",
-    VONG_TRON: "Vòng tròn",
-    VONG_BANG: "Vòng bảng",
-    KET_HOP: "Kết hợp",
-  };
-  return formatLabels[format] || format;
-};
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -50,16 +41,10 @@ export default function CategoryStats({ category }: CategoryStatsProps) {
       gradient: "from-blue-500 to-cyan-500",
       textColor: "text-blue-700 dark:text-blue-300",
     },
-    {
-      label: "Thể thức thi đấu",
-      value: getFormatLabel(category.format),
-      gradient: "from-purple-500 to-pink-500",
-      textColor: "text-purple-700 dark:text-purple-300",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {stats.map((stat, index) => (
         <Card
           key={index}

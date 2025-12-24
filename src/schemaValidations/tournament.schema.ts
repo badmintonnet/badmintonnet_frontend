@@ -147,9 +147,36 @@ export const TournamentCategoryRequest = z.object({
     })
     .optional(),
 });
+
 export type TournamentCategoryRequest = z.infer<
   typeof TournamentCategoryRequest
 >;
+export const PlayerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  avatarUrl: z.string().nullable().optional(),
+});
+export type PlayerSchema = z.infer<typeof PlayerSchema>;
+
+export const TeamSchema = z.object({
+  id: z.string(),
+  teamName: z.string(),
+  avatarUrl1: z.string().nullable().optional(),
+  avatarUrl2: z.string().nullable().optional(),
+  slug1: z.string().nullable().optional(),
+  slug2: z.string().nullable().optional(),
+});
+export type TeamSchema = z.infer<typeof TeamSchema>;
+
+export const TournamentPlayer = z.object({
+  id: z.string(),
+  players: PlayerSchema.array().nullable().optional(),
+  teams: TeamSchema.array().nullable().optional(),
+  category: BadmintonCategoryEnum,
+});
+
+export type TournamentPlayer = z.infer<typeof TournamentPlayer>;
 
 export const FacilitySchema = z.object({
   id: z.string(),
@@ -286,6 +313,7 @@ export const TournamentDetail = z.object({
   createdBy: z.string().nullable().optional(),
 
   categories: z.array(TournamentCategoryDetailResponse),
+  players: z.array(TournamentPlayer),
 });
 
 export type TournamentDetail = z.infer<typeof TournamentDetail>;
@@ -358,7 +386,7 @@ export const CategoryDetail = z.object({
   registrationFee: z.number(),
   description: z.string(),
 
-  rules: z.array(z.string()),
+  rules: z.string(),
 
   firstPrize: z.string(),
   secondPrize: z.string(),

@@ -21,6 +21,7 @@ import OverviewSection from "@/app/(main)/tournaments/[id]/_components/overview-
 import CategorySection from "@/app/(main)/tournaments/[id]/_components/category-section";
 import PlaceholderSection from "@/app/(main)/tournaments/[id]/_components/placeholder-section";
 import ResultsSection from "@/app/(main)/tournaments/[id]/_components/results-section";
+import PlayersSection from "@/app/(main)/tournaments/[id]/_components/players-section";
 
 export default async function TournamentDetailPage({
   params,
@@ -144,7 +145,7 @@ export default async function TournamentDetailPage({
           </TabsContent>
 
           <TabsContent value="players">
-            <PlaceholderSection label="Người chơi" />
+            <PlayersSection players={tournament.players || []} />
           </TabsContent>
 
           <TabsContent value="results">

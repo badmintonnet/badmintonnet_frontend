@@ -11,7 +11,10 @@ import {
   UpdateMatchResultBodyType,
 } from "@/schemaValidations/match";
 import { toast } from "sonner";
-import { CategoryDetail } from "@/schemaValidations/tournament.schema";
+import {
+  CategoryDetail,
+  getCategoryLabel,
+} from "@/schemaValidations/tournament.schema";
 import { Input } from "@/components/ui/input";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
@@ -70,6 +73,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     Array<{ p1: number | null; p2: number | null }>
   >([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const matchUpdateSubRef = useRef<any>(null);
 
   useEffect(() => {
@@ -241,6 +245,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       setEditingSets([]);
 
       // No need to manually refresh - WebSocket will handle it
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(
         error?.payload?.message || "Có lỗi xảy ra khi cập nhật kết quả"
@@ -263,7 +268,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                 Lịch thi đấu
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                {category.category}
+                {getCategoryLabel(category.category)}
               </p>
             </div>
           </div>
