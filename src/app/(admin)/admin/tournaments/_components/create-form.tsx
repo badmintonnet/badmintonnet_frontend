@@ -11,6 +11,7 @@ import {
   TournamentCreateRequest,
   BadmintonCategoryEnum,
   CategoryFormatEnum,
+  getCategoryLabel,
 } from "@/schemaValidations/tournament.schema";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,17 +52,7 @@ interface Ward {
   full_name: string;
 }
 
-// Helper function to get readable labels for categories
-export function getCategoryLabel(category: string): string {
-  const map: Record<string, string> = {
-    MEN_SINGLE: "Đơn nam",
-    WOMEN_SINGLE: "Đơn nữ",
-    MEN_DOUBLE: "Đôi nam",
-    WOMEN_DOUBLE: "Đôi nữ",
-    MIXED_DOUBLE: "Đôi nam nữ",
-  };
-  return map[category] ?? category;
-}
+// `getCategoryLabel` is imported from the shared schema helper
 
 // Helper function to get format labels
 export function getFormatLabel(format: string): string {
@@ -826,17 +817,6 @@ export default function TournamentCreateForm({
                     </div>
 
                     {/* Registration Deadline */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Hạn đăng ký
-                      </label>
-                      <Input
-                        type="date"
-                        {...register(
-                          `categories.${index}.registrationDeadline` as const
-                        )}
-                      />
-                    </div>
                   </div>
 
                   {/* Description */}

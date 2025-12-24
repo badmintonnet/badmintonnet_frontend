@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { isHTML } from "@/lib/utils";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
 import { Trophy } from "lucide-react";
 
@@ -16,9 +17,19 @@ export default function CategoryOverview({ category }: CategoryOverviewProps) {
           </h3>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            {category.description || "Chưa có mô tả cho hạng mục này."}
-          </p>
+          {isHTML(category.description) ? (
+            <div
+              className="text-gray-700 dark:text-gray-300 leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html:
+                  category.description || "Chưa có mô tả cho hạng mục này.",
+              }}
+            ></div>
+          ) : (
+            <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+              {category.description}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -30,19 +41,18 @@ export default function CategoryOverview({ category }: CategoryOverviewProps) {
             </h3>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {category.rules.map((rule: string, index: number) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-2 text-gray-700 dark:text-gray-300"
-                >
-                  <span className="w-6 h-6 bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
-                    {index + 1}
-                  </span>
-                  <span>{rule}</span>
-                </li>
-              ))}
-            </ul>
+            {isHTML(category.rules) ? (
+              <div
+                className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: category.rules || "Chưa có thể lệ cho hạng mục này.",
+                }}
+              ></div>
+            ) : (
+              <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                {category.rules}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

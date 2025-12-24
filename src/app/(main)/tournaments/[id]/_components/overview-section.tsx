@@ -36,19 +36,6 @@ export default function OverviewSection({
 
       <CardContent className="space-y-6">
         {/* --- Description --- */}
-        {isHTML(tournament.description) ? (
-          <div
-            className="text-gray-700 dark:text-gray-300 leading-relaxed"
-            dangerouslySetInnerHTML={{
-              __html:
-                tournament.description || "Chưa có mô tả cho giải đấu này.",
-            }}
-          ></div>
-        ) : (
-          <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
-            {tournament.description}
-          </div>
-        )}
 
         {/* --- Layout 2 cột: Địa điểm (trái) & Thông tin khác (phải) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
