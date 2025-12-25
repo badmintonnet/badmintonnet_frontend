@@ -147,7 +147,18 @@ export default function LandingPage() {
               <Button className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-4 rounded-lg text-lg font-semibold transition-colors shadow-lg">
                 <Link href="/signup">Đăng ký miễn phí</Link>
               </Button>
-              <Button className="border-2 border-white hover:bg-white hover:text-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+              <Button
+                className="
+    px-8 py-4 rounded-lg text-lg font-semibold
+    border border-gray-300
+    bg-white text-gray-900
+    hover:bg-gray-100
+    dark:bg-gray-800 dark:text-white
+    dark:border-gray-600
+    dark:hover:bg-gray-700
+    transition-colors duration-300
+  "
+              >
                 <Link href="/events">Khám phá hoạt động</Link>
               </Button>
             </div>
