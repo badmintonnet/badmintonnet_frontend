@@ -142,7 +142,7 @@ export default async function MyClubEventSection({
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-              Hoạt động đã Tham Gia
+              Hoạt động đã đăng ký
             </h2>
           </div>
 
