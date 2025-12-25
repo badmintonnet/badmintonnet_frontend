@@ -65,7 +65,10 @@ export default function ResultsSection({ categories }: ResultsSectionProps) {
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {category.results.map((result, index) => (
                   <div
-                    key={result.participantId}
+                    key={
+                      result.participantId ||
+                      `result-${category.categoryId}-${index}`
+                    }
                     className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors ${
                       result.ranking <= 3
                         ? "bg-gray-50/50 dark:bg-gray-800/50"

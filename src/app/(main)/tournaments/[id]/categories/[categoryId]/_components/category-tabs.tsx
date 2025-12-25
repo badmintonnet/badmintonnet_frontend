@@ -36,7 +36,7 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
         )}
         <TabsTrigger value="schedule">
           <Calendar className="w-4 h-4 mr-2" />
-          Lịch thi đấu
+          Lịch thi đấu & Kết quả
         </TabsTrigger>
       </TabsList>
 

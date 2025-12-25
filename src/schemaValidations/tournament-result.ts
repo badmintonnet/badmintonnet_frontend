@@ -39,3 +39,13 @@ export const TournamentResultResponse = z.object({
 export type TournamentResultResponseType = z.infer<
   typeof TournamentResultResponse
 >;
+
+export const CategoryResultsResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: CategoryResult,
+});
+
+export type CategoryResultsResponseType = z.infer<
+  typeof CategoryResultsResponse
+>;

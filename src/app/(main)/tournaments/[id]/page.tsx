@@ -110,7 +110,7 @@ export default async function TournamentDetailPage({
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full ">
-          <TabsList className="grid w-full grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <TabsTrigger value="overview">
               <Info className="w-4 h-4 mr-1" />
               Tổng quan
@@ -126,10 +126,6 @@ export default async function TournamentDetailPage({
             <TabsTrigger value="results">
               <BarChart3 className="w-4 h-4 mr-1" />
               Kết quả
-            </TabsTrigger>
-            <TabsTrigger value="matches">
-              <Activity className="w-4 h-4 mr-1" />
-              Các trận
             </TabsTrigger>
           </TabsList>
 
@@ -150,10 +146,6 @@ export default async function TournamentDetailPage({
 
           <TabsContent value="results">
             <ResultsSection categories={tournamentResults?.categories || []} />
-          </TabsContent>
-
-          <TabsContent value="matches">
-            <PlaceholderSection label="Các trận đấu" />
           </TabsContent>
         </Tabs>
       </div>

@@ -3,13 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Trophy, Sparkles, Edit, X, Check } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import matchApiRequest from "@/apiRequest/match";
+import tournamentApiRequest from "@/apiRequest/tournament";
 import {
   BracketTreeSchemaType,
   MatchStatus,
   TournamentMatchSchemaType,
   UpdateMatchResultBodyType,
 } from "@/schemaValidations/match";
+import { CategoryResultType } from "@/schemaValidations/tournament-result";
 import { toast } from "sonner";
 import {
   CategoryDetail,
@@ -61,7 +64,73 @@ const getRoundName = (round: number, totalRounds: number) => {
   return `Vòng ${round}`;
 };
 
+// Validation cho điểm số theo luật cầu lông
+const isValidSetScore = (p1: number | null, p2: number | null): boolean => {
+  if (p1 === null || p2 === null) return false;
+  if (p1 < 0 || p2 < 0 || p1 > 30 || p2 > 30) return false;
+
+  // Trường hợp thắng bình thường (21 với cách biệt >= 2)
+  if ((p1 === 21 && p2 < 20) || (p2 === 21 && p1 < 20)) return true;
+
+  // Trường hợp deuce từ 20-20
+  if (p1 >= 20 && p2 >= 20) {
+    // Thắng với cách biệt 2 điểm (trước 30)
+    if (p1 < 30 && p2 < 30 && Math.abs(p1 - p2) === 2 && (p1 >= 21 || p2 >= 21))
+      return true;
+    // Trường hợp 30-29 hoặc 29-30
+    if ((p1 === 30 && p2 === 29) || (p2 === 30 && p1 === 29)) return true;
+  }
+
+  return false;
+};
+
+const validateMatchResult = (
+  sets: Array<{ p1: number | null; p2: number | null }>
+): { valid: boolean; message: string } => {
+  // Kiểm tra số set (phải có ít nhất 2 set, tối đa 3 set)
+  const completedSets = sets.filter((s) => s.p1 !== null && s.p2 !== null);
+  if (completedSets.length < 2 || completedSets.length > 3) {
+    return { valid: false, message: "Cần nhập kết quả 2 hoặc 3 set" };
+  }
+
+  // Kiểm tra từng set có hợp lệ không
+  for (let i = 0; i < completedSets.length; i++) {
+    if (!isValidSetScore(completedSets[i].p1, completedSets[i].p2)) {
+      return {
+        valid: false,
+        message: `Set ${
+          i + 1
+        } không hợp lệ. Điểm phải là 21 (cách biệt ≥2) hoặc deuce đến 30`,
+      };
+    }
+  }
+
+  // Đếm số set thắng của mỗi người
+  let p1Wins = 0;
+  let p2Wins = 0;
+  completedSets.forEach((set) => {
+    if (set.p1! > set.p2!) p1Wins++;
+    else p2Wins++;
+  });
+
+  // Phải có người thắng 2 set
+  if (p1Wins !== 2 && p2Wins !== 2) {
+    return { valid: false, message: "Chưa có người thắng 2 set" };
+  }
+
+  // Nếu có người thắng 2-0 mà nhập 3 set
+  if (completedSets.length === 3 && (p1Wins === 3 || p2Wins === 3)) {
+    return {
+      valid: false,
+      message: "Trận đấu đã kết thúc sau 2 set, không cần set thứ 3",
+    };
+  }
+
+  return { valid: true, message: "" };
+};
+
 export default function CategorySchedule({ category }: CategoryScheduleProps) {
+  const router = useRouter();
   const [bracketData, setBracketData] = useState<BracketTreeSchemaType | null>(
     null
   );
@@ -73,12 +142,15 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     Array<{ p1: number | null; p2: number | null }>
   >([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [categoryResult, setCategoryResult] =
+    useState<CategoryResultType | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const matchUpdateSubRef = useRef<any>(null);
 
   useEffect(() => {
     if (category.scheduled) {
       fetchBracketTree();
+      fetchCategoryResults();
     } else {
       setHasBracket(false);
       setBracketData(null);
@@ -167,12 +239,26 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     }
   };
 
+  const fetchCategoryResults = async () => {
+    try {
+      const response = await tournamentApiRequest.getCategoryResults(
+        category.id
+      );
+      setCategoryResult(response.payload.data);
+    } catch (error: unknown) {
+      // Không có kết quả thì không hiển thị gì
+      console.log("No results available yet", error);
+      setCategoryResult(null);
+    }
+  };
+
   const handleGenerateBracket = async () => {
     try {
       setIsGenerating(true);
       await matchApiRequest.generateBracket(category.id);
       toast.success("Tạo cặp thi đấu thành công!");
       await fetchBracketTree();
+      router.refresh();
     } catch (error: unknown) {
       toast.error("Có lỗi xảy ra khi tạo cặp thi đấu");
     } finally {
@@ -209,6 +295,12 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     value: string
   ) => {
     const numValue = value === "" ? null : parseInt(value);
+
+    // Giới hạn giá trị từ 0-30
+    if (numValue !== null && (numValue < 0 || numValue > 30)) {
+      return;
+    }
+
     setEditingSets((prev) => {
       const newSets = [...prev];
       newSets[setIndex] = {
@@ -220,6 +312,10 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
   };
 
   const handleAddSet = () => {
+    if (editingSets.length >= 3) {
+      toast.error("Tối đa 3 set trong một trận đấu");
+      return;
+    }
     setEditingSets((prev) => [...prev, { p1: null, p2: null }]);
   };
 
@@ -233,8 +329,21 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     try {
       setIsUpdating(true);
 
+      // Lọc các set đã nhập đủ điểm
+      const completedSets = editingSets.filter(
+        (s) => s.p1 !== null && s.p2 !== null
+      );
+
+      // Validation
+      const validation = validateMatchResult(completedSets);
+      if (!validation.valid) {
+        toast.error(validation.message);
+        setIsUpdating(false);
+        return;
+      }
+
       const body: UpdateMatchResultBodyType = {
-        sets: editingSets,
+        sets: completedSets,
       };
 
       await matchApiRequest.updateMatchResult(matchId, body);
@@ -244,7 +353,9 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       setEditingMatchId(null);
       setEditingSets([]);
 
-      // No need to manually refresh - WebSocket will handle it
+      // Refresh to get latest data including results
+      router.refresh();
+      await fetchCategoryResults();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(
@@ -689,6 +800,97 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Results Section */}
+      {categoryResult &&
+        categoryResult.results &&
+        categoryResult.results.length > 0 && (
+          <CardContent className="p-6 border-t bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
+                <Trophy className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Kết quả giải đấu
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Bảng xếp hạng cuối cùng
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {categoryResult.results.map((result, index) => {
+                const getRankingBadgeColor = (ranking: number) => {
+                  switch (ranking) {
+                    case 1:
+                      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border-yellow-300";
+                    case 2:
+                      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 border-gray-300";
+                    case 3:
+                      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 border-orange-300";
+                    default:
+                      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-300";
+                  }
+                };
+
+                const getRankingIcon = (ranking: number) => {
+                  if (ranking === 1) return "🥇";
+                  if (ranking === 2) return "🥈";
+                  if (ranking === 3) return "🥉";
+                  return `#${ranking}`;
+                };
+
+                return (
+                  <div
+                    key={result.participantId || `result-${index}`}
+                    className={`p-4 rounded-lg border bg-white dark:bg-gray-800 hover:shadow-md transition-shadow ${
+                      result.ranking <= 3
+                        ? "border-amber-200 dark:border-amber-800"
+                        : "border-gray-200 dark:border-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center min-w-[3rem]">
+                        <span className="text-2xl font-bold">
+                          {getRankingIcon(result.ranking)}
+                        </span>
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-gray-900 dark:text-white">
+                            {result.participantName}
+                          </h4>
+                          <Badge
+                            className={getRankingBadgeColor(result.ranking)}
+                          >
+                            Hạng {result.ranking}
+                          </Badge>
+                        </div>
+                        {result.teamName && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Đội: {result.teamName}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="text-right">
+                        <div className="flex items-center gap-2 justify-end">
+                          <Trophy className="w-4 h-4 text-amber-500" />
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {result.prize}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        )}
     </Card>
   );
 }
