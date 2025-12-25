@@ -85,10 +85,37 @@ const isValidSetScore = (p1: number | null, p2: number | null): boolean => {
 };
 
 const validateMatchResult = (
-  sets: Array<{ p1: number | null; p2: number | null }>
+  sets: Array<{ p1: number | null; p2: number | null }>,
+  allowPartial: boolean = false
 ): { valid: boolean; message: string } => {
-  // Kiểm tra số set (phải có ít nhất 2 set, tối đa 3 set)
+  // Lọc các set đã nhập đủ điểm
   const completedSets = sets.filter((s) => s.p1 !== null && s.p2 !== null);
+
+  // Nếu cho phép nhập từng phần, có thể cập nhật điểm số đang diễn ra
+  if (allowPartial) {
+    // Chỉ kiểm tra giá trị nằm trong khoảng hợp lệ, không validate theo luật cầu lông
+    for (let i = 0; i < sets.length; i++) {
+      const set = sets[i];
+      // Kiểm tra từng điểm (nếu có) nằm trong khoảng 0-30
+      if (set.p1 !== null && (set.p1 < 0 || set.p1 > 30)) {
+        return {
+          valid: false,
+          message: `Set ${i + 1}: Điểm người chơi 1 phải từ 0-30`,
+        };
+      }
+      if (set.p2 !== null && (set.p2 < 0 || set.p2 > 30)) {
+        return {
+          valid: false,
+          message: `Set ${i + 1}: Điểm người chơi 2 phải từ 0-30`,
+        };
+      }
+    }
+
+    // Cho phép cập nhật bất kỳ điểm số nào, không cần validate logic thắng thua
+    return { valid: true, message: "" };
+  }
+
+  // Validation nghiêm ngặt cho kết quả hoàn chỉnh
   if (completedSets.length < 2 || completedSets.length > 3) {
     return { valid: false, message: "Cần nhập kết quả 2 hoặc 3 set" };
   }
@@ -334,8 +361,18 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
         (s) => s.p1 !== null && s.p2 !== null
       );
 
-      // Validation
-      const validation = validateMatchResult(completedSets);
+      // Kiểm tra có ít nhất 1 điểm được nhập
+      const hasAnyScore = editingSets.some(
+        (s) => s.p1 !== null || s.p2 !== null
+      );
+      if (!hasAnyScore) {
+        toast.error("Vui lòng nhập ít nhất 1 điểm để cập nhật");
+        setIsUpdating(false);
+        return;
+      }
+
+      // Validation với allowPartial = true để cho phép cập nhật từng phần
+      const validation = validateMatchResult(editingSets, true);
       if (!validation.valid) {
         toast.error(validation.message);
         setIsUpdating(false);
