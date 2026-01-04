@@ -257,7 +257,6 @@ export default function ClubsTable({
                   <TableHead>Chủ sở hữu</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Số thành viên</TableHead>
-                  <TableHead>Điểm CLB</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Ngày tạo</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
@@ -277,7 +276,7 @@ export default function ClubsTable({
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{club.reputation?.toFixed(2)}</TableCell>
+                    {/* <TableCell>{club.reputation?.toFixed(2)}</TableCell> */}
                     <TableCell>{getStatusBadge(club.status)}</TableCell>
                     <TableCell>
                       {new Date(club.createdAt).toLocaleDateString("vi-VN")}

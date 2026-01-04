@@ -249,7 +249,9 @@ const CreateClubForm = () => {
         logoUrl: uploadedImageUrl || "",
         ...(selectedFacility && { facilityId: selectedFacility }),
       });
-      toast.success("Tạo câu lạc bộ thành công");
+      toast.success(
+        "Tạo câu lạc bộ thành công, Vui lòng chờ quản trị viên phê duyệt."
+      );
       const token = await authApiRequest.refreshSession();
       if (token.payload.data.accessToken) {
         clientSessionToken.value = token.payload.data.accessToken;

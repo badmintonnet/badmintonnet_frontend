@@ -258,7 +258,7 @@ export default async function ClubDetailPage({
 
         {/* Tab Navigation */}
         <Tabs defaultValue={tab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 w-full lg:grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 w-full lg:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <TabsTrigger
               value="overview"
               className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300"
@@ -287,13 +287,13 @@ export default async function ClubDetailPage({
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Đánh giá</span>
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="stats"
               className="flex items-center gap-2 data-[state=active]:bg-orange-50 data-[state=active]:text-orange-600 dark:data-[state=active]:bg-orange-900 dark:data-[state=active]:text-orange-300"
             >
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Thống kê</span>
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           {/* Overview Tab */}
@@ -471,8 +471,7 @@ export default async function ClubDetailPage({
             <RatingView id={clubDetail.id} />
           </TabsContent>
 
-          {/* Stats Tab */}
-          <TabsContent value="stats" className="mt-6">
+          {/* <TabsContent value="stats" className="mt-6">
             <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <CardHeader>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -515,7 +514,7 @@ export default async function ClubDetailPage({
                   </div>
                 </div>
 
-                {/* Additional stats charts or info can go here */}
+        
                 <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -550,7 +549,7 @@ export default async function ClubDetailPage({
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </div>

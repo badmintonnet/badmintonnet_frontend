@@ -59,7 +59,7 @@ function formatBotMessage(text: string) {
 }
 
 const SUGGESTED_QUESTIONS = [
-  "Làm thế nào để tạo giải đấu?",
+  "Làm sao để đăng ký tham gia giải đấu cầu lông?",
   "Cách tham gia câu lạc bộ?",
   "Làm thế nào để cập nhật hồ sơ cá nhân?",
   "Làm thế nào để tạo và cập nhật trình độ cá nhân?",
