@@ -422,6 +422,7 @@ export const TournamentCategoryParticipantSchema = z.object({
   gender: z.string(),
   status: TournamentParticipantEnum,
   createdAt: z.coerce.date(),
+  paid: z.boolean(),
 });
 
 export type TournamentCategoryParticipant = z.infer<
@@ -443,6 +444,7 @@ export const TournamentCategoryTeamParticipantSchema = z.object({
   player2Gender: z.string(),
   status: TournamentParticipantEnum,
   createdAt: z.coerce.date(),
+  paid: z.boolean(),
 });
 
 export type TournamentCategoryTeamParticipant = z.infer<

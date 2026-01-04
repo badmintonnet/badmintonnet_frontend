@@ -16,7 +16,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 
 interface CategoryTeamParticipantsProps {
@@ -180,6 +179,22 @@ export default function CategoryTeamParticipants({
           </p>
         </div>
       </div>
+
+      {isAdmin && (
+        <div className="shrink-0">
+          {team.paid ? (
+            <Badge className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:hover:bg-green-900/30 dark:text-green-400">
+              <CheckCircle className="w-4 h-4 mr-1" />
+              Đã thanh toán
+            </Badge>
+          ) : (
+            <Badge className="bg-red-50 hover:bg-red-100 text-red-700 border-red-300 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400">
+              <XCircle className="w-4 h-4 mr-1" />
+              Chưa thanh toán
+            </Badge>
+          )}
+        </div>
+      )}
 
       {isPending ? (
         <div className="flex gap-2">

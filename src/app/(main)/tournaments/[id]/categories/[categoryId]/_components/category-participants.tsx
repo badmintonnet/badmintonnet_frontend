@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,7 +32,7 @@ export default function CategoryParticipants({
   const [totalPending, setTotalPending] = useState(0);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const fetchApprovedParticipants = async () => {
+  const fetchApprovedParticipants = useCallback(async () => {
     try {
       const response = await tournamentApiRequest.getAllParticipants(
         categoryId,
@@ -42,14 +42,14 @@ export default function CategoryParticipants({
       );
       setApprovedParticipants(response.payload.data.content || []);
       setTotalApproved(response.payload.data.totalElements || 0);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải danh sách người đã duyệt");
     } finally {
       setLoadingApproved(false);
     }
-  };
+  }, [categoryId]);
 
-  const fetchPendingParticipants = async () => {
+  const fetchPendingParticipants = useCallback(async () => {
     if (!isAdmin) return;
 
     try {
@@ -61,19 +61,19 @@ export default function CategoryParticipants({
       );
       setPendingParticipants(response.payload.data.content || []);
       setTotalPending(response.payload.data.totalElements || 0);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải danh sách chờ duyệt");
     } finally {
       setLoadingPending(false);
     }
-  };
+  }, [categoryId, isAdmin]);
 
   useEffect(() => {
     fetchApprovedParticipants();
     if (isAdmin) {
       fetchPendingParticipants();
     }
-  }, [categoryId, isAdmin]);
+  }, [fetchApprovedParticipants, fetchPendingParticipants, isAdmin]);
 
   const handleApprove = async (participantId: string) => {
     setProcessingId(participantId);
@@ -83,7 +83,7 @@ export default function CategoryParticipants({
       // Refresh both lists
       fetchPendingParticipants();
       fetchApprovedParticipants();
-    } catch (error) {
+    } catch {
       toast.error("Không thể duyệt người tham gia");
     } finally {
       setProcessingId(null);
@@ -96,7 +96,7 @@ export default function CategoryParticipants({
       await tournamentApiRequest.rejectParticipant(participantId);
       toast.success("Đã từ chối!");
       fetchPendingParticipants();
-    } catch (error) {
+    } catch {
       toast.error("Không thể từ chối người tham gia");
     } finally {
       setProcessingId(null);
@@ -107,10 +107,12 @@ export default function CategoryParticipants({
     participant,
     index,
     isPending = false,
+    isAdmin = false,
   }: {
     participant: TournamentCategoryParticipant;
     index: number;
     isPending?: boolean;
+    isAdmin?: boolean;
   }) => (
     <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-750 transition border border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-3 flex-1">
@@ -163,6 +165,23 @@ export default function CategoryParticipants({
           </p>
         </div>
       </div>
+
+      {/* Admin-only Paid Badge */}
+      {isAdmin && (
+        <div className="shrink-0">
+          {participant.paid ? (
+            <Badge className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300 dark:bg-green-900/20 dark:hover:bg-green-900/30 dark:text-green-400">
+              <CheckCircle className="w-4 h-4 mr-1" />
+              Đã thanh toán
+            </Badge>
+          ) : (
+            <Badge className="bg-red-50 hover:bg-red-100 text-red-700 border-red-300 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400">
+              <XCircle className="w-4 h-4 mr-1" />
+              Chưa thanh toán
+            </Badge>
+          )}
+        </div>
+      )}
 
       {/* Actions or Date */}
       <div className="shrink-0">
@@ -286,6 +305,7 @@ export default function CategoryParticipants({
                         participant={participant}
                         index={index}
                         isPending={true}
+                        isAdmin={isAdmin}
                       />
                     ))}
                   </div>
@@ -342,6 +362,7 @@ export default function CategoryParticipants({
                     key={participant.id}
                     participant={participant}
                     index={index}
+                    isAdmin={isAdmin}
                   />
                 ))}
               </div>
