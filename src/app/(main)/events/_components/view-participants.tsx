@@ -63,7 +63,10 @@ export default function ParticipantsSection({
   const [activeTab, setActiveTab] = useState<string>("active");
 
   const activeParticipants = participants.filter(
-    (p) => p.status === "APPROVED" || p.status === "ATTENDED"
+    (p) =>
+      p.status === "APPROVED" ||
+      p.status === "ATTENDED" ||
+      p.status === "ABSENT"
   );
   const pendingParticipants = participants.filter(
     (p) => p.status === "PENDING"
