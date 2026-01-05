@@ -139,13 +139,6 @@ export const TournamentCategoryRequest = z.object({
   thirdPrize: z.string().optional(),
 
   format: CategoryFormatEnum.optional(),
-
-  registrationDeadline: z
-    .string()
-    .refine((val) => !isNaN(Date.parse(val)), {
-      message: "Hạn đăng ký không hợp lệ",
-    })
-    .optional(),
 });
 
 export type TournamentCategoryRequest = z.infer<

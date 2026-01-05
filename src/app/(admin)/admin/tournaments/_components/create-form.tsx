@@ -119,7 +119,6 @@ export default function TournamentCreateForm({
           firstPrize: "",
           secondPrize: "",
           thirdPrize: "",
-          registrationDeadline: "",
         },
       ],
     },
