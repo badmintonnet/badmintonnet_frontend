@@ -139,12 +139,7 @@ export default function CategoryTeamParticipants({
 
       <div className="flex flex-1 items-center gap-4">
         <Avatar className="w-12 h-12 border">
-          <AvatarImage
-            src={
-              team.player1AvatarUrl ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${team.player1Slug}`
-            }
-          />
+          <AvatarImage src={team.player1AvatarUrl || "/user.png"} />
           <AvatarFallback>
             {team.player1FullName
               .split(" ")

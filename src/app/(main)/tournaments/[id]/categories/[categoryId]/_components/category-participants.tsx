@@ -130,10 +130,7 @@ export default function CategoryParticipants({
         {/* Avatar */}
         <Avatar className="w-12 h-12 border-2 border-gray-200 dark:border-gray-700">
           <AvatarImage
-            src={
-              participant.avatarUrl ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${participant.slug}`
-            }
+            src={participant.avatarUrl || `user.png`}
             alt={participant.fullName}
           />
           <AvatarFallback className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 font-semibold">
