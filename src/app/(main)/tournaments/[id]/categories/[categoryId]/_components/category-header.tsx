@@ -10,6 +10,7 @@ import SelectPartnerModal from "@/app/(main)/tournaments/[id]/categories/[catego
 import SentPartnerInvitationModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/sent-partner-invitation-modal";
 import InviterList from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/inviter-list";
 import PartnerMatchedModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-matched-modal";
+import ClubRegisterButton from "./club-register-button";
 
 interface CategoryHeaderProps {
   category: CategoryDetail;
@@ -121,9 +122,10 @@ export default function CategoryHeader({
           {!category.admin && (
             <div className="flex flex-col gap-2 w-full sm:w-auto">
               {isClubTournament ? (
-                <div className="px-4 py-2 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium text-center border border-violet-200 dark:border-violet-700">
-                  🏆 Giải đấu theo CLB
-                </div>
+                <ClubRegisterButton
+                  categoryId={categoryId}
+                  category={category}
+                />
               ) : (
                 <>
                   {(!category.double ||

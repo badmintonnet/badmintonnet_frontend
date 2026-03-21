@@ -8,7 +8,6 @@ import {
   Info,
   BarChart3,
   Users,
-  Activity,
 } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -19,7 +18,7 @@ import { getTournamentStatusInfo } from "@/schemaValidations/tournament.schema";
 
 import OverviewSection from "@/app/(main)/tournaments/[id]/_components/overview-section";
 import CategorySection from "@/app/(main)/tournaments/[id]/_components/category-section";
-import PlaceholderSection from "@/app/(main)/tournaments/[id]/_components/placeholder-section";
+import ClubCategorySection from "@/app/(main)/tournaments/[id]/_components/club-category-section";
 import ResultsSection from "@/app/(main)/tournaments/[id]/_components/results-section";
 import PlayersSection from "@/app/(main)/tournaments/[id]/_components/players-section";
 
@@ -110,19 +109,29 @@ export default async function TournamentDetailPage({
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full ">
-          <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <TabsList className={`grid w-full ${tournament.participationType === "CLUB" ? "grid-cols-3" : "grid-cols-4"} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg`}>
             <TabsTrigger value="overview">
               <Info className="w-4 h-4 mr-1" />
               Tổng quan
             </TabsTrigger>
-            <TabsTrigger value="categories">
-              <Trophy className="w-4 h-4 mr-1" />
-              Hạng mục
-            </TabsTrigger>
-            <TabsTrigger value="players">
-              <Users className="w-4 h-4 mr-1" />
-              Người chơi
-            </TabsTrigger>
+            {tournament.participationType !== "CLUB" && (
+              <TabsTrigger value="categories">
+                <Trophy className="w-4 h-4 mr-1" />
+                Hạng mục
+              </TabsTrigger>
+            )}
+            {tournament.participationType === "CLUB" && (
+              <TabsTrigger value="clubs">
+                <Users className="w-4 h-4 mr-1" />
+                CLB Tham gia
+              </TabsTrigger>
+            )}
+            {tournament.participationType !== "CLUB" && (
+              <TabsTrigger value="players">
+                <Users className="w-4 h-4 mr-1" />
+                Người chơi
+              </TabsTrigger>
+            )}
             <TabsTrigger value="results">
               <BarChart3 className="w-4 h-4 mr-1" />
               Kết quả
@@ -133,16 +142,30 @@ export default async function TournamentDetailPage({
             <OverviewSection tournament={tournament} />
           </TabsContent>
 
-          <TabsContent value="categories">
-            <CategorySection
-              categories={tournament.categories}
-              tournamentSlug={tournament.slug || ""}
-            />
-          </TabsContent>
+          {/* Chỉ hiển thị cho INDIVIDUAL tournament */}
+          {tournament.participationType !== "CLUB" && (
+            <TabsContent value="categories">
+              <CategorySection
+                categories={tournament.categories || []}
+                tournamentSlug={tournament.slug || ""}
+              />
+            </TabsContent>
+          )}
 
-          <TabsContent value="players">
-            <PlayersSection players={tournament.players || []} />
-          </TabsContent>
+          {/* Chỉ hiển thị cho CLUB tournament */}
+          {tournament.participationType === "CLUB" && (
+            <TabsContent value="clubs">
+              <ClubCategorySection
+                tournament={tournament}
+              />
+            </TabsContent>
+          )}
+
+          {tournament.participationType !== "CLUB" && (
+            <TabsContent value="players">
+              <PlayersSection players={tournament.players || []} />
+            </TabsContent>
+          )}
 
           <TabsContent value="results">
             <ResultsSection categories={tournamentResults?.categories || []} />

@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Info, Users, Calendar } from "lucide-react";
+import { Info, Users, Calendar, Building2 } from "lucide-react";
 import CategoryParticipants from "./category-participants";
 import CategorySchedule from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-schedule";
 import CategoryOverview from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-overview";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
 import CategoryTeamParticipants from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-team-participants";
+import ClubTournamentParticipants from "./club-tournament-participants";
 
 interface CategoryTabsProps {
   category: CategoryDetail;
@@ -16,6 +17,9 @@ interface CategoryTabsProps {
 export default function CategoryTabs({ category }: CategoryTabsProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
+  const isClubTournament =
+    category.clubRegistrationFee != null || category.minClubRosterSize != null;
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -23,7 +27,12 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
           <Info className="w-4 h-4 mr-2" />
           Thông tin
         </TabsTrigger>
-        {!category.double ? (
+        {isClubTournament ? (
+          <TabsTrigger value="club-participants">
+            <Building2 className="w-4 h-4 mr-2" />
+            CLB đăng ký
+          </TabsTrigger>
+        ) : !category.double ? (
           <TabsTrigger value="participants">
             <Users className="w-4 h-4 mr-2" />
             Người tham gia ({category.currentParticipantCount})
@@ -43,7 +52,15 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
       <TabsContent value="overview" className="mt-6">
         <CategoryOverview category={category} />
       </TabsContent>
-      {!category.double ? (
+
+      {isClubTournament ? (
+        <TabsContent value="club-participants" className="mt-6">
+          <ClubTournamentParticipants
+            categoryId={category.id}
+            isAdmin={category.admin}
+          />
+        </TabsContent>
+      ) : !category.double ? (
         <TabsContent value="participants" className="mt-6">
           <CategoryParticipants
             categoryId={category.id}

@@ -198,7 +198,8 @@ export const MyClubPageRes = z.object({
 export type MyClubPageResType = z.infer<typeof MyClubPageRes>;
 
 export const MemberSchema = z.object({
-  id: z.string(),
+  id: z.string(), // account ID
+  clubMemberId: z.string(), // ID từ bảng club_members
   name: z.string(),
   avatar: z.string(),
   role: RoleEnum,

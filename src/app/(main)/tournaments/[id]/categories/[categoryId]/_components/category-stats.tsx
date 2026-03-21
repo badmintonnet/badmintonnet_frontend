@@ -64,14 +64,23 @@ export default function CategoryStats({ category }: CategoryStatsProps) {
       textColor: "text-amber-700 dark:text-amber-300",
     },
     {
-      label: "Hạn đăng ký",
-      value: category.registrationDeadline
-        ? new Date(category.registrationDeadline).toLocaleDateString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })
-        : "Chưa có",
+      label: "Đăng ký",
+      value: (() => {
+        const start = category.registrationStartDate ? new Date(category.registrationStartDate) : null;
+        const end = category.registrationEndDate ? new Date(category.registrationEndDate) : null;
+        const startValid = start && !isNaN(start.getTime());
+        const endValid = end && !isNaN(end.getTime());
+
+        const formatDate = (d: Date) => d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+        if (startValid && endValid) {
+          return `${formatDate(start)} - ${formatDate(end)}`;
+        }
+        if (endValid) {
+          return `đến ${formatDate(end)}`;
+        }
+        return "Chưa có";
+      })(),
       gradient: "from-blue-500 to-cyan-500",
       textColor: "text-blue-700 dark:text-blue-300",
     },

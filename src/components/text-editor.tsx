@@ -5,9 +5,10 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
+  useState,
 } from "react";
-import Quill from "quill";
-import "quill/dist/quill.snow.css"; // Import Quill styles
+
+type QuillType = typeof import("quill");
 
 export type RichTextEditorHandle = {
   getContent: () => string;
@@ -22,12 +23,25 @@ interface RichTextEditorProps {
 const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
   ({ value = "", onChange, height = 300 }, ref) => {
     const editorRef = useRef<HTMLDivElement>(null);
-    const quillRef = useRef<Quill | null>(null);
+    const quillRef = useRef<QuillType["default"] | null>(null);
     const isSettingContent = useRef(false); // tránh loop khi set value
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-      if (editorRef.current && !quillRef.current) {
-        quillRef.current = new Quill(editorRef.current, {
+      setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+      if (!isClient || !editorRef.current || quillRef.current) return;
+
+      // Dynamic import Quill and its CSS only on client
+      Promise.all([
+        import("quill"),
+        import("quill/dist/quill.snow.css"),
+      ]).then(([QuillModule]) => {
+        if (!editorRef.current || quillRef.current) return;
+
+        quillRef.current = new QuillModule.default(editorRef.current, {
           theme: "snow",
           modules: {
             toolbar: [
@@ -49,8 +63,8 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
             isSettingContent.current = false;
           }
         });
-      }
-    }, [onChange]);
+      });
+    }, [onChange, isClient]);
 
     // Controlled: nếu value từ props thay đổi, cập nhật Quill
     useEffect(() => {
