@@ -23,19 +23,25 @@ const tournamentApiRequest = {
 
   createTournament: (body: TournamentCreateRequest) =>
     http.post("/admin/tournament", body),
-  getAllTournaments: (page: number, size: number, accessToken?: string) => {
-    const config = {
-      params: { page, size },
-      ...(accessToken
-        ? {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        : {}),
-    };
-
-    return http.get<PagedTournamentResponse>("/tournaments", config);
+  getAllTournaments: (
+    page: number,
+    size: number,
+    accessToken?: string,
+    participationType?: "INDIVIDUAL" | "CLUB"
+  ) => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("size", size.toString());
+    if (participationType) {
+      params.append("participationType", participationType);
+    }
+    const headers: Record<string, string> = {};
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    return http.get<PagedTournamentResponse>(`/tournaments?${params.toString()}`, {
+      headers,
+    });
   },
   getDetailBySlug: (slug: string, token = "") =>
     http.get<TournamentDetailResponse>(`/tournaments/${slug}`, {
