@@ -74,7 +74,7 @@ export default async function MyClubDetail({
   try {
     const response = await clubServiceApi.getMyClubById(
       id,
-      accessToken?.value || ""
+      accessToken?.value || "",
     );
     clubDetail = response.payload.data || null;
   } catch (error) {
@@ -150,6 +150,11 @@ export default async function MyClubDetail({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                {/* Events Count */}
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" /> {clubDetail.totalEvent} hoạt
+                  động
+                </div>
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" /> {clubDetail.memberCount}/
                   {clubDetail.maxMembers} thành viên

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import MemberScheduleDialog from "@/app/(main)/my-clubs/_components/member-schedule";
 import CreateClubWarningDialog from "@/app/(main)/my-clubs/_components/create-club-warning-dialog";
 import CreateClubMemberNoteDialog from "@/app/(main)/my-clubs/_components/create-club-member-note-dialog";
+import VerifyMemberRatingDialog from "@/app/(main)/my-clubs/_components/rating-verify";
 
 export default function MembersList({
   members,
@@ -123,6 +124,11 @@ export default function MembersList({
                           clubId={id}
                           memberId={member.id}
                         />
+                        <VerifyMemberRatingDialog
+                          clubId={id}
+                          memberId={member.id}
+                          ratingVerified={member.ratingVerified}
+                        ></VerifyMemberRatingDialog>
                       </div>
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">

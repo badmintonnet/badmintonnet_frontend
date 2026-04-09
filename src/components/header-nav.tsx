@@ -8,6 +8,7 @@ const navItems = [
   { name: "Hoạt động", href: "/events" },
   { name: "Câu lạc bộ", href: "/clubs" },
   { name: "Giải đấu", href: "/tournaments" },
+  { name: "Chatbot AI", href: "/chatbot" },
   { name: "Về chúng tôi", href: "/about" },
 ];
 

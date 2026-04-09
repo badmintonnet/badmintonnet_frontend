@@ -63,6 +63,11 @@ const accountApiRequest = {
           }
         : {}),
     }),
+  getClubMemberRating: (memberId: string) =>
+    http.get<PlayerRatingResponseType>(
+      `/account/player-rating/${memberId}`,
+      {},
+    ),
   getReputationHistory: (accessToken?: string) =>
     http.get<ReputationHistoryResponseType>("/account/reputation-history", {
       ...(accessToken
@@ -84,7 +89,7 @@ const accountApiRequest = {
               },
             }
           : {}),
-      }
+      },
     ),
   getHistoryTournamentByPlayer: (id: string, accessToken?: string) =>
     http.get<PlayerTournamentHistoryResponseType>(
@@ -97,7 +102,7 @@ const accountApiRequest = {
               },
             }
           : {}),
-      }
+      },
     ),
 };
 export default accountApiRequest;

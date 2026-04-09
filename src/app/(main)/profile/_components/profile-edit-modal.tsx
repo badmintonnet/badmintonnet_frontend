@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +13,6 @@ import {
   CalendarDaysIcon,
   MapPinIcon,
   DocumentTextIcon,
-  CameraIcon,
 } from "@heroicons/react/24/outline";
 import {
   Dialog,
@@ -59,6 +59,16 @@ interface ProfileEditModalProps {
   onClose: () => void;
 }
 
+const DEFAULT_LATITUDE = 10.7769;
+const DEFAULT_LONGITUDE = 106.7009;
+
+const LocationPickerMap = dynamic(() => import("./location-picker-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-72 w-full rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 animate-pulse" />
+  ),
+});
+
 const viGenderToEnum = (g: string): "MALE" | "FEMALE" | "OTHER" => {
   const s = g?.toLowerCase();
   if (s === "nam" || s === "male") return "MALE";
@@ -72,9 +82,10 @@ export default function ProfileEditModal({
   onClose,
 }: ProfileEditModalProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(
-    profile.avatarUrl ?? ""
+    profile.avatarUrl ?? "",
   );
   const router = useRouter();
   const [openCalendar, setOpenCalendar] = useState(false);
@@ -85,9 +96,11 @@ export default function ProfileEditModal({
       birthDate: profile.birthDate ?? "",
       gender: viGenderToEnum(profile.gender ?? "OTHER"),
       address: profile.address ?? "",
+      latitude: profile.latitude ?? DEFAULT_LATITUDE,
+      longitude: profile.longitude ?? DEFAULT_LONGITUDE,
       bio: profile.bio ?? "",
     }),
-    [profile]
+    [profile],
   );
 
   const form = useForm<UpdateProfileBodyType>({
@@ -124,7 +137,7 @@ export default function ProfileEditModal({
       toast.success(res.payload.message || "Cập nhật hồ sơ thành công");
       router.refresh();
       onClose();
-    } catch (error: unknown) {
+    } catch {
       toast.error("Cập nhật thất bại. Vui lòng thử lại.");
     } finally {
       setIsUploading(false);
@@ -136,6 +149,70 @@ export default function ProfileEditModal({
     setImageFile(null);
     setImagePreview(profile.avatarUrl ?? "");
     onClose();
+  };
+
+  const latitude = form.watch("latitude");
+  const longitude = form.watch("longitude");
+
+  const handleMapChange = (lat: number, lng: number) => {
+    form.setValue("latitude", lat, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    form.setValue("longitude", lng, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleFindAddressOnMap = async () => {
+    const address = form.getValues("address")?.trim();
+    if (!address || isResolvingAddress) return;
+
+    setIsResolvingAddress(true);
+    try {
+      const query = encodeURIComponent(address);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${query}`,
+        {
+          headers: {
+            "Accept-Language": "vi",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Không thể tìm địa chỉ");
+      }
+
+      const results: Array<{ lat: string; lon: string }> =
+        await response.json();
+      const topResult = results[0];
+
+      if (!topResult) {
+        toast.error("Không tìm thấy địa chỉ trên bản đồ");
+        return;
+      }
+
+      const lat = Number(topResult.lat);
+      const lng = Number(topResult.lon);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        toast.error("Dữ liệu vị trí không hợp lệ");
+        return;
+      }
+
+      handleMapChange(lat, lng);
+      toast.success("Đã cập nhật vị trí theo địa chỉ");
+    } catch {
+      toast.error(
+        "Không thể tìm vị trí từ địa chỉ. Vui lòng chọn trực tiếp trên bản đồ.",
+      );
+    } finally {
+      setIsResolvingAddress(false);
+    }
   };
 
   return (
@@ -300,7 +377,7 @@ export default function ProfileEditModal({
                                   ? new Date(
                                       Number(field.value.split("-")[0]),
                                       Number(field.value.split("-")[1]) - 1,
-                                      Number(field.value.split("-")[2])
+                                      Number(field.value.split("-")[2]),
                                     )
                                   : undefined
                               }
@@ -309,11 +386,11 @@ export default function ProfileEditModal({
                                   // Lưu lại đúng định dạng yyyy-mm-dd
                                   const yyyy = date.getFullYear();
                                   const mm = String(
-                                    date.getMonth() + 1
+                                    date.getMonth() + 1,
                                   ).padStart(2, "0");
                                   const dd = String(date.getDate()).padStart(
                                     2,
-                                    "0"
+                                    "0",
                                   );
                                   field.onChange(`${yyyy}-${mm}-${dd}`);
                                 } else {
@@ -377,6 +454,59 @@ export default function ProfileEditModal({
                         className="h-12 text-base border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Bản đồ chọn vị trí */}
+              <FormField
+                control={form.control}
+                name="latitude"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300">
+                      <MapPinIcon className="h-5 w-5 text-blue-600" />
+                      Vị trí trên bản đồ
+                    </FormLabel>
+                    <FormControl>
+                      <div className="space-y-3">
+                        <LocationPickerMap
+                          latitude={latitude}
+                          longitude={longitude}
+                          onChange={handleMapChange}
+                        />
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Nhập địa chỉ (tuỳ chọn), sau đó click lên bản đồ hoặc
+                          kéo marker để cập nhật kinh độ và vĩ độ.
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-10 w-full sm:w-auto"
+                          disabled={
+                            isResolvingAddress || !form.watch("address")?.trim()
+                          }
+                          onClick={handleFindAddressOnMap}
+                        >
+                          {isResolvingAddress
+                            ? "Đang tìm vị trí..."
+                            : "Tìm theo địa chỉ"}
+                        </Button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <Input
+                            value={latitude.toFixed(6)}
+                            readOnly
+                            className="h-11 text-base border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-xl"
+                          />
+                          <Input
+                            value={longitude.toFixed(6)}
+                            readOnly
+                            className="h-11 text-base border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-xl"
+                          />
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

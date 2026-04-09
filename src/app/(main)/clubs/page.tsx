@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { GraduationCap, MapPin, Users } from "lucide-react";
+import { Calendar, GraduationCap, MapPin, Users } from "lucide-react";
 import { CreateClubButton } from "@/app/(main)/clubs/_components/create-club-button";
 import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
 import clubServiceApi from "@/apiRequest/club";
@@ -165,6 +165,12 @@ const ClubList = async ({
                     <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
                       <Users className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
                       {club.memberCount}/{club.maxMembers} thành viên
+                    </div>
+
+                    {/* Events Count */}
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
+                      <Calendar className="w-4 h-4 mr-2 text-orange-600 dark:text-orange-400" />
+                      {club.totalEvent} hoạt động
                     </div>
 
                     <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4 ">

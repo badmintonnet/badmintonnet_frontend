@@ -76,7 +76,7 @@ const clubServiceApi = {
       `/clubs/my_clubs/all?page=${page}&size=${size}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
   getClubById: (slug: string, token = "") =>
     http.get<ClubResType>(`/clubs/${slug}`, {
@@ -94,14 +94,14 @@ const clubServiceApi = {
     page = 0,
     size = 10,
     token = "",
-    status = "PENDING"
+    status = "PENDING",
   ) =>
     http.get<MemberPageResType>(
       `/clubs/my_clubs/${id}/member?page=${page}&size=${size}&status=${status}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         cache: "no-store",
-      }
+      },
     ),
   getGuests: (id: string, token = "") =>
     http.get<GuestResponseType>(`/clubs/my_clubs/${id}/guest`, {
@@ -113,21 +113,21 @@ const clubServiceApi = {
     memberId: string,
     approve = true,
     reason = "",
-    token = ""
+    token = "",
   ) =>
     http.post(
       `/clubs/my_clubs/${clubId}/member/${memberId}/approve?approve=${approve}&reason=${encodeURIComponent(
-        reason
+        reason,
       )}`,
       null,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
 
   getClubMemberDetail: (clubId: string, id: string) =>
     http.get<ClubMemberDetailResType>(
-      `/clubs/my_clubs/${clubId}/detail_member/${id}`
+      `/clubs/my_clubs/${clubId}/detail_member/${id}`,
     ),
 
   getClubMemberSchedule: (id: string, memberId: string, token = "") =>
@@ -136,7 +136,7 @@ const clubServiceApi = {
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         cache: "no-store",
-      }
+      },
     ),
   outClubMember: (clubId: string) =>
     http.delete(`/clubs/my_clubs/${clubId}/out`),
@@ -146,5 +146,7 @@ const clubServiceApi = {
   getClubWarning: (clubId: string, accountId: string) =>
     http.get<ClubWarningResponseType>(`/club_warning/${clubId}/${accountId}`),
   revokeWarning: (id: string) => http.put(`/club_warning/${id}`),
+  verifyMemberRating: (clubId: string, memberId: string) =>
+    http.put(`/clubs/my_clubs/${clubId}/members/${memberId}/verify`, {}),
 };
 export default clubServiceApi;

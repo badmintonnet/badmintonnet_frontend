@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import accountApiRequest from "@/apiRequest/account";
-import { Trophy, TrendingUp, Star } from "lucide-react";
+import { Trophy, TrendingUp, Star, CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -29,7 +29,7 @@ export default async function ProfileStats({
   if (id) {
     res = await accountApiRequest.getOtherPlayerRating(
       accessToken?.value || "",
-      id
+      id,
     );
   } else {
     res = await accountApiRequest.getPlayerRating(accessToken?.value || "");
@@ -158,12 +158,21 @@ export default async function ProfileStats({
 
         <div
           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-sm font-semibold bg-gradient-to-r ${getLevelGradient(
-            overallScore
+            overallScore,
           )}`}
         >
           <Trophy className="h-4 w-4" />
           {skillLevel}
         </div>
+
+        {playerRating.verifyCount > 0 && (
+          <div className="mt-2 flex justify-center">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 text-xs font-medium">
+              <CheckCircle className="w-3 h-3" />
+              {playerRating.verifyCount} CLB xác nhận
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Main stats - 2x2 grid */}
@@ -237,8 +246,8 @@ export default async function ProfileStats({
                 {overallScore < 3
                   ? "Tập trung luyện kỹ thuật cơ bản"
                   : overallScore < 4
-                  ? "Phát triển chiến thuật và kỹ thuật nâng cao"
-                  : "Duy trì phong độ và tham gia thi đấu"}
+                    ? "Phát triển chiến thuật và kỹ thuật nâng cao"
+                    : "Duy trì phong độ và tham gia thi đấu"}
               </p>
             </div>
           </div>

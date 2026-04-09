@@ -7,6 +7,7 @@ import {
   GraduationCap,
   ChevronRight,
   AlertCircle,
+  Calendar,
 } from "lucide-react";
 import { isHTML } from "@/lib/utils";
 
@@ -138,7 +139,17 @@ export default async function ClubSection({ accessToken }: ClubSectionProps) {
                         : club.location}
                     </span>
                   </div>
-
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300" />
+                    </div>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {club.totalEvent}
+                      </span>{" "}
+                      hoạt động
+                    </span>
+                  </div>
                   {/* Members */}
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 rounded-md flex items-center justify-center flex-shrink-0">
