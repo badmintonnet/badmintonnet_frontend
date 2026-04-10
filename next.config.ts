@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["localhost", "127.0.0.1"],
+    domains: ["localhost", "127.0.0.1", "oogpxkpuojkoraidxhda.supabase.co"],
     remotePatterns: [
       {
         protocol: "https",

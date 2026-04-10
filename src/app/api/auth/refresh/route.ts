@@ -60,7 +60,7 @@ export async function GET() {
     if (data?.data?.deviceId) {
       response.headers.append(
         "Set-Cookie",
-        `deviceId111=${data.data.deviceId}; Path=/; HttpOnly; Max-Age=${
+        `deviceId=${data.data.deviceId}; Path=/; HttpOnly; Max-Age=${
           60 * 60 * 24 * 100
         }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`
       );
