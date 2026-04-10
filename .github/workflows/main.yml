@@ -54,6 +54,5 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /var/www/sportsnet_frontend
-            git pull origin main
             docker compose pull sportsnet-frontend
-            docker compose up -d
+            docker compose up -d --remove-orphans
