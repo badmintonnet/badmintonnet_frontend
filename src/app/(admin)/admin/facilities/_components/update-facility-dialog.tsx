@@ -191,6 +191,7 @@ export function UpdateFacilityDialog({
         address: values.address,
         district: values.district,
         province: values.province,
+        city: values.province,
         latitude: values.latitude ? parseFloat(values.latitude) : 0,
         longitude: values.longitude ? parseFloat(values.longitude) : 0,
         image: imageFileName,

@@ -22,6 +22,22 @@ import { Input } from "@/components/ui/input";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
+type ApiErrorLike = {
+  payload?: {
+    message?: string;
+  };
+  message?: string;
+};
+
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (typeof error === "object" && error !== null) {
+    const apiError = error as ApiErrorLike;
+    return apiError.payload?.message ?? apiError.message ?? fallback;
+  }
+
+  return fallback;
+};
+
 interface CategoryScheduleProps {
   category: CategoryDetail;
 }
@@ -289,8 +305,8 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     } catch (error: unknown) {
       // Try to read API error message (HttpError.payload.message) or fallback to generic message
       const apiMessage =
-        (error as any)?.payload?.message ||
-        (error as any)?.message ||
+        (error as ApiErrorLike)?.payload?.message ||
+        (error as ApiErrorLike)?.message ||
         "Có lỗi xảy ra khi tạo cặp thi đấu";
       toast.error(apiMessage);
     } finally {
@@ -398,11 +414,11 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       // Refresh to get latest data including results
       router.refresh();
       await fetchCategoryResults();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      const apiMessage =
-        (error && (error.payload?.message ?? error.message)) ||
-        "Có lỗi xảy ra khi cập nhật kết quả";
+    } catch (error: unknown) {
+      const apiMessage = getApiErrorMessage(
+        error,
+        "Failed to update match result"
+      );
       toast.error(apiMessage);
     } finally {
       setIsUpdating(false);

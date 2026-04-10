@@ -48,14 +48,14 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(
-    clubDetail.logoUrl || null
+    clubDetail.logoUrl || null,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [facilities, setFacilities] = useState<FacilityType[]>([]);
   const [loadingFacilities, setLoadingFacilities] = useState(false);
   const [useCustomLocation, setUseCustomLocation] = useState(
-    !clubDetail.facility && !!clubDetail.location
+    !clubDetail.facility && !!clubDetail.location,
   );
   const [tagInput, setTagInput] = useState("");
 
@@ -77,7 +77,7 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
   }, []);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -184,8 +184,10 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
         maxMembers: Number(formData.maxMembers),
         minLevel: Number(formData.minLevel),
         maxLevel: Number(formData.maxLevel),
-        facilityId: useCustomLocation ? null : formData.facilityId || null,
-        location: useCustomLocation ? formData.location : null,
+        facilityId: useCustomLocation
+          ? undefined
+          : formData.facilityId || undefined,
+        location: useCustomLocation ? formData.location : undefined,
       };
 
       setUploadProgress(80);
@@ -422,6 +424,7 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
               id="visibility"
               name="visibility"
               value={formData.visibility}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onChange={(e: any) => handleInputChange(e)}
               className="w-full h-11 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             >

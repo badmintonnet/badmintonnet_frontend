@@ -139,6 +139,7 @@ export const TournamentCategoryRequest = z.object({
   thirdPrize: z.string().optional(),
 
   format: CategoryFormatEnum.optional(),
+  registrationDeadline: z.string().optional(),
 });
 
 export type TournamentCategoryRequest = z.infer<
