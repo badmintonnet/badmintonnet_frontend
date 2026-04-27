@@ -26,10 +26,10 @@ const ProtectProfileButton: React.FC<ProtectProfileButtonProps> = ({
       toast.success(
         newStatus
           ? "Đã bật bảo vệ trang cá nhân"
-          : "Đã tắt bảo vệ trang cá nhân"
+          : "Đã tắt bảo vệ trang cá nhân",
       );
-    } catch (err) {
-      toast.error("❌ Có lỗi xảy ra khi cập nhật trạng thái!");
+    } catch {
+      toast.error("Có lỗi xảy ra khi cập nhật trạng thái!");
     } finally {
       setLoading(false);
     }

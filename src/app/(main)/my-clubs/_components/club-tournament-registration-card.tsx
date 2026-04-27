@@ -301,7 +301,9 @@ export default function ClubTournamentRegistrationCard({
                 Đang xử lý…
               </span>
             ) : ["CANCELLED", "REJECTED"].includes(participant.status) ? (
-              <span className="text-sm text-gray-500 dark:text-gray-400">—</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                —
+              </span>
             ) : (
               <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                 Chưa thanh toán
@@ -544,13 +546,11 @@ function ActionHint({
   status: ClubTournamentParticipant["status"];
   hasRepresentative: boolean;
 }) {
-  let config:
-    | {
-        tone: "amber" | "orange" | "blue" | "emerald" | "rose" | "slate";
-        Icon: React.ComponentType<{ className?: string }>;
-        text: string;
-      }
-    | null = null;
+  let config: {
+    tone: "amber" | "orange" | "blue" | "emerald" | "rose" | "slate";
+    Icon: React.ComponentType<{ className?: string }>;
+    text: string;
+  } | null = null;
 
   switch (status) {
     case "PENDING":

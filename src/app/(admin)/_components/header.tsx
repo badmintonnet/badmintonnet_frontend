@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { clientSessionToken } from "@/lib/http";
 import { Bell, LogOut, Moon, Search, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";

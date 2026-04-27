@@ -10,13 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-  Users,
-  Building2,
-} from "lucide-react";
+import { Loader2, CheckCircle2, Users, Building2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -66,9 +60,7 @@ export default function ClubRegisterModalSimple({
     "select-club",
   );
   const [clubs, setClubs] = useState<MyClubType[]>([]);
-  const [selectedClub, setSelectedClub] = useState<MyClubType | null>(
-    null,
-  );
+  const [selectedClub, setSelectedClub] = useState<MyClubType | null>(null);
   const [members, setMembers] = useState<ClubMember[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -105,14 +97,23 @@ export default function ClubRegisterModalSimple({
         const raw = res.payload.data.content ?? [];
         // Lọc chỉ lấy thành viên có status === "APPROVED" (đã lọc ở API)
         setMembers(
-          raw.map((m: { clubMemberId: string; id: string; name: string; avatar: string; slug: string; role: string }) => ({
-            clubMemberId: m.clubMemberId,
-            accountId: m.id,
-            name: m.name,
-            avatar: m.avatar,
-            slug: m.slug,
-            role: m.role,
-          })),
+          raw.map(
+            (m: {
+              clubMemberId: string;
+              id: string;
+              name: string;
+              avatar: string;
+              slug: string;
+              role: string;
+            }) => ({
+              clubMemberId: m.clubMemberId,
+              accountId: m.id,
+              name: m.name,
+              avatar: m.avatar,
+              slug: m.slug,
+              role: m.role,
+            }),
+          ),
         );
       })
       .catch(() => toast.error("Không thể tải danh sách thành viên"))
@@ -127,9 +128,9 @@ export default function ClubRegisterModalSimple({
     );
   };
 
-  const isCountValid = selectedIds.length >= minRoster && selectedIds.length <= maxRoster;
+  const isCountValid =
+    selectedIds.length >= minRoster && selectedIds.length <= maxRoster;
   const tooFew = selectedIds.length < minRoster;
-  const tooMany = selectedIds.length > maxRoster;
 
   const handleSubmit = async () => {
     if (!selectedClub) return;
@@ -144,8 +145,15 @@ export default function ClubRegisterModalSimple({
       onRegistered?.();
     } catch (error: unknown) {
       console.error("Register club error:", error);
-      const err = error as { payload?: { message?: string }; response?: { data?: { message?: string } } };
-      toast.error(err.payload?.message || err.response?.data?.message || "Không thể đăng ký CLB");
+      const err = error as {
+        payload?: { message?: string };
+        response?: { data?: { message?: string } };
+      };
+      toast.error(
+        err.payload?.message ||
+          err.response?.data?.message ||
+          "Không thể đăng ký CLB",
+      );
     } finally {
       setSubmitting(false);
     }

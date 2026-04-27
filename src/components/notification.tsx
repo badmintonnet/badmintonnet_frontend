@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { Bell } from "lucide-react";
@@ -27,14 +27,16 @@ export default function NotificationBell() {
   const [last, setLast] = useState(false);
   const listRef = useRef<HTMLUListElement>(null);
   const loadingRef = useRef(false);
+  const lastRef = useRef(false);
 
-  const loadNotifications = async (pageNum: number) => {
-    if (loadingRef.current || last) return;
+  const loadNotifications = useCallback(async (pageNum: number) => {
+    if (loadingRef.current || lastRef.current) return;
     loadingRef.current = true;
     try {
       const res = await notificationApiRequest.getOldNotifications(pageNum, 10);
       const data: NotificationMessagePageType = res.payload;
       setMessages((prev) => [...prev, ...data.data.content]);
+      lastRef.current = data.data.last;
       setLast(data.data.last);
       setPage(data.data.page);
     } catch (err) {
@@ -42,7 +44,7 @@ export default function NotificationBell() {
     } finally {
       loadingRef.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
     const token = jwtDecode<JwtPayload>(clientSessionToken.value);
@@ -83,7 +85,7 @@ export default function NotificationBell() {
     return () => {
       stompClient.deactivate();
     };
-  }, []);
+  }, [loadNotifications]);
 
   // 📌 scroll event để load thêm
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function NotificationBell() {
 
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
-  }, [open, page, last]);
+  }, [open, page, loadNotifications]);
 
   const unreadCount = messages.filter((m) => !m.read).length;
 

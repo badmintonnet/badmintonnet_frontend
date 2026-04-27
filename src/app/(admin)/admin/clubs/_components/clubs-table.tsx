@@ -142,56 +142,6 @@ export default function ClubsTable({
     }
   };
 
-  // Tạo mảng các trang để hiển thị trong pagination
-  const generatePagination = (currentPage: number, totalPages: number) => {
-    // Nếu không có trang nào hoặc chỉ có 1 trang
-    if (totalPages <= 1) return [0];
-
-    // Nếu ít hơn 7 trang, hiển thị tất cả
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i);
-    }
-
-    const pages: number[] = [0]; // Trang đầu
-
-    // Xác định phạm vi trang cần hiển thị
-    let startPage = Math.max(1, currentPage - 1);
-    let endPage = Math.min(totalPages - 2, currentPage + 1);
-
-    // Điều chỉnh nếu gần đầu
-    if (currentPage <= 2) {
-      endPage = Math.min(4, totalPages - 2);
-    }
-
-    // Điều chỉnh nếu gần cuối
-    if (currentPage >= totalPages - 3) {
-      startPage = Math.max(totalPages - 5, 1);
-      endPage = totalPages - 2;
-    }
-
-    // Thêm dấu chấm lửng nếu cần
-    if (startPage > 1) {
-      pages.push(-1); // Dấu chấm lửng đầu
-    }
-
-    // Thêm các trang xung quanh trang hiện tại
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    // Thêm dấu chấm lửng nếu cần
-    if (endPage < totalPages - 2) {
-      pages.push(-2); // Dấu chấm lửng cuối
-    }
-
-    // Trang cuối
-    pages.push(totalPages - 1);
-
-    return pages;
-  };
-
-  const paginationItems = generatePagination(currentPage, totalPages);
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">

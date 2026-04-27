@@ -45,7 +45,7 @@ export default function UpdateInvitationStatusDialog({
 
   const handleUpdateStatus = async (
     status: "ACCEPTED" | "REJECTED",
-    reason?: string
+    reason?: string,
   ) => {
     try {
       setLoading(status === "ACCEPTED" ? "accept" : "reject");
@@ -54,7 +54,7 @@ export default function UpdateInvitationStatusDialog({
       if (status === "REJECTED" && reason && reason.trim().length > 0) {
         await clubInvitationApiRequest.updateInvitationStatus(
           body,
-          reason.trim()
+          reason.trim(),
         );
       } else {
         await clubInvitationApiRequest.updateInvitationStatus(body);
@@ -62,14 +62,14 @@ export default function UpdateInvitationStatusDialog({
       toast.success(
         status === "ACCEPTED"
           ? "Bạn đã chấp nhận lời mời tham gia CLB."
-          : "Bạn đã từ chối lời mời tham gia CLB."
+          : "Bạn đã từ chối lời mời tham gia CLB.",
       );
       setOpen(false);
       setShowRejectArea(false);
       setRejectReason("");
       setRejectOption(null);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Không thể cập nhật trạng thái lời mời. Vui lòng thử lại.");
     } finally {
       setLoading(null);

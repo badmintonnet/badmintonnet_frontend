@@ -2,10 +2,8 @@
 
 import { clientSessionToken } from "@/lib/http";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { UserMinus } from "lucide-react";
-import eventClubApiRequest from "@/apiRequest/club.event";
 
 interface LeaveEventButtonProps {
   eventId: string;
@@ -13,7 +11,7 @@ interface LeaveEventButtonProps {
 
 export const LeaveEventButton = ({ eventId }: LeaveEventButtonProps) => {
   const accessToken = clientSessionToken.value;
-  const router = useRouter();
+  void eventId;
 
   const handleLeaveEvent = async () => {
     if (!accessToken) {

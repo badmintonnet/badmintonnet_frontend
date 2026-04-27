@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   CalendarDays,
@@ -16,7 +15,6 @@ import {
   Calendar,
   Loader2,
   ArrowRight,
-  X,
 } from "lucide-react";
 import { AccountScheduleType } from "@/schemaValidations/account.schema";
 import Link from "next/link";
@@ -105,21 +103,24 @@ export default function MemberScheduleDialog({
     }
   };
 
-  const groupedItems = items.reduce((acc, item) => {
-    const dateKey = item.startTime.toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(item);
-    return acc;
-  }, {} as Record<string, AccountScheduleType[]>);
+  const groupedItems = items.reduce(
+    (acc, item) => {
+      const dateKey = item.startTime.toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      if (!acc[dateKey]) acc[dateKey] = [];
+      acc[dateKey].push(item);
+      return acc;
+    },
+    {} as Record<string, AccountScheduleType[]>,
+  );
 
   const sortedDates = Object.keys(groupedItems).sort(
     (a, b) =>
       new Date(a.split("/").reverse().join("-")).getTime() -
-      new Date(b.split("/").reverse().join("-")).getTime()
+      new Date(b.split("/").reverse().join("-")).getTime(),
   );
 
   return (
@@ -262,7 +263,7 @@ export default function MemberScheduleDialog({
                                         {
                                           hour: "2-digit",
                                           minute: "2-digit",
-                                        }
+                                        },
                                       )}
                                     </div>
                                     <div className="flex items-center gap-2 ml-7">
@@ -273,7 +274,7 @@ export default function MemberScheduleDialog({
                                           {
                                             hour: "2-digit",
                                             minute: "2-digit",
-                                          }
+                                          },
                                         )}
                                       </span>
                                     </div>
@@ -289,7 +290,7 @@ export default function MemberScheduleDialog({
                                 <div className="flex-shrink-0">
                                   <Badge
                                     className={`${getStatusStyle(
-                                      item.status
+                                      item.status,
                                     )} font-semibold text-xs px-3 py-1.5 border whitespace-nowrap`}
                                   >
                                     {getStatusText(item.status)}

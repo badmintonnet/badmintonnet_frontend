@@ -101,8 +101,9 @@ export default function CancelRegistrationDialog({
               <li className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
                 <span className="text-amber-700 dark:text-amber-300">
-                  Khoản phí đã thanh toán có thể <strong>không được hoàn lại</strong>{" "}
-                  tùy theo chính sách của ban tổ chức.
+                  Khoản phí đã thanh toán có thể{" "}
+                  <strong>không được hoàn lại</strong> tùy theo chính sách của
+                  ban tổ chức.
                 </span>
               </li>
             )}

@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -137,9 +136,8 @@ const CreateClubForm = () => {
 
       setIsLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         setWards(response.payload.data.data || []);
         setSelectedWardId("");
       } catch (error) {
@@ -157,7 +155,7 @@ const CreateClubForm = () => {
   useEffect(() => {
     const updateLocation = () => {
       const selectedProvince = provinces.find(
-        (p) => p.id === selectedProvinceId
+        (p) => p.id === selectedProvinceId,
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
 
@@ -213,7 +211,7 @@ const CreateClubForm = () => {
   const handleRemoveTag = (tagToRemove: string) => {
     form.setValue(
       "tags",
-      (form.getValues("tags") ?? []).filter((tag) => tag !== tagToRemove)
+      (form.getValues("tags") ?? []).filter((tag) => tag !== tagToRemove),
     );
   };
 
@@ -250,7 +248,7 @@ const CreateClubForm = () => {
         ...(selectedFacility && { facilityId: selectedFacility }),
       });
       toast.success(
-        "Tạo câu lạc bộ thành công, Vui lòng chờ quản trị viên phê duyệt."
+        "Tạo câu lạc bộ thành công, Vui lòng chờ quản trị viên phê duyệt.",
       );
       const token = await authApiRequest.refreshSession();
       if (token.payload.data.accessToken) {
@@ -265,7 +263,7 @@ const CreateClubForm = () => {
       setSelectedWardId("");
       setAdditionalAddress("");
       router.push(`/my-clubs/${club.payload.data.slug}`);
-    } catch (error) {
+    } catch {
       toast.error("Tạo thất bại", {
         description: "Có lỗi xảy ra, vui lòng thử lại",
       });

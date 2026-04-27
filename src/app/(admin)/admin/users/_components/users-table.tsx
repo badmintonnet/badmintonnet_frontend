@@ -71,8 +71,8 @@ export default function UsersTable({
 
   const filteredUsers = users.filter((u) =>
     [u.fullName, u.email, u.phone].some((val) =>
-      val?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+      val?.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
   );
 
   const toggleUserStatus = async (id: string, enabled: boolean) => {

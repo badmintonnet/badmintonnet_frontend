@@ -62,13 +62,20 @@ export default function ClubTournamentRegistrations({
 
   // Thống kê nhanh cho từng nhóm
   const stats = useMemo(() => {
-    const base = { all: participations.length, pending: 0, approved: 0, done: 0, cancelled: 0 };
+    const base = {
+      all: participations.length,
+      pending: 0,
+      approved: 0,
+      done: 0,
+      cancelled: 0,
+    };
     for (const p of participations) {
       if (["DRAFT", "PENDING", "PAYMENT_REQUIRED", "PAID"].includes(p.status))
         base.pending += 1;
       else if (p.status === "APPROVED") base.approved += 1;
       else if (p.status === "ELIMINATED") base.done += 1;
-      else if (["CANCELLED", "REJECTED"].includes(p.status)) base.cancelled += 1;
+      else if (["CANCELLED", "REJECTED"].includes(p.status))
+        base.cancelled += 1;
     }
     return base;
   }, [participations]);
@@ -148,11 +155,7 @@ export default function ClubTournamentRegistrations({
           <StatChip label="Đang chờ" value={stats.pending} tone="amber" />
           <StatChip label="Đã duyệt" value={stats.approved} tone="emerald" />
           <StatChip label="Kết thúc" value={stats.done} tone="blue" />
-          <StatChip
-            label="Hủy / Từ chối"
-            value={stats.cancelled}
-            tone="rose"
-          />
+          <StatChip label="Hủy / Từ chối" value={stats.cancelled} tone="rose" />
         </div>
       </div>
 
@@ -162,7 +165,9 @@ export default function ClubTournamentRegistrations({
           {(Object.keys(FILTER_CONFIG) as FilterKey[]).map((key) => {
             const active = key === filter;
             const count =
-              key === "all" ? stats.all : stats[key as Exclude<FilterKey, "all">];
+              key === "all"
+                ? stats.all
+                : stats[key as Exclude<FilterKey, "all">];
             return (
               <button
                 key={key}

@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -118,9 +117,8 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
 
       setIsLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         setWards(response.payload.data.data || []);
         setSelectedWardId("");
       } catch (error) {
@@ -162,7 +160,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
   useEffect(() => {
     const updateLocation = () => {
       const selectedProvince = provinces.find(
-        (p) => p.id === selectedProvinceId
+        (p) => p.id === selectedProvinceId,
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
 
@@ -227,9 +225,8 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
       const formData = new FormData();
       if (imageFile) {
         formData.append("files", imageFile);
-        const uploadRes = await eventClubApiRequest.uploadImageClubEvent(
-          formData
-        );
+        const uploadRes =
+          await eventClubApiRequest.uploadImageClubEvent(formData);
         const uploadedImageUrl = uploadRes.payload.data.fileName;
         values.image = uploadedImageUrl || "";
       }
@@ -252,7 +249,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
       setSelectedFacility(null);
 
       router.push(`/events/${eventClub.payload.data.slug}`);
-    } catch (error) {
+    } catch {
       toast.error("Tạo thất bại", {
         description: "Có lỗi xảy ra, vui lòng thử lại",
       });
@@ -267,7 +264,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
     console.log("Start Date:", startDate);
     const endDate = new Date(startDate.getTime() + dur * 60 * 1000);
     const local = new Date(
-      endDate.getTime() - endDate.getTimezoneOffset() * 60000
+      endDate.getTime() - endDate.getTimezoneOffset() * 60000,
     )
       .toISOString()
       .slice(0, 16);
@@ -873,8 +870,8 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
                                   ? field.onChange([...field.value, type])
                                   : field.onChange(
                                       field.value?.filter(
-                                        (value) => value !== type
-                                      )
+                                        (value) => value !== type,
+                                      ),
                                     );
                               }}
                             />

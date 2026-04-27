@@ -34,7 +34,7 @@ export default async function EventHighlights({
 
   const res = await highlightApiRequest.getHighlightsByEventId(
     eventId,
-    accessToken?.value || ""
+    accessToken?.value || "",
   );
 
   const highlights = res.payload.data || [];
@@ -76,7 +76,7 @@ export default async function EventHighlights({
                 fileName: media.fileName,
                 mediaUrl: media.url,
                 mediaType: media.type.toLowerCase() as "image" | "video",
-              })
+              }),
             ),
             taggedList: highlight.taggedList || [],
             authorName: highlight.authorName,
@@ -126,7 +126,7 @@ export default async function EventHighlights({
                               {highlight.taggedList.map(
                                 (
                                   friend: PostFriendSchemaType,
-                                  index: number
+                                  index: number,
                                 ) => (
                                   <span
                                     key={friend.id}
@@ -147,7 +147,7 @@ export default async function EventHighlights({
                                       </span>
                                     )}
                                   </span>
-                                )
+                                ),
                               )}
                             </span>
                           )}
@@ -160,7 +160,7 @@ export default async function EventHighlights({
                             month: "short",
                             hour: "2-digit",
                             minute: "2-digit",
-                          }
+                          },
                         )}
                       </p>
                     </div>

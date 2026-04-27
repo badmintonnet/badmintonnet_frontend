@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import ratingApiRequest from "@/apiRequest/rating";
 import { RatingType } from "@/schemaValidations/rating.schema";
@@ -21,7 +21,7 @@ export default function LoadMoreRatings({ clubId }: LoadMoreRatingsProps) {
 
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (last || loading) return;
     setLoading(true);
     try {
@@ -35,22 +35,23 @@ export default function LoadMoreRatings({ clubId }: LoadMoreRatingsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clubId, page, last, loading]);
 
   // Auto load khi scroll chạm sentinel (chỉ chạy sau khi đã load lần đầu)
   useEffect(() => {
     if (!observerRef.current || !started) return;
+    const target = observerRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !loading && !last) {
           loadMore();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
-    observer.observe(observerRef.current);
+    observer.observe(target);
     return () => observer.disconnect();
-  }, [observerRef.current, loading, last, started]);
+  }, [started, loading, last, loadMore]);
 
   return (
     <div className="space-y-4">

@@ -75,7 +75,7 @@ export default function PendingMembers({
           pagePending,
           100,
           accessToken,
-          "PENDING"
+          "PENDING",
         );
         const pageData = res?.payload?.data;
         setPendingMembers(pageData?.content || []);
@@ -107,7 +107,7 @@ export default function PendingMembers({
   const handleUpdateStatus = async (
     memberId: string,
     status: "APPROVED" | "REJECTED",
-    rejectReason = ""
+    rejectReason = "",
   ) => {
     try {
       if (status === "APPROVED") {
@@ -117,7 +117,7 @@ export default function PendingMembers({
             id,
             memberId,
             true,
-            accessToken
+            accessToken,
           );
           toast.success("Đã duyệt thành viên.");
         } catch (error) {
@@ -136,7 +136,7 @@ export default function PendingMembers({
             memberId,
             false,
             rejectReason,
-            accessToken
+            accessToken,
           );
           toast.success("Đã từ chối thành viên.");
         } catch (error) {
@@ -351,7 +351,7 @@ export default function PendingMembers({
 
                               <div
                                 className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-white text-sm font-semibold bg-gradient-to-r ${getLevelGradient(
-                                  detailData.overallScore
+                                  detailData.overallScore,
                                 )}`}
                               >
                                 <Trophy className="h-4 w-4" />
@@ -464,7 +464,7 @@ export default function PendingMembers({
                                   <p className="text-sm font-medium">
                                     {detailData.birthDate
                                       ? new Date(
-                                          detailData.birthDate
+                                          detailData.birthDate,
                                         ).toLocaleDateString("vi-VN")
                                       : "Chưa cập nhật"}
                                   </p>
@@ -482,8 +482,8 @@ export default function PendingMembers({
                                     {detailData.gender === "MALE"
                                       ? "Nam"
                                       : detailData.gender === "FEMALE"
-                                      ? "Nữ"
-                                      : "Chưa cập nhật"}
+                                        ? "Nữ"
+                                        : "Chưa cập nhật"}
                                   </p>
                                 </div>
                               </div>
@@ -506,7 +506,7 @@ export default function PendingMembers({
                                   </p>
                                   <p className="text-sm font-medium">
                                     {new Date(
-                                      detailData.createdAt
+                                      detailData.createdAt,
                                     ).toLocaleDateString("vi-VN")}
                                   </p>
                                 </div>
@@ -591,7 +591,7 @@ export default function PendingMembers({
                                         handleUpdateStatus(
                                           detailData.id,
                                           "REJECTED",
-                                          rejectReason
+                                          rejectReason,
                                         )
                                       }
                                     >

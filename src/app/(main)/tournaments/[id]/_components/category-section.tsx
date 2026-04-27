@@ -8,7 +8,6 @@ import {
 import { Users, Info, ChevronRight, Calendar, Coins } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
-import JoinCategoryButton from "./join-category-button";
 
 // Helper function to format fee
 const formatFee = (fee: number | null | undefined): string => {
@@ -44,76 +43,11 @@ export default function CategorySection({
       </p>
     );
 
-  // Helper function to get button config based on status
-  const getButtonConfig = (
-    participantStatus?: string | null,
-    isFull?: boolean
-  ) => {
-    if (!participantStatus) {
-      return {
-        text: isFull ? "Đã đầy" : "Tham gia",
-        disabled: isFull,
-        className: isFull
-          ? "w-full bg-gray-100 text-gray-700 cursor-not-allowed"
-          : "w-full",
-      };
-    }
-
-    switch (participantStatus) {
-      case "PENDING":
-        return {
-          text: "Chờ duyệt",
-          disabled: true,
-          className: "w-full bg-amber-100 text-amber-700 cursor-not-allowed",
-        };
-      case "PAYMENT_REQUIRED":
-        return {
-          text: "Chờ thanh toán",
-          disabled: true,
-          className: "w-full bg-orange-100 text-orange-700 cursor-not-allowed",
-        };
-      case "APPROVED":
-        return {
-          text: "Đã tham gia",
-          disabled: true,
-          className: "w-full bg-green-100 text-green-700 cursor-not-allowed",
-        };
-      case "REJECTED":
-        return {
-          text: "Đã từ chối",
-          disabled: true,
-          className: "w-full bg-red-100 text-red-700 cursor-not-allowed",
-        };
-      case "CANCELLED":
-        return {
-          text: "Đã hủy",
-          disabled: true,
-          className: "w-full bg-gray-100 text-gray-700 cursor-not-allowed",
-        };
-      case "ELIMINATED":
-        return {
-          text: "Đã loại",
-          disabled: true,
-          className: "w-full bg-purple-100 text-purple-700 cursor-not-allowed",
-        };
-      default:
-        return {
-          text: isFull ? "Đã đầy" : "Tham gia",
-          disabled: isFull,
-          className: isFull
-            ? "w-full bg-gray-100 text-gray-700 cursor-not-allowed"
-            : "w-full",
-        };
-    }
-  };
-
   return (
     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {categories.map((cat) => {
         const filledPercent =
           (cat.currentParticipantCount / cat.maxParticipants) * 100;
-        const isFull = cat.currentParticipantCount >= cat.maxParticipants;
-        const buttonConfig = getButtonConfig(cat.participantStatus, isFull);
 
         return (
           <Card
@@ -163,7 +97,8 @@ export default function CategorySection({
                     <span className="text-sm">
                       Đăng ký:{" "}
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {formatDate(cat.registrationStartDate)} - {formatDate(cat.registrationEndDate)}
+                        {formatDate(cat.registrationStartDate)} -{" "}
+                        {formatDate(cat.registrationEndDate)}
                       </span>
                     </span>
                   </div>

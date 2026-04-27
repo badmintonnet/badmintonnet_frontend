@@ -66,10 +66,10 @@ export default function ParticipantsSection({
     (p) =>
       p.status === "APPROVED" ||
       p.status === "ATTENDED" ||
-      p.status === "ABSENT"
+      p.status === "ABSENT",
   );
   const pendingParticipants = participants.filter(
-    (p) => p.status === "PENDING"
+    (p) => p.status === "PENDING",
   );
 
   // don't fetch cancellations here — EventCancellationList will fetch its own data

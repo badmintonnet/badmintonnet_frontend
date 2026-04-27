@@ -9,14 +9,14 @@ import accountApiRequest from "@/apiRequest/account";
 
 async function getApprovedMembers(
   id: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<MemberType[]> {
   const res = await clubServiceApi.getClubMembers(
     id,
     0,
     100,
     accessToken,
-    "APPROVED"
+    "APPROVED",
   );
   return res.payload.data.content;
 }

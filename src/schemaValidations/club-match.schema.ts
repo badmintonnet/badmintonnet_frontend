@@ -12,10 +12,10 @@ export type ClubMatchStatus = z.infer<typeof ClubMatchStatus>;
 export const ClubMatchParticipantSchema = z.object({
   participantId: z.string(), // ClubTournamentParticipant.id
   clubId: z.string(),
-  clubName: z.string(),        // e.g. "CLB Bình Dương"
+  clubName: z.string(), // e.g. "CLB Bình Dương"
   clubLogoUrl: z.string().nullable().optional(),
-  memberId: z.string(),        // Account.id
-  memberName: z.string(),      // e.g. "Nguyễn Văn A"
+  memberId: z.string(), // Account.id
+  memberName: z.string(), // e.g. "Nguyễn Văn A"
   memberAvatarUrl: z.string().nullable().optional(),
   rosterEntryId: z.string(),
 });

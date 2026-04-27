@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function TabWrapper({
@@ -11,7 +11,6 @@ export default function TabWrapper({
   clubId: string;
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     router.replace(`/my-clubs/${clubId}`);

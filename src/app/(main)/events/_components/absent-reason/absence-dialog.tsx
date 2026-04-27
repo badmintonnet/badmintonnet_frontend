@@ -34,7 +34,7 @@ export default function AbsenceDialog({ eventId }: AbsenceDialogProps) {
         setReason("");
         setIsOpen(false);
         toast.success(
-          "Đã gửi lý do, vui lòng chờ phê duyệt để khôi phục uy tín"
+          "Đã gửi lý do, vui lòng chờ phê duyệt để khôi phục uy tín",
         );
       } else {
         toast.error("Vui lòng điền lý do");

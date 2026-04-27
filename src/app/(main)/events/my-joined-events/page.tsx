@@ -6,7 +6,6 @@ import {
   Users,
   DollarSign,
   Clock,
-  Club,
   CircleStar,
   Building2,
   GraduationCap,
@@ -16,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
-import FilterForm from "@/app/(main)/events/_components/filter-form";
 
 interface ClubEventsProps {
   searchParams: Promise<{
@@ -135,26 +133,22 @@ export default async function MyJoinedClubEvents({
   const params = await searchParams;
   const page = parseInt(params.page || "0", 10);
   const size = 8;
-  const searchQuery = params.search || "";
-  const province = params.province || "";
-  const ward = params.ward || "";
 
   let events = [];
   let totalPages = 1;
   let currentPage = 0;
-  let last = true;
 
   try {
     const response = await eventClubApiRequest.getMyJoinedEventClubs(
       page,
       size,
-      accessToken
+      accessToken,
       // searchQuery,
       // province,
       // ward
     );
     events = response.payload.data.content || [];
-    ({ totalPages, page: currentPage, last } = response.payload.data);
+    ({ totalPages, page: currentPage } = response.payload.data);
   } catch (error) {
     console.error("Error fetching joined events:", error);
     return (
@@ -273,7 +267,7 @@ export default async function MyJoinedClubEvents({
                       <Badge
                         key={cat}
                         className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
-                          cat
+                          cat,
                         )}`}
                       >
                         {categoryMapVN[cat] || cat}
@@ -284,7 +278,7 @@ export default async function MyJoinedClubEvents({
                   <div className="absolute bottom-3 left-3 z-10">
                     <Badge
                       className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${getStatusBadgeStyle(
-                        event.status
+                        event.status,
                       )}`}
                     >
                       {statusMapVN[event.status]}
@@ -372,7 +366,7 @@ export default async function MyJoinedClubEvents({
                       icon={Clock}
                       label="Giờ"
                       value={`${formatTime(event.startTime)} - ${formatTime(
-                        event.endTime
+                        event.endTime,
                       )}`}
                     />
                   </div>

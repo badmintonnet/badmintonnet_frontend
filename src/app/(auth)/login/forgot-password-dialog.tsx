@@ -28,11 +28,11 @@ export default function ForgotPasswordDialog() {
       setLoading(true);
       await authApiRequest.forgetPassword(email);
       toast.success(
-        "Yêu cầu đặt lại mật khẩu đã được gửi. Kiểm tra email của bạn."
+        "Yêu cầu đặt lại mật khẩu đã được gửi. Kiểm tra email của bạn.",
       );
       setOpen(false);
       setEmail("");
-    } catch (err) {
+    } catch {
       toast.error("Không thể gửi yêu cầu. Vui lòng thử lại.");
     } finally {
       setLoading(false);

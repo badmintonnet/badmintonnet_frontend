@@ -45,7 +45,7 @@ export default function ScheduleDialog() {
 
       setItems((prev) => (pageNum === 0 ? formatted : [...prev, ...formatted]));
       setHasMore(pageNum + 1 < totalPages);
-    } catch (e) {
+    } catch {
       setItems([]);
     } finally {
       setLoading(false);
@@ -107,18 +107,21 @@ export default function ScheduleDialog() {
     }
   };
 
-  const groupedItems = items.reduce((acc, item) => {
-    const dateKey = item.startTime.toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(item);
-    return acc;
-  }, {} as Record<string, AccountScheduleType[]>);
+  const groupedItems = items.reduce(
+    (acc, item) => {
+      const dateKey = item.startTime.toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(item);
+      return acc;
+    },
+    {} as Record<string, AccountScheduleType[]>,
+  );
 
   const sortedDates = Object.keys(groupedItems);
 
@@ -233,7 +236,7 @@ export default function ScheduleDialog() {
                                           {
                                             hour: "2-digit",
                                             minute: "2-digit",
-                                          }
+                                          },
                                         )}
                                       </div>
                                       <div className="flex items-center gap-2 ml-7">
@@ -244,7 +247,7 @@ export default function ScheduleDialog() {
                                             {
                                               hour: "2-digit",
                                               minute: "2-digit",
-                                            }
+                                            },
                                           )}
                                         </span>
                                       </div>
@@ -260,7 +263,7 @@ export default function ScheduleDialog() {
                                   <div className="flex-shrink-0">
                                     <Badge
                                       className={`${getStatusStyle(
-                                        item.status
+                                        item.status,
                                       )} 
                                       font-semibold text-xs px-3 py-1.5 border whitespace-nowrap`}
                                     >

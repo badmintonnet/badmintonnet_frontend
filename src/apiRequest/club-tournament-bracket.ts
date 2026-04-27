@@ -10,36 +10,30 @@ const clubTournamentBracketApiRequest = {
   // 1. Lấy bảng đấu CLB theo tournamentId (tự động tìm/tạo category MEN_SINGLE)
   getClubBracket: (tournamentId: string) =>
     http.get<ClubBracketResponseType>(
-      `/club-tournament/tournament/${tournamentId}/bracket`
+      `/club-tournament/tournament/${tournamentId}/bracket`,
     ),
 
   // 2. Chọn đại diện cho participant (Owner CLB)
-  setRepresentative: (
-    participantId: string,
-    body: ClubRepresentativeRequest
-  ) =>
+  setRepresentative: (participantId: string, body: ClubRepresentativeRequest) =>
     http.put<ClubRepresentativeResponseType>(
       `/club-tournament/participants/${participantId}/set-representative`,
-      body
+      body,
     ),
 
   // 3. Xem đại diện hiện tại của participant
   getRepresentative: (participantId: string) =>
     http.get<ClubRepresentativeResponseType>(
-      `/club-tournament/participants/${participantId}/representative`
+      `/club-tournament/participants/${participantId}/representative`,
     ),
 
   // 4. Admin: Tạo bảng đấu cho tournament
   generateBracket: (tournamentId: string) =>
     http.post(
-      `/admin/club-tournament/tournaments/${tournamentId}/generate-bracket`
+      `/admin/club-tournament/tournaments/${tournamentId}/generate-bracket`,
     ),
 
   // 5. Admin: Cập nhật tỉ số trận đấu
-  updateMatchResult: (
-    matchId: string,
-    body: UpdateClubMatchResultBodyType
-  ) =>
+  updateMatchResult: (matchId: string, body: UpdateClubMatchResultBodyType) =>
     http.put(`/bracket/match/${matchId}/update-result`, body),
 };
 

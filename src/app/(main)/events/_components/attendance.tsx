@@ -46,7 +46,7 @@ export default function AttendanceDropdown({
   const options: EventParticipantStatus[] = ["ATTENDED", "ABSENT"];
   const [selectedConfig, setSelectedConfig] =
     useState<EventParticipantStatus | null>(
-      value === "APPROVED" ? null : value || null
+      value === "APPROVED" ? null : value || null,
     );
 
   const handleChange = async (val: EventParticipantStatus) => {
@@ -56,7 +56,7 @@ export default function AttendanceDropdown({
         eventId,
         {
           status: val,
-        }
+        },
       );
       setSelectedConfig(val);
     } catch (err) {
@@ -97,8 +97,8 @@ export default function AttendanceDropdown({
               value={status}
               className={`
                 ${config.color} ${config.bgColor} ${
-                config.darkBgColor
-              } font-medium cursor-pointer
+                  config.darkBgColor
+                } font-medium cursor-pointer
                 data-[highlighted]:${
                   status === "ATTENDED"
                     ? "bg-green-100 dark:bg-green-900"

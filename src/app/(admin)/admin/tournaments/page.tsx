@@ -18,7 +18,7 @@ export default async function TournamentsPage({
     const response = await adminApiRequest.getAllTournament(
       page,
       size,
-      accessToken?.value
+      accessToken?.value,
     );
 
     if (!response.payload || !response.payload.data) {

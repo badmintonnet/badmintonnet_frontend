@@ -1,17 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, MessageSquare, X, ArrowLeft, Send } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { ConversationType } from "@/schemaValidations/chat.schema";
+import { ConversationType, MessageType } from "@/schemaValidations/chat.schema";
 import chatApiRequest from "@/apiRequest/chat";
 import { jwtDecode } from "jwt-decode";
 import { clientSessionToken } from "@/lib/http";
 import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
+import { Client, StompSubscription } from "@stomp/stompjs";
 import Image from "next/image";
 
 interface JwtPayload {
@@ -26,8 +24,7 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationType | null>(null);
-  const router = useRouter();
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [conversations, setConversations] = useState<ConversationType[]>([]);
   const [text, setText] = useState("");
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -35,18 +32,19 @@ export default function ChatWidget() {
   const [hasMore, setHasMore] = useState(true);
   const [unread, setUnread] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
-  const messageSubRef = useRef<any>(null);
+  const messageSubRef = useRef<StompSubscription | null>(null);
+  const loadingMessagesRef = useRef(false);
   const pageSize = 30;
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const stompTypingRef = useRef<Client | null>(null);
-  const typingSubRef = useRef<any>(null);
+  const typingSubRef = useRef<StompSubscription | null>(null);
   const [isTypingUsers, setIsTypingUsers] = useState<string[]>([]); // danh sách user đang typing
   const [searchTerm, setSearchTerm] = useState("");
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   const sendMessage = async () => {
     if (!text.trim() || !selectedConversation) return;
@@ -63,7 +61,7 @@ export default function ChatWidget() {
           content: text,
           senderName: "Me",
           senderAvatar: "/user.png",
-          createdAt: new Date().toISOString(),
+          createdAt: new Date(),
           received: false,
         },
       ]);
@@ -82,7 +80,7 @@ export default function ChatWidget() {
       setConversations(res.payload.data);
       const totalUnread = res.payload.data.reduce(
         (sum, c) => sum + (c.unreadCount || 0),
-        0
+        0,
       );
       setUnread(totalUnread);
     } catch (err) {
@@ -90,55 +88,56 @@ export default function ChatWidget() {
     }
   };
 
-  const loadMessages = async (
-    conversationId: string,
-    pageNum: number,
-    append = false
-  ) => {
-    if (loadingMessages) return;
-    setLoadingMessages(true);
-    if (append) setLoadingMore(true);
+  const loadMessages = useCallback(
+    async (conversationId: string, pageNum: number, append = false) => {
+      if (loadingMessagesRef.current) return;
+      loadingMessagesRef.current = true;
+      setLoadingMessages(true);
+      if (append) setLoadingMore(true);
 
-    try {
-      const res = await chatApiRequest.getMessagesByConversationId(
-        conversationId,
-        pageNum,
-        pageSize
-      );
+      try {
+        const res = await chatApiRequest.getMessagesByConversationId(
+          conversationId,
+          pageNum,
+          pageSize,
+        );
 
-      const newMessages = res.payload.data.content.sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
+        const newMessages = res.payload.data.content.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
 
-      if (newMessages.length < pageSize) {
-        setHasMore(false); // hết dữ liệu
+        if (newMessages.length < pageSize) {
+          setHasMore(false); // hết dữ liệu
+        }
+
+        if (append) {
+          // giữ vị trí scroll khi load thêm
+          const container = scrollContainerRef.current;
+          const oldHeight = container?.scrollHeight || 0;
+
+          setMessages((prev) => [...newMessages, ...prev]);
+
+          setTimeout(() => {
+            if (container) {
+              const newHeight = container.scrollHeight;
+              container.scrollTop = newHeight - oldHeight; // giữ nguyên vị trí cũ
+            }
+          }, 50);
+        } else {
+          setMessages(newMessages);
+          setTimeout(() => scrollToBottom(), 100);
+        }
+      } catch (err) {
+        console.error("Lỗi khi load tin nhắn:", err);
+      } finally {
+        loadingMessagesRef.current = false;
+        setLoadingMessages(false);
+        if (append) setLoadingMore(false);
       }
-
-      if (append) {
-        // giữ vị trí scroll khi load thêm
-        const container = scrollContainerRef.current;
-        const oldHeight = container?.scrollHeight || 0;
-
-        setMessages((prev) => [...newMessages, ...prev]);
-
-        setTimeout(() => {
-          if (container) {
-            const newHeight = container.scrollHeight;
-            container.scrollTop = newHeight - oldHeight; // giữ nguyên vị trí cũ
-          }
-        }, 50);
-      } else {
-        setMessages(newMessages);
-        setTimeout(() => scrollToBottom(), 100);
-      }
-    } catch (err) {
-      console.error("Lỗi khi load tin nhắn:", err);
-    } finally {
-      setLoadingMessages(false);
-      if (append) setLoadingMore(false);
-    }
-  };
+    },
+    [scrollToBottom],
+  );
   const handleScroll = () => {
     if (!scrollContainerRef.current || loadingMessages || !hasMore) return;
 
@@ -164,7 +163,7 @@ export default function ChatWidget() {
       setHasMore(true);
       loadMessages(selectedConversation.id, 0);
     }
-  }, [selectedConversation]);
+  }, [selectedConversation, loadMessages]);
 
   // WebSocket kết nối và thông báo
   useEffect(() => {
@@ -181,7 +180,7 @@ export default function ChatWidget() {
       stompClient.subscribe(`/topic/conversation/update/${token.id}`, (msg) => {
         console.log(
           "Viewing this conversation, no notification needed",
-          selectedConversation
+          selectedConversation,
         );
         if (msg.body) {
           const updated = JSON.parse(msg.body);
@@ -206,7 +205,7 @@ export default function ChatWidget() {
               }
               const totalUnread = newList.reduce(
                 (sum, c) => sum + (c.unreadCount || 0),
-                0
+                0,
               );
               setUnread(totalUnread);
               return newList;
@@ -221,7 +220,7 @@ export default function ChatWidget() {
     return () => {
       stompClient.deactivate();
     };
-  }, [selectedConversation]);
+  }, [selectedConversation, scrollToBottom]);
   useEffect(() => {
     if (!selectedConversation) return;
     if (messageSubRef.current) {
@@ -243,12 +242,17 @@ export default function ChatWidget() {
         `/topic/message/${selectedConversation.id}/${token.id}`,
         (msg) => {
           if (msg.body) {
-            const newMsg = JSON.parse(msg.body);
-            setMessages((prev) => [...prev, newMsg]); // append vào cuối
+            const newMsg = JSON.parse(msg.body) as MessageType & {
+              createdAt: string | Date;
+            };
+            setMessages((prev) => [
+              ...prev,
+              { ...newMsg, createdAt: new Date(newMsg.createdAt) },
+            ]); // append vào cuối
             setTimeout(scrollToBottom, 50);
             setPage((prev) => prev + 1);
           }
-        }
+        },
       );
     };
 
@@ -261,7 +265,7 @@ export default function ChatWidget() {
       }
       stompClient.deactivate();
     };
-  }, [selectedConversation]);
+  }, [selectedConversation, scrollToBottom]);
 
   useEffect(() => {
     if (!selectedConversation) return;
@@ -296,7 +300,7 @@ export default function ChatWidget() {
               return prev;
             });
           }
-        }
+        },
       );
     };
 
@@ -308,7 +312,7 @@ export default function ChatWidget() {
       stompTypingRef.current?.deactivate();
       stompTypingRef.current = null;
     };
-  }, [selectedConversation]);
+  }, [selectedConversation, scrollToBottom]);
 
   const sendTyping = (typing: boolean) => {
     if (!selectedConversation) return;
@@ -432,7 +436,7 @@ export default function ChatWidget() {
                 .filter((conversation) =>
                   conversation.name
                     ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase().trim())
+                    .includes(searchTerm.toLowerCase().trim()),
                 )
                 .map((conversation) => (
                   <div
@@ -444,8 +448,8 @@ export default function ChatWidget() {
                         prev.map((c) =>
                           c.id === conversation.id
                             ? { ...c, unreadCount: 0 }
-                            : c
-                        )
+                            : c,
+                        ),
                       );
                       setSelectedConversation(conversation);
                     }}
@@ -569,7 +573,7 @@ export default function ChatWidget() {
                               {
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              }
+                              },
                             )}
                           </span>
                         </div>

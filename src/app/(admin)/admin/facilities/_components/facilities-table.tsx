@@ -40,14 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import facilityApiRequest from "@/apiRequest/facility";
 
-import {
-  Search,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  MapPin,
-  Eye,
-} from "lucide-react";
+import { Search, MoreHorizontal, Edit, Trash2, MapPin } from "lucide-react";
 import CustomPagination from "@/components/custom-pagination";
 import { UpdateFacilityDialog } from "./update-facility-dialog";
 import { FacilityType } from "@/schemaValidations/event.schema";
@@ -63,13 +56,11 @@ export function FacilitiesTable({
   facilities,
   totalPages,
   currentPage,
-  totalElements,
 }: FacilitiesTableProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<FacilityType | null>(
-    null
+    null,
   );
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -78,7 +69,7 @@ export function FacilitiesTable({
   const handleSearch = () => {
     // Chuyển hướng với query params
     router.push(
-      `/admin/facilities?page=0&search=${encodeURIComponent(searchQuery)}`
+      `/admin/facilities?page=0&search=${encodeURIComponent(searchQuery)}`,
     );
   };
 
@@ -147,18 +138,7 @@ export function FacilitiesTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                      </div>
-                      <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        Đang tải dữ liệu...
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : facilities.length === 0 ? (
+                {facilities.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-10">
                       <div className="flex justify-center">

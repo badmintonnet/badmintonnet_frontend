@@ -44,12 +44,10 @@ import {
   Trash2,
   CheckCircle,
   XCircle,
-  Download,
   MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import CustomPagination from "@/components/custom-pagination";
-import adminApiRequest from "@/apiRequest/admin";
 import { TournamentAdminResponse } from "@/schemaValidations/tournament.schema";
 import TournamentCreateModal from "@/app/(admin)/admin/tournaments/_components/create-modal";
 
@@ -65,7 +63,6 @@ export default function TournamentsTable({
   tournaments,
   totalPages,
   currentPage,
-  accessToken,
   totalElements,
 }: TournamentsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -125,6 +122,10 @@ export default function TournamentsTable({
 
   // --- Hành động ---
   const updateTournamentStatus = async (id: string, newStatus: string) => {
+    // TODO: Implement API call to update tournament status.
+    // Keep parameters for the future request payload.
+    void id;
+    void newStatus;
     try {
       //   await adminApiRequest.updateTournamentStatus(id, newStatus, accessToken);
       toast.success("Cập nhật trạng thái thành công");
@@ -136,6 +137,9 @@ export default function TournamentsTable({
   };
 
   const deleteTournament = async (id: string) => {
+    // TODO: Implement API call to delete tournament.
+    // Keep parameter for the future request payload.
+    void id;
     try {
       //   await adminApiRequest.deleteTournament(id, accessToken);
       toast.success("Xóa giải đấu thành công");
@@ -259,7 +263,7 @@ export default function TournamentsTable({
 
                     <TableCell className="dark:text-gray-200">
                       {new Date(tournament.startDate).toLocaleDateString(
-                        "vi-VN"
+                        "vi-VN",
                       )}{" "}
                       →{" "}
                       {new Date(tournament.endDate).toLocaleDateString("vi-VN")}
@@ -267,11 +271,11 @@ export default function TournamentsTable({
 
                     <TableCell className="dark:text-gray-200">
                       {new Date(
-                        tournament.registrationStartDate
+                        tournament.registrationStartDate,
                       ).toLocaleDateString("vi-VN")}{" "}
                       →{" "}
                       {new Date(
-                        tournament.registrationEndDate
+                        tournament.registrationEndDate,
                       ).toLocaleDateString("vi-VN")}
                     </TableCell>
 
@@ -280,7 +284,7 @@ export default function TournamentsTable({
                         <MapPin className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                         {tournament.facility
                           ? tournament.facility.location
-                          : tournament.location ?? "Chưa cập nhật"}
+                          : (tournament.location ?? "Chưa cập nhật")}
                       </div>
                     </TableCell>
 
@@ -321,7 +325,7 @@ export default function TournamentsTable({
                               onClick={() =>
                                 updateTournamentStatus(
                                   tournament.id,
-                                  "REGISTRATION_OPEN"
+                                  "REGISTRATION_OPEN",
                                 )
                               }
                             >
@@ -336,7 +340,7 @@ export default function TournamentsTable({
                               onClick={() =>
                                 updateTournamentStatus(
                                   tournament.id,
-                                  "CANCELLED"
+                                  "CANCELLED",
                                 )
                               }
                             >

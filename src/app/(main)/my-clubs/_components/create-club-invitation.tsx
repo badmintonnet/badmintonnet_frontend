@@ -82,7 +82,7 @@ export default function ClubInvitationDialog({
               // dark
               "dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white",
               // focus
-              "focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-400"
+              "focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-400",
             )}
           >
             Mời
@@ -144,7 +144,7 @@ export default function ClubInvitationDialog({
                   // selected
                   selectedSample === msg
                     ? "border-blue-500 bg-blue-50 dark:bg-blue-600/20"
-                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900",
                 )}
               >
                 {msg}
@@ -159,7 +159,7 @@ export default function ClubInvitationDialog({
               className={cn(
                 "w-full rounded-md font-medium shadow-sm transition-colors text-sm py-2",
                 "bg-blue-600 text-white hover:bg-blue-700",
-                "dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white"
+                "dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white",
               )}
               disabled={form.formState.isSubmitting}
             >

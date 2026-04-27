@@ -29,10 +29,7 @@ export default function BracketSection({
 
   return (
     <div className="py-4">
-      <ClubBracketView
-        tournamentId={tournamentId}
-        isAdmin={isAdminUser}
-      />
+      <ClubBracketView tournamentId={tournamentId} isAdmin={isAdminUser} />
     </div>
   );
 }

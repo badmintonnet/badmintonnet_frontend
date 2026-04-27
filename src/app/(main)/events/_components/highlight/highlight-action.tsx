@@ -57,17 +57,13 @@ interface HighlightMenuProps {
 }
 
 export default function HighlightActions({
-  highlightId,
-  userId,
-  currentUserId,
   likeCount,
   commentCount,
   isLiked = false,
-  onLike,
 }: HighlightActionsProps) {
-  const [isLiking, setIsLiking] = useState(false);
-  const [liked, setLiked] = useState(isLiked);
-  const [currentLikeCount, setCurrentLikeCount] = useState(likeCount);
+  const isLiking = false;
+  const liked = isLiked;
+  const currentLikeCount = likeCount;
 
   const handleLike = async () => {
     // if (isLiking || !onLike) return;
@@ -128,8 +124,6 @@ export default function HighlightActions({
 
 export function HighlightMenu({
   highlightId,
-  userId,
-  currentUserId,
   highlight,
   accessToken,
   user,

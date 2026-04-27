@@ -5,9 +5,6 @@ import {
   MapPin,
   Users,
   DollarSign,
-  Edit3,
-  X,
-  UserPlus,
   UserMinus,
   CircleStar,
   CheckCircle,
@@ -19,12 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
-import {
-  EventDetailType,
-  ParticipantType,
-} from "@/schemaValidations/event.schema";
+import { ParticipantType } from "@/schemaValidations/event.schema";
 import { JoinEventButton } from "@/app/(main)/events/_components/join-event-button";
-// import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
 import ViewRating from "@/app/(main)/events/_components/view-rating";
 import EventHighlights from "@/app/(main)/events/_components/highlight/event-highlights";
@@ -48,7 +41,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
 
   const response = await eventClubApiRequest.getEventById(
     id,
-    accessToken?.value || ""
+    accessToken?.value || "",
   );
 
   const me = await accountApiRequest.getAccount(accessToken?.value || "");
@@ -59,7 +52,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
   if (eventDetail.participantRole === "OWNER") {
     participantRes = await eventClubApiRequest.getParticipants(
       eventDetail?.id,
-      accessToken?.value || ""
+      accessToken?.value || "",
     );
   }
   const participants: ParticipantType[] = participantRes?.payload.data || [];
@@ -144,7 +137,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
     );
   };
   const renderParticipantStatus = (
-    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT" | "CANCELLED"
+    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT" | "CANCELLED",
   ) => {
     // const [isDialogOpen, setIsDialogOpen] = useState(false);
 

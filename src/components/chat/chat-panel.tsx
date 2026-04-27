@@ -7,7 +7,6 @@ import {
   X,
   ArrowLeft,
   Send,
-  User,
   ChevronDown,
   Link,
   MessageCircle,
@@ -21,13 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-interface JwtPayload {
-  sub: string;
-  id: string;
-  exp: number;
-  iat: number;
-  authorities: string[];
-}
+
 export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationType | null>(null);
@@ -88,7 +81,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
   const loadMessages = async (
     conversationId: string,
     pageNum: number,
-    append = false
+    append = false,
   ) => {
     if (loadingMessages) return;
     setLoadingMessages(true);
@@ -97,12 +90,12 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
       const res = await chatApiRequest.getMessagesByConversationId(
         conversationId,
         pageNum,
-        pageSize
+        pageSize,
       );
 
       const newMessages = res.payload.data.content.sort(
         (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
 
       if (newMessages.length < pageSize) {

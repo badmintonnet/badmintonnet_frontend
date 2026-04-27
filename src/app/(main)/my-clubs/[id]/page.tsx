@@ -3,22 +3,13 @@ import {
   Calendar,
   MapPin,
   Users,
-  Edit,
-  Plus,
   Club,
   Activity,
-  BarChart3,
-  Clock,
-  Settings,
-  Flag,
   MessageCircle,
-  Star,
-  ThumbsUp,
   Info,
   Trophy,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
@@ -29,7 +20,6 @@ import { CreateEventClubButton } from "@/app/(main)/my-clubs/_components/create-
 import ClubEvents from "@/app/(main)/my-clubs/[id]/events/club-event";
 import ApprovedMembers from "@/app/(main)/my-clubs/_components/approved-members";
 import PendingMembers from "@/app/(main)/my-clubs/_components/pending-members";
-import TabWrapper from "@/app/(main)/my-clubs/_components/tab-wrapper";
 import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
 import {
   Tooltip,
@@ -91,13 +81,14 @@ export default async function MyClubDetail({
           clubDetail.id,
           accessToken?.value || "",
         );
-        clubTournaments = (tournamentsRes.payload.data as ClubTournamentParticipant[]) || [];
+        clubTournaments =
+          (tournamentsRes.payload.data as ClubTournamentParticipant[]) || [];
       } catch (error) {
         console.error("Error fetching tournaments:", error);
         // Ignore error, tournaments will be empty
       }
     }
-  } catch (error) {
+  } catch {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <p className="text-red-500">

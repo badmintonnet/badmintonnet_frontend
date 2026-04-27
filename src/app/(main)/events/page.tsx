@@ -6,7 +6,6 @@ import {
   Users,
   DollarSign,
   Clock,
-  Club,
   CircleStar,
   Building2,
   GraduationCap,
@@ -165,14 +164,14 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
         levels: levels.length ? levels : undefined,
         categories: categories.length
           ? (categories.filter(
-              (cat): cat is BadmintonCategory => !!cat
+              (cat): cat is BadmintonCategory => !!cat,
             ) as BadmintonCategory[])
           : undefined,
         participantSize: participantSize || undefined,
         minRating,
         facilityNames: facilityNames.length ? facilityNames : undefined,
         status: status.length ? (status as EventStatus[]) : undefined,
-      }
+      },
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -300,7 +299,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                               <Badge
                                 key={cat}
                                 className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
-                                  cat
+                                  cat,
                                 )}`}
                               >
                                 {categoryMapVN[cat] || cat}
@@ -407,7 +406,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                               icon={Clock}
                               label="Giờ"
                               value={`${formatTime(
-                                event.startTime
+                                event.startTime,
                               )} - ${formatTime(event.endTime)}`}
                             />
                           </div>
@@ -493,7 +492,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         quickTimeFilter
                           ? `&quickTimeFilter=${encodeURIComponent(
-                              quickTimeFilter
+                              quickTimeFilter,
                             )}`
                           : ""
                       }${isFree !== undefined ? `&isFree=${isFree}` : ""}${
@@ -511,13 +510,13 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         categories.length
                           ? `&categories=${encodeURIComponent(
-                              categories.join(",")
+                              categories.join(","),
                             )}`
                           : ""
                       }${
                         participantSize
                           ? `&participantSize=${encodeURIComponent(
-                              participantSize
+                              participantSize,
                             )}`
                           : ""
                       }${
@@ -525,7 +524,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         facilityNames.length
                           ? `&clubNames=${encodeURIComponent(
-                              facilityNames.join(",")
+                              facilityNames.join(","),
                             )}`
                           : ""
                       }${
@@ -559,7 +558,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         quickTimeFilter
                           ? `&quickTimeFilter=${encodeURIComponent(
-                              quickTimeFilter
+                              quickTimeFilter,
                             )}`
                           : ""
                       }${isFree !== undefined ? `&isFree=${isFree}` : ""}${
@@ -577,13 +576,13 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         categories.length
                           ? `&categories=${encodeURIComponent(
-                              categories.join(",")
+                              categories.join(","),
                             )}`
                           : ""
                       }${
                         participantSize
                           ? `&participantSize=${encodeURIComponent(
-                              participantSize
+                              participantSize,
                             )}`
                           : ""
                       }${
@@ -591,7 +590,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         facilityNames.length
                           ? `&clubNames=${encodeURIComponent(
-                              facilityNames.join(",")
+                              facilityNames.join(","),
                             )}`
                           : ""
                       }${
@@ -620,7 +619,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         quickTimeFilter
                           ? `&quickTimeFilter=${encodeURIComponent(
-                              quickTimeFilter
+                              quickTimeFilter,
                             )}`
                           : ""
                       }${isFree !== undefined ? `&isFree=${isFree}` : ""}${
@@ -638,13 +637,13 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         categories.length
                           ? `&categories=${encodeURIComponent(
-                              categories.join(",")
+                              categories.join(","),
                             )}`
                           : ""
                       }${
                         participantSize
                           ? `&participantSize=${encodeURIComponent(
-                              participantSize
+                              participantSize,
                             )}`
                           : ""
                       }${
@@ -652,7 +651,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }${
                         facilityNames.length
                           ? `&clubNames=${encodeURIComponent(
-                              facilityNames.join(",")
+                              facilityNames.join(","),
                             )}`
                           : ""
                       }${

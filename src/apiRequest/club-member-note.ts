@@ -8,7 +8,7 @@ import {
 const clubMemberNoteApi = {
   getAllNotes: (clubId: string, accountId: string) =>
     http.get<ClubMemberNoteListResType>(
-      `/club-member-notes/${clubId}/${accountId}`
+      `/club-member-notes/${clubId}/${accountId}`,
     ),
 
   createNote: (body: CreateClubMemberNoteBodyType) =>

@@ -116,8 +116,8 @@ export default function ProfileInformation({ profile }: { profile: Profile }) {
               {profile.gender === "MALE"
                 ? "Nam"
                 : profile.gender === "FEMALE"
-                ? "Nữ"
-                : "Khác"}
+                  ? "Nữ"
+                  : "Khác"}
             </p>
           </div>
         </div>

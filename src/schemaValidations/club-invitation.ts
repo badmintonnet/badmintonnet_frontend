@@ -1,4 +1,4 @@
-import z, { array } from "zod";
+import z from "zod";
 export const InvitationStatusEnum = z.enum([
   "PENDING",
   "ACCEPTED",

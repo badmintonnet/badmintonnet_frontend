@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { ClubEventCancellationType } from "@/schemaValidations/event-cancellation.schema";
 import cancelReasonRequest from "@/apiRequest/cancel-event-reason";
-import { Mail, Calendar, Crown } from "lucide-react";
+import { Calendar, Crown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -41,7 +41,7 @@ export default function EventCancellationList({ eventId, token }: Props) {
     try {
       const res = await cancelReasonRequest.getEventCancellations(
         eventId,
-        token || ""
+        token || "",
       );
       const list: CancellationItem[] = res?.payload?.data || [];
       setItems(list);
@@ -87,8 +87,8 @@ export default function EventCancellationList({ eventId, token }: Props) {
         typeof d === "string"
           ? d
           : d instanceof Date
-          ? d.toISOString()
-          : String(d);
+            ? d.toISOString()
+            : String(d);
       const normalized = iso.replace(/\.(\d{3})\d+/, ".$1");
       return new Date(normalized).toLocaleString("vi-VN", {
         year: "numeric",
@@ -109,7 +109,7 @@ export default function EventCancellationList({ eventId, token }: Props) {
       await cancelReasonRequest.reviewCancellation(
         cancellationId,
         approve,
-        token || ""
+        token || "",
       );
       router.refresh();
       // if dialog open and selected item was the one reviewed, refresh selected
@@ -118,7 +118,7 @@ export default function EventCancellationList({ eventId, token }: Props) {
           await cancelReasonRequest.getEventCancellations(eventId, token || "")
         )?.payload?.data as CancellationItem[] | undefined;
         const updated = refreshed?.find(
-          (i) => i.cancellationId === cancellationId
+          (i) => i.cancellationId === cancellationId,
         );
         setSelected((prev) => (updated ? updated : prev));
       }

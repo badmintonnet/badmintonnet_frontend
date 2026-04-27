@@ -24,7 +24,7 @@ export default function ClubTournamentParticipants({
   isAdmin = false,
 }: ClubTournamentParticipantsProps) {
   const [participants, setParticipants] = useState<ClubTournamentParticipant[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -39,7 +39,7 @@ export default function ClubTournamentParticipants({
         categoryId,
         statuses,
         0,
-        100
+        100,
       );
       setParticipants(res.payload.data.content ?? []);
       setTotal(res.payload.data.totalElements ?? 0);
@@ -165,9 +165,7 @@ export default function ClubTournamentParticipants({
                               size="sm"
                               variant="outline"
                               className="border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-300 text-xs h-7"
-                              disabled={
-                                actionLoading === p.id + "-approve"
-                              }
+                              disabled={actionLoading === p.id + "-approve"}
                               onClick={() => handleApprove(p.id)}
                             >
                               {actionLoading === p.id + "-approve" ? (
@@ -183,9 +181,7 @@ export default function ClubTournamentParticipants({
                               size="sm"
                               variant="outline"
                               className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 text-xs h-7"
-                              disabled={
-                                actionLoading === p.id + "-reject"
-                              }
+                              disabled={actionLoading === p.id + "-reject"}
                               onClick={() => handleReject(p.id)}
                             >
                               {actionLoading === p.id + "-reject" ? (

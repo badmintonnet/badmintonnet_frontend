@@ -2,7 +2,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Trophy, Sparkles, Edit, X, Check } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import matchApiRequest from "@/apiRequest/match";
 import tournamentApiRequest from "@/apiRequest/tournament";
@@ -102,7 +102,7 @@ const isValidSetScore = (p1: number | null, p2: number | null): boolean => {
 
 const validateMatchResult = (
   sets: Array<{ p1: number | null; p2: number | null }>,
-  allowPartial: boolean = false
+  allowPartial: boolean = false,
 ): { valid: boolean; message: string } => {
   // Lọc các set đã nhập đủ điểm
   const completedSets = sets.filter((s) => s.p1 !== null && s.p2 !== null);
@@ -175,7 +175,7 @@ const validateMatchResult = (
 export default function CategorySchedule({ category }: CategoryScheduleProps) {
   const router = useRouter();
   const [bracketData, setBracketData] = useState<BracketTreeSchemaType | null>(
-    null
+    null,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -190,6 +190,32 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const matchUpdateSubRef = useRef<any>(null);
 
+  const fetchBracketTree = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await matchApiRequest.getBracketTree(category.id);
+      setBracketData(response.payload.data);
+      setHasBracket(true);
+    } catch (error: unknown) {
+      console.error("Error fetching bracket tree:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [category.id]);
+
+  const fetchCategoryResults = useCallback(async () => {
+    try {
+      const response = await tournamentApiRequest.getCategoryResults(
+        category.id,
+      );
+      setCategoryResult(response.payload.data);
+    } catch (error: unknown) {
+      // Không có kết quả thì không hiển thị gì
+      console.log("No results available yet", error);
+      setCategoryResult(null);
+    }
+  }, [category.id]);
+
   useEffect(() => {
     if (category.scheduled) {
       fetchBracketTree();
@@ -199,7 +225,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       setBracketData(null);
       setIsLoading(false);
     }
-  }, [category.id, category.scheduled]);
+  }, [category.scheduled, fetchBracketTree, fetchCategoryResults]);
 
   // WebSocket for match updates
   useEffect(() => {
@@ -222,7 +248,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
         (message) => {
           if (message.body) {
             const updatedMatch: TournamentMatchSchemaType = JSON.parse(
-              message.body
+              message.body,
             );
 
             // Update the match in bracketData
@@ -232,7 +258,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
               const newRounds = prev.rounds.map((round) => ({
                 ...round,
                 matches: round.matches.map((match) =>
-                  match.matchId === updatedMatch.matchId ? updatedMatch : match
+                  match.matchId === updatedMatch.matchId ? updatedMatch : match,
                 ),
               }));
 
@@ -250,11 +276,11 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                   description: updatedMatch.winnerName
                     ? `${updatedMatch.winnerName} chiến thắng`
                     : undefined,
-                }
+                },
               );
             }
           }
-        }
+        },
       );
     };
 
@@ -268,32 +294,6 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       stompClient.deactivate();
     };
   }, [category.id, category.scheduled, bracketData, editingMatchId]);
-
-  const fetchBracketTree = async () => {
-    try {
-      setIsLoading(true);
-      const response = await matchApiRequest.getBracketTree(category.id);
-      setBracketData(response.payload.data);
-      setHasBracket(true);
-    } catch (error: unknown) {
-      console.error("Error fetching bracket tree:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchCategoryResults = async () => {
-    try {
-      const response = await tournamentApiRequest.getCategoryResults(
-        category.id
-      );
-      setCategoryResult(response.payload.data);
-    } catch (error: unknown) {
-      // Không có kết quả thì không hiển thị gì
-      console.log("No results available yet", error);
-      setCategoryResult(null);
-    }
-  };
 
   const handleGenerateBracket = async () => {
     try {
@@ -321,7 +321,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     const maxSets = Math.max(
       match.setScoreP1?.length || 0,
       match.setScoreP2?.length || 0,
-      3 // Default to 3 sets minimum
+      3, // Default to 3 sets minimum
     );
 
     const initialSets = Array.from({ length: maxSets }, (_, index) => ({
@@ -340,7 +340,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
   const handleSetScoreChange = (
     setIndex: number,
     player: "p1" | "p2",
-    value: string
+    value: string,
   ) => {
     const numValue = value === "" ? null : parseInt(value);
 
@@ -379,12 +379,12 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
 
       // Lọc các set đã nhập đủ điểm
       const completedSets = editingSets.filter(
-        (s) => s.p1 !== null && s.p2 !== null
+        (s) => s.p1 !== null && s.p2 !== null,
       );
 
       // Kiểm tra có ít nhất 1 điểm được nhập
       const hasAnyScore = editingSets.some(
-        (s) => s.p1 !== null || s.p2 !== null
+        (s) => s.p1 !== null || s.p2 !== null,
       );
       if (!hasAnyScore) {
         toast.error("Vui lòng nhập ít nhất 1 điểm để cập nhật");
@@ -417,7 +417,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     } catch (error: unknown) {
       const apiMessage = getApiErrorMessage(
         error,
-        "Failed to update match result"
+        "Failed to update match result",
       );
       toast.error(apiMessage);
     } finally {
@@ -584,7 +584,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                                                 handleSetScoreChange(
                                                   setIndex,
                                                   "p1",
-                                                  e.target.value
+                                                  e.target.value,
                                                 )
                                               }
                                               className="h-10 text-center text-lg font-bold"
@@ -607,7 +607,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                                                 handleSetScoreChange(
                                                   setIndex,
                                                   "p2",
-                                                  e.target.value
+                                                  e.target.value,
                                                 )
                                               }
                                               className="h-10 text-center text-lg font-bold"
@@ -710,7 +710,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                                                 {score}
                                               </div>
                                             );
-                                          }
+                                          },
                                         )}
                                         <div className="w-6 h-10 flex items-center justify-center">
                                           {match.winnerId ===
@@ -782,7 +782,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                                                 {score}
                                               </div>
                                             );
-                                          }
+                                          },
                                         )}
                                         <div className="w-6 h-10 flex items-center justify-center">
                                           {match.winnerId ===

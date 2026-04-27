@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
 import { ModeToggle } from "@/components/dark-toggle";
 import { cookies } from "next/headers";
 import MobileMenu from "@/components/mobile-menu";
 import UserMenu from "@/components/user-menu";
 import HeaderNav from "@/components/header-nav";
 import NotificationBell from "@/components/notification";
-import ChatButton from "@/components/chat/chat-button";
 import ChatWidget from "@/components/chat/chat-widget";
 export default async function Header() {
   const navItems = [

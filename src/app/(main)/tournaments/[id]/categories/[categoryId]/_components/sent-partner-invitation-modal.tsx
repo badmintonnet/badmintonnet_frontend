@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { X, Clock, CheckCircle2, XCircle, Send } from "lucide-react";
+import { Clock, CheckCircle2, XCircle } from "lucide-react";
 import { TournamentPartnerInvitationResponse } from "@/schemaValidations/tournament.schema";
 import {
   Dialog,
@@ -103,10 +102,10 @@ export default function SentPartnerInvitationModal({
                     invitation.status === "PENDING"
                       ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800"
                       : invitation.status === "ACCEPTED"
-                      ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800"
-                      : invitation.status === "REJECTED"
-                      ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800"
-                      : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                        ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800"
+                        : invitation.status === "REJECTED"
+                          ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800"
+                          : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                   }`}
                 >
                   {statusConfig.icon}

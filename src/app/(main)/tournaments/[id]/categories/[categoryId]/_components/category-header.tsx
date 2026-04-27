@@ -27,8 +27,13 @@ export default function CategoryHeader({
   const isFull = category.currentParticipantCount >= category.maxParticipants;
 
   // Detect if this is a CLUB tournament (club fields present)
+  const clubCategory = category as CategoryDetail & {
+    clubRegistrationFee?: number | null;
+    minClubRosterSize?: number | null;
+  };
   const isClubTournament =
-    category.clubRegistrationFee != null || category.minClubRosterSize != null;
+    clubCategory.clubRegistrationFee != null ||
+    clubCategory.minClubRosterSize != null;
 
   // Determine button text and state based on participant status
   const getButtonConfig = () => {

@@ -1,6 +1,4 @@
-import { isAdmin } from "@/lib/utils";
-import { Tour } from "antd";
-import { email, z } from "zod";
+import { z } from "zod";
 import { InvitationStatusEnum } from "./club-invitation";
 import { AccountFriendSchema } from "@/schemaValidations/friend.schema";
 
@@ -317,20 +315,23 @@ export const TournamentCreateRequest = z
   })
   .refine(
     (data) => {
-      // Must have either categories (INDIVIDUAL) or club fields (CLUB)
-      const hasCategories = data.categories && data.categories.length > 0;
-      const hasClubFields =
-        data.participationType === "CLUB" &&
-        data.teamMatchFormat &&
-        data.clubRegistrationFee &&
-        data.minClubRosterSize &&
-        data.maxClubRosterSize &&
-        data.maxClubs;
-      return hasCategories || hasClubFields;
+      if (data.participationType === "CLUB") {
+        return (
+          data.clubRegistrationFee != null &&
+          data.minClubRosterSize != null &&
+          data.minClubRosterSize >= 1 &&
+          data.maxClubRosterSize != null &&
+          data.maxClubRosterSize >= 1 &&
+          data.maxClubs != null &&
+          data.maxClubs >= 2
+        );
+      }
+      // INDIVIDUAL: phải có ít nhất một hạng mục
+      return data.categories != null && data.categories.length > 0;
     },
     {
       message:
-        "Giải đấu phải có ít nhất một hạng mục thi đấu (INDIVIDUAL) hoặc thông tin CLB (CLUB)",
+        "Giải đấu phải có ít nhất một hạng mục thi đấu (INDIVIDUAL) hoặc thông tin CLB hợp lệ (CLUB)",
     },
   );
 
@@ -367,11 +368,11 @@ export type TournamentCategoryDetailResponse = z.infer<
 export const TournamentResponse = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string(),
+  description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
-  facility: FacilitySchema,
+  facility: FacilitySchema.nullable().optional(),
   slug: z.string().nullable(),
-  fee: z.number(),
+  fee: z.number().nullable().optional(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   registrationStartDate: z.coerce.date(),
@@ -386,7 +387,14 @@ export const TournamentResponse = z.object({
   participationType: TournamentParticipationTypeEnum.nullable().optional(),
   createdBy: z.string().nullable().optional(),
 
-  categories: z.array(TournamentCategoryResponse),
+  categories: z.array(TournamentCategoryResponse).optional(),
+
+  // CLUB tournament fields
+  teamMatchFormat: z.string().nullable().optional(),
+  clubRegistrationFee: z.number().nullable().optional(),
+  minClubRosterSize: z.number().nullable().optional(),
+  maxClubRosterSize: z.number().nullable().optional(),
+  maxClubs: z.number().nullable().optional(),
 });
 
 export type TournamentResponse = z.infer<typeof TournamentResponse>;
@@ -408,16 +416,16 @@ export type PagedTournamentResponse = z.infer<typeof PagedTournamentResponse>;
 export const TournamentDetail = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string(),
+  description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
-  facility: FacilitySchema,
+  facility: FacilitySchema.nullable().optional(),
   slug: z.string().nullable(),
-  fee: z.number(),
+  fee: z.number().nullable().optional(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   registrationStartDate: z.coerce.date(),
   registrationEndDate: z.coerce.date(),
-  rules: z.string(),
+  rules: z.string().nullable().optional(),
   logoUrl: z.string().nullable().optional(),
   bannerUrl: z.string().nullable().optional(),
 
@@ -532,6 +540,12 @@ export const CategoryDetail = z.object({
   requests: z.array(TournamentPartnerInvitationResponse),
   response: TournamentPartnerInvitationResponse.nullable().optional(),
   partner: AccountFriendSchema.nullable().optional(),
+
+  // Club tournament fields (only present when participationType = CLUB)
+  clubRegistrationFee: z.number().nullable().optional(),
+  minClubRosterSize: z.number().nullable().optional(),
+  maxClubRosterSize: z.number().nullable().optional(),
+  teamMatchFormat: z.string().nullable().optional(),
 });
 
 export type CategoryDetail = z.infer<typeof CategoryDetail>;

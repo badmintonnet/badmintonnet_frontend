@@ -11,10 +11,10 @@ const chatApiRequest = {
   getMessagesByConversationId: (
     conversationId: string,
     page: number,
-    size: number
+    size: number,
   ) =>
     http.get<MessageResponseType>(
-      `/message/${conversationId}?page=${page}&size=${size}`
+      `/message/${conversationId}?page=${page}&size=${size}`,
     ),
 };
 export default chatApiRequest;

@@ -1,4 +1,3 @@
-import Password from "antd/es/input/Password";
 import { z } from "zod";
 
 export const RegisterBody = z

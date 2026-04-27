@@ -10,7 +10,7 @@ export async function GET() {
     if (!refreshToken || !deviceId) {
       return NextResponse.json(
         { message: "Missing refresh token or device id" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -25,7 +25,7 @@ export async function GET() {
           "X-Device-Id": deviceId,
         },
         credentials: "include",
-      }
+      },
     );
 
     const data = await backendRes.json();
@@ -42,7 +42,7 @@ export async function GET() {
         "Set-Cookie",
         `accessToken=${data.data.accessToken}; Path=/; HttpOnly; Max-Age=${
           60 * 106
-        }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`
+        }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`,
       );
     }
 
@@ -52,7 +52,7 @@ export async function GET() {
         "Set-Cookie",
         `refreshToken=${data.data.refreshToken}; Path=/; HttpOnly; Max-Age=${
           60 * 60 * 24 * 100
-        }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`
+        }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`,
       );
     }
 
@@ -62,7 +62,7 @@ export async function GET() {
         "Set-Cookie",
         `deviceId=${data.data.deviceId}; Path=/; HttpOnly; Max-Age=${
           60 * 60 * 24 * 100
-        }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`
+        }; SameSite=${sameSite}${secure ? `; ${secure}` : ""}`,
       );
     }
     console.log(response);

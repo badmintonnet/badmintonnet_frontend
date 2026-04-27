@@ -87,9 +87,8 @@ export default async function MyClubEventSection({
   let clubevents;
 
   try {
-    clubEventResponse = await eventClubApiRequest.getAllJoinedClubEvents(
-      accessToken
-    );
+    clubEventResponse =
+      await eventClubApiRequest.getAllJoinedClubEvents(accessToken);
     clubevents = clubEventResponse.payload.data.content;
   } catch (error) {
     console.log("Error fetching clubs:", error);
@@ -184,7 +183,7 @@ export default async function MyClubEventSection({
                       <Badge
                         key={cat}
                         className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
-                          cat
+                          cat,
                         )}`}
                       >
                         {categoryMapVN[cat] || cat}
@@ -220,7 +219,7 @@ export default async function MyClubEventSection({
                       icon={Clock}
                       label="Giờ"
                       value={`${formatTime(
-                        event.startTime.toString()
+                        event.startTime.toString(),
                       )} - ${formatTime(event.endTime.toString())}`}
                     />
                   </div>

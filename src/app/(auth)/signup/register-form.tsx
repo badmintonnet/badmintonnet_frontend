@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ChevronDown, Loader2, MapPin } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import authApiRequest from "@/apiRequest/auth";
 import addressApiRequest from "@/apiRequest/address";
 import GoogleSignUpButton from "@/app/(auth)/signup/gg-signup-button";
@@ -93,9 +93,8 @@ const RegisterForm = () => {
 
       setIsLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         setWards(response.payload.data.data || []);
         setSelectedWardId("");
       } catch (error) {
@@ -113,7 +112,7 @@ const RegisterForm = () => {
   useEffect(() => {
     const updateLocation = () => {
       const selectedProvince = provinces.find(
-        (p) => p.id === selectedProvinceId
+        (p) => p.id === selectedProvinceId,
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
 
@@ -164,7 +163,7 @@ const RegisterForm = () => {
       });
       // router.push("/profile/player-rating");
       router.push("/verify?email=" + encodeURIComponent(values.email));
-    } catch (error: unknown) {
+    } catch {
       toast.error("Đăng ký thất bại", {
         description: "Vui lòng kiểm tra lại thông tin đăng ký.",
       });
