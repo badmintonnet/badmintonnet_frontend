@@ -35,7 +35,7 @@ export default function JoinCategoryButton({
       await tournamentApiRequest.joinSingleTournament(categoryId, accessToken);
       toast.success("Đăng ký tham gia thành công!");
       router.refresh();
-    } catch (error: unknown) {
+    } catch {
       toast.error("Có lỗi xảy ra khi đăng ký tham gia.");
     } finally {
       setIsLoading(false);

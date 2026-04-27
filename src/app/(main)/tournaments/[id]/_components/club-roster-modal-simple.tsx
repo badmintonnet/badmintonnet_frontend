@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +35,6 @@ export default function ClubRosterModalSimple({
   );
   const [loading, setLoading] = useState(false);
   const [paying, setPaying] = useState(false);
-  const router = useRouter();
 
   const handleOpen = async (isOpen: boolean) => {
     setOpen(isOpen);
@@ -139,7 +137,9 @@ export default function ClubRosterModalSimple({
                 <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
               </div>
             ) : roster.length === 0 ? (
-              <p className="text-center text-gray-400 py-4">Chưa có thành viên</p>
+              <p className="text-center text-gray-400 py-4">
+                Chưa có thành viên
+              </p>
             ) : (
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {roster.map((member) => (

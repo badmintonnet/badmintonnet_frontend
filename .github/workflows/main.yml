@@ -20,7 +20,13 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-        
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Prettier Check
+        run: npm run format:check
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:

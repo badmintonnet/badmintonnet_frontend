@@ -9,24 +9,24 @@ const cancelReasonRequest = {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
 
   reviewCancellation: (
     cancellationId: string,
     approve: boolean,
-    accessToken: string
+    accessToken: string,
   ) =>
     http.post(
       `/event-cancellations/${cancellationId}/review?approve=${encodeURIComponent(
-        String(approve)
+        String(approve),
       )}`,
       undefined,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
 };
 export default cancelReasonRequest;

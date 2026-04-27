@@ -55,7 +55,7 @@ const ClubProcessAnimation = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [steps.length]);
 
   return (
     <div className="">
@@ -85,8 +85,8 @@ const ClubProcessAnimation = () => {
                       isActive
                         ? `${step.bgColor} border-current shadow-2xl scale-105 -translate-y-2`
                         : isPassed
-                        ? "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-md"
-                        : "bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 shadow-sm"
+                          ? "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-md"
+                          : "bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 shadow-sm"
                     }
                     ${isAnimating && isActive ? "animate-pulse" : ""}
                   `}
@@ -179,8 +179,8 @@ const ClubProcessAnimation = () => {
                   index === currentStep
                     ? "bg-blue-500 scale-125"
                     : index < currentStep
-                    ? "bg-green-400"
-                    : "bg-gray-300 dark:bg-gray-600"
+                      ? "bg-green-400"
+                      : "bg-gray-300 dark:bg-gray-600"
                 }
               `}
             />

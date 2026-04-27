@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, UserCircle, Users, LogOut, Calendar } from "lucide-react";
+import { User, UserCircle, Users, Calendar } from "lucide-react";
 import LogoutButton from "@/components/button-logout";
 import { useState } from "react";
 import ChangePasswordModal from "@/components/change-password-modal";

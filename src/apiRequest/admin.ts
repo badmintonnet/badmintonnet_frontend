@@ -11,7 +11,7 @@ const adminApiRequest = {
       `/admin/clubs/all?page=${page}&size=${size}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
 
   updateClubStatus: (clubId: string, status: string, token = "") =>
@@ -28,21 +28,21 @@ const adminApiRequest = {
       `/admin/events/all?page=${page}&size=${size}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
   getAllTournament: (page = 0, size = 10, token = "") =>
     http.get<PagedTournamentAdminResponse>(
       `/admin/tournament/all?page=${page}&size=${size}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
   getAllUsers: (page = 0, size = 10, token = "") =>
     http.get<PagedAccountAdminResponseType>(
       `/admin/users/all?page=${page}&size=${size}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
   banUser: (userId: string, token = "") =>
     http.put(
@@ -50,7 +50,7 @@ const adminApiRequest = {
       {},
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
 };
 

@@ -51,24 +51,6 @@ export default function LandingPage() {
     },
   ];
 
-  const steps = [
-    {
-      step: "01",
-      title: "Đăng ký tài khoản",
-      description: "Tạo tài khoản miễn phí và hoàn thiện hồ sơ cầu thủ của bạn",
-    },
-    {
-      step: "02",
-      title: "Tham gia CLB hoặc giải",
-      description: "Tìm kiếm và tham gia các câu lạc bộ hoặc giải đấu phù hợp",
-    },
-    {
-      step: "03",
-      title: "Thi đấu & tích lũy điểm",
-      description: "Tham gia thi đấu, ghi nhận kết quả và nâng cao xếp hạng",
-    },
-  ];
-
   const benefits = [
     {
       icon: UserCircleIcon,

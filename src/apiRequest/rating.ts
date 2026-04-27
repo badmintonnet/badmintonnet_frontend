@@ -23,7 +23,7 @@ const ratingApiRequest = {
     http.post<RatingBodyType>(`/club-event-rating/reply`, body),
   getMoreRatings: (id: string, page: number, size: number) =>
     http.get<RatingPageResponseType>(
-      `/club-event-rating/club/${id}/more?page=${page}&size=${size}`
+      `/club-event-rating/club/${id}/more?page=${page}&size=${size}`,
     ),
 };
 export default ratingApiRequest;

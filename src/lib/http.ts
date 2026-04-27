@@ -73,7 +73,7 @@ export const clientSessionToken = new SessionToken();
 const request = async <Response>(
   method: "GET" | "POST" | "PUT" | "DELETE",
   url: string,
-  options?: CustomOptions | undefined
+  options?: CustomOptions | undefined,
 ): Promise<{ status: number; payload: Response }> => {
   const body = options?.body
     ? options.body instanceof FormData
@@ -133,7 +133,7 @@ const request = async <Response>(
               refreshToken: clientSessionToken.refreshValue,
             },
             credentials: "include",
-          }
+          },
         );
 
         if (refreshRes.ok) {
@@ -199,7 +199,7 @@ const request = async <Response>(
   if (typeof window !== "undefined") {
     if (
       ["auth/login", "api/auth/login", "auth/login/firebase"].some(
-        (item) => item === normalizePath(url)
+        (item) => item === normalizePath(url),
       )
     ) {
       console.log("Login response payload:", payload);
@@ -224,28 +224,28 @@ const http = {
   get<Response>(
     url: string,
 
-    options?: Omit<CustomOptions, "body"> | undefined
+    options?: Omit<CustomOptions, "body"> | undefined,
   ) {
     return request<Response>("GET", url, options);
   },
   post<Response>(
     url: string,
     body?: any,
-    options?: Omit<CustomOptions, "body"> | undefined
+    options?: Omit<CustomOptions, "body"> | undefined,
   ) {
     return request<Response>("POST", url, { ...options, body });
   },
   put<Response>(
     url: string,
     body?: any,
-    options?: Omit<CustomOptions, "body"> | undefined
+    options?: Omit<CustomOptions, "body"> | undefined,
   ) {
     return request<Response>("PUT", url, { ...options, body });
   },
   delete<Response>(
     url: string,
     body?: any,
-    options?: Omit<CustomOptions, "body"> | undefined
+    options?: Omit<CustomOptions, "body"> | undefined,
   ) {
     return request<Response>("DELETE", url, { ...options, body });
   },

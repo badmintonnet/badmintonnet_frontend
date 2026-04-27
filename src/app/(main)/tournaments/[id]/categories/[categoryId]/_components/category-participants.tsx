@@ -38,7 +38,7 @@ export default function CategoryParticipants({
         categoryId,
         ["APPROVED"],
         0,
-        100
+        100,
       );
       setApprovedParticipants(response.payload.data.content || []);
       setTotalApproved(response.payload.data.totalElements || 0);
@@ -57,7 +57,7 @@ export default function CategoryParticipants({
         categoryId,
         ["PENDING"],
         0,
-        100
+        100,
       );
       setPendingParticipants(response.payload.data.content || []);
       setTotalPending(response.payload.data.totalElements || 0);

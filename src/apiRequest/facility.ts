@@ -17,7 +17,7 @@ const facilityApiRequest = {
       `/facilities?page=${page}&size=${size}`,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      }
+      },
     ),
 
   getAllFacilitiesFilter: () =>

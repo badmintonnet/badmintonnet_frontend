@@ -24,7 +24,7 @@ export function isClubOwner(token: string): boolean {
   try {
     const decoded = jwtDecode<JwtPayload>(token); // decode mà không cần secret
     return decoded.authorities?.includes("ROLE_CLUB_OWNER") || false;
-  } catch (err) {
+  } catch {
     return false; // token không hợp lệ
   }
 }
@@ -38,7 +38,7 @@ export function isAdmin(token: string): boolean {
   try {
     const decoded = jwtDecode<JwtPayload>(token); // decode mà không cần secret
     return decoded.authorities?.includes("ROLE_ADMIN") || false;
-  } catch (err) {
+  } catch {
     return false; // token không hợp lệ
   }
 }
@@ -52,7 +52,7 @@ export function isHTML(str: string): boolean {
     try {
       const doc = new DOMParser().parseFromString(trimmed, "text/html");
       return Array.from(doc.body.childNodes).some(
-        (n) => n.nodeType === Node.ELEMENT_NODE
+        (n) => n.nodeType === Node.ELEMENT_NODE,
       );
     } catch {
       return false;

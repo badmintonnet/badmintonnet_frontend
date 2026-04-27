@@ -1,4 +1,3 @@
-import { SlowBuffer } from "buffer";
 import z from "zod";
 
 export const FriendStatusEnum = z.enum([

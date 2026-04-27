@@ -59,7 +59,7 @@ export default function CreateClubMemberNoteDialog({
     try {
       const response = await clubMemberNoteApi.getAllNotes(clubId, memberId);
       setNotes(response?.payload?.data ?? []);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải ghi chú. Vui lòng thử lại.");
     }
   };
@@ -87,7 +87,7 @@ export default function CreateClubMemberNoteDialog({
       // reset input
       setComment("");
       setSelectedTemplate(null);
-    } catch (err) {
+    } catch {
       toast.error("Không thể tạo ghi chú. Vui lòng thử lại.");
     } finally {
       setLoading(false);

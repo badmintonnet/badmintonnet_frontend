@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { clientSessionToken } from '@/lib/http';
-import { isAdmin } from '@/lib/utils';
-import { redirect } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Sidebar } from './_components/sidebar';
-import { Header } from './_components/header';
+import { clientSessionToken } from "@/lib/http";
+import { isAdmin } from "@/lib/utils";
+import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Sidebar } from "./_components/sidebar";
+import { Header } from "./_components/header";
 
 export default function AdminLayout({
   children,
@@ -19,7 +19,7 @@ export default function AdminLayout({
     const checkAuth = () => {
       const token = clientSessionToken.value;
       if (!token || !isAdmin(token)) {
-        redirect('/login');
+        redirect("/login");
       } else {
         setIsAuthorized(true);
       }
@@ -46,9 +46,7 @@ export default function AdminLayout({
       <Header />
       <div className="flex h-screen pt-16">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );

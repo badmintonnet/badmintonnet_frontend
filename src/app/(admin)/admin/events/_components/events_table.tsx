@@ -52,8 +52,6 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import CustomPagination from "@/components/custom-pagination";
-
-import adminApiRequest from "@/apiRequest/admin";
 import { EventAdminType } from "@/schemaValidations/event.schema";
 
 interface EventsTableProps {
@@ -69,7 +67,6 @@ export default function EventsTable({
   totalPages,
   currentPage,
   totalElements,
-  accessToken,
 }: EventsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -152,6 +149,10 @@ export default function EventsTable({
 
   // Hàm cập nhật trạng thái (ví dụ: hủy hoặc mở lại)
   const updateEventStatus = async (slug: string, newStatus: string) => {
+    // TODO: Implement API call to update event status.
+    // Keep parameters for the future request payload.
+    void slug;
+    void newStatus;
     try {
       //   await adminApiRequest.updateEventStatus(slug, newStatus, accessToken);
       toast.success("Cập nhật trạng thái thành công");
@@ -163,6 +164,9 @@ export default function EventsTable({
   };
 
   const deleteEvent = async (slug: string) => {
+    // TODO: Implement API call to delete event.
+    // Keep parameter for the future request payload.
+    void slug;
     try {
       //   await adminApiRequest.deleteEvent(slug, accessToken);
       toast.success("Xóa buổi đánh cầu thành công");

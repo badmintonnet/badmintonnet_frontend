@@ -11,7 +11,7 @@ export default function VNPayReturnPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+    "loading",
   );
   const [message, setMessage] = useState("");
 
@@ -20,9 +20,8 @@ export default function VNPayReturnPage() {
   useEffect(() => {
     const handlePaymentReturn = async () => {
       try {
-        const response = await paymentApiRequest.handleVNPayReturn(
-          searchParams
-        );
+        const response =
+          await paymentApiRequest.handleVNPayReturn(searchParams);
 
         const data = response.payload.data;
         const paymentStatus: PaymentStatus = data.status;
@@ -37,7 +36,7 @@ export default function VNPayReturnPage() {
           setRedirectUrl(
             catId
               ? `/tournaments/${data.tournamentId}/categories/${catId}`
-              : `/tournaments/${data.tournamentId}`
+              : `/tournaments/${data.tournamentId}`,
           );
         }
 
@@ -46,7 +45,7 @@ export default function VNPayReturnPage() {
           setMessage(
             participationType === "CLUB"
               ? "Thanh toán CLB thành công!"
-              : "Thanh toán thành công!"
+              : "Thanh toán thành công!",
           );
         } else if (paymentStatus === "FAILED") {
           setStatus("error");

@@ -66,12 +66,21 @@ export default function CategoryStats({ category }: CategoryStatsProps) {
     {
       label: "Đăng ký",
       value: (() => {
-        const start = category.registrationStartDate ? new Date(category.registrationStartDate) : null;
-        const end = category.registrationEndDate ? new Date(category.registrationEndDate) : null;
+        const start = category.registrationStartDate
+          ? new Date(category.registrationStartDate)
+          : null;
+        const end = category.registrationEndDate
+          ? new Date(category.registrationEndDate)
+          : null;
         const startValid = start && !isNaN(start.getTime());
         const endValid = end && !isNaN(end.getTime());
 
-        const formatDate = (d: Date) => d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+        const formatDate = (d: Date) =>
+          d.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
 
         if (startValid && endValid) {
           return `${formatDate(start)} - ${formatDate(end)}`;

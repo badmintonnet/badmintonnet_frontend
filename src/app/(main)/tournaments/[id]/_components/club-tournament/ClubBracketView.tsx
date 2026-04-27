@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trophy, Sparkles, Calendar, Loader2 } from "lucide-react";
+import { Trophy, Sparkles, Calendar } from "lucide-react";
 import MatchScoreModal from "./MatchScoreModal";
 import {
   ClubBracketMatch,
@@ -143,10 +143,6 @@ function ClubMatchCard({
   onUpdate: () => void;
 }) {
   const [modalOpen, setModalOpen] = useState(false);
-
-  const hasScores =
-    (match.setScoreP1 && match.setScoreP1.length > 0) ||
-    (match.setScoreP2 && match.setScoreP2.length > 0);
 
   return (
     <>

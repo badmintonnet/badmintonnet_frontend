@@ -1,146 +1,176 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState, useEffect } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
-} from 'recharts';
-import { 
-  Download, 
-  Calendar, 
-  Users, 
+  Cell,
+} from "recharts";
+import {
+  Download,
+  Calendar,
+  Users,
   TrendingUp,
   Activity,
-  Flag
-} from 'lucide-react';
+  Flag,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 // Dữ liệu mẫu cho biểu đồ người dùng
 const userActivityData = [
-  { name: 'T1', active: 400, new: 240 },
-  { name: 'T2', active: 450, new: 139 },
-  { name: 'T3', active: 520, new: 180 },
-  { name: 'T4', active: 580, new: 250 },
-  { name: 'T5', active: 620, new: 210 },
-  { name: 'T6', active: 700, new: 300 },
-  { name: 'T7', active: 750, new: 320 },
-  { name: 'T8', active: 800, new: 280 },
-  { name: 'T9', active: 850, new: 350 },
-  { name: 'T10', active: 900, new: 390 },
-  { name: 'T11', active: 950, new: 420 },
-  { name: 'T12', active: 1000, new: 450 },
+  { name: "T1", active: 400, new: 240 },
+  { name: "T2", active: 450, new: 139 },
+  { name: "T3", active: 520, new: 180 },
+  { name: "T4", active: 580, new: 250 },
+  { name: "T5", active: 620, new: 210 },
+  { name: "T6", active: 700, new: 300 },
+  { name: "T7", active: 750, new: 320 },
+  { name: "T8", active: 800, new: 280 },
+  { name: "T9", active: 850, new: 350 },
+  { name: "T10", active: 900, new: 390 },
+  { name: "T11", active: 950, new: 420 },
+  { name: "T12", active: 1000, new: 450 },
 ];
 
 // Dữ liệu mẫu cho biểu đồ sự kiện
 const eventData = [
-  { name: 'T1', count: 20 },
-  { name: 'T2', count: 25 },
-  { name: 'T3', count: 30 },
-  { name: 'T4', count: 35 },
-  { name: 'T5', count: 40 },
-  { name: 'T6', count: 45 },
-  { name: 'T7', count: 50 },
-  { name: 'T8', count: 55 },
-  { name: 'T9', count: 60 },
-  { name: 'T10', count: 65 },
-  { name: 'T11', count: 70 },
-  { name: 'T12', count: 75 },
+  { name: "T1", count: 20 },
+  { name: "T2", count: 25 },
+  { name: "T3", count: 30 },
+  { name: "T4", count: 35 },
+  { name: "T5", count: 40 },
+  { name: "T6", count: 45 },
+  { name: "T7", count: 50 },
+  { name: "T8", count: 55 },
+  { name: "T9", count: 60 },
+  { name: "T10", count: 65 },
+  { name: "T11", count: 70 },
+  { name: "T12", count: 75 },
 ];
 
 // Dữ liệu mẫu cho biểu đồ câu lạc bộ theo thể loại
 const clubCategoryData = [
-  { name: 'Bóng đá', value: 35 },
-  { name: 'Cầu lông', value: 25 },
-  { name: 'Bóng bàn', value: 15 },
-  { name: 'Tennis', value: 10 },
-  { name: 'Bơi lội', value: 8 },
-  { name: 'Khác', value: 7 },
+  { name: "Bóng đá", value: 35 },
+  { name: "Cầu lông", value: 25 },
+  { name: "Bóng bàn", value: 15 },
+  { name: "Tennis", value: 10 },
+  { name: "Bơi lội", value: 8 },
+  { name: "Khác", value: 7 },
 ];
 
 // Dữ liệu mẫu cho biểu đồ báo cáo
 const reportData = [
-  { name: 'T1', resolved: 10, pending: 5 },
-  { name: 'T2', resolved: 12, pending: 6 },
-  { name: 'T3', resolved: 15, pending: 8 },
-  { name: 'T4', resolved: 18, pending: 7 },
-  { name: 'T5', resolved: 20, pending: 9 },
-  { name: 'T6', resolved: 22, pending: 10 },
-  { name: 'T7', resolved: 25, pending: 12 },
-  { name: 'T8', resolved: 28, pending: 14 },
-  { name: 'T9', resolved: 30, pending: 15 },
-  { name: 'T10', resolved: 32, pending: 16 },
-  { name: 'T11', resolved: 35, pending: 18 },
-  { name: 'T12', resolved: 38, pending: 20 },
+  { name: "T1", resolved: 10, pending: 5 },
+  { name: "T2", resolved: 12, pending: 6 },
+  { name: "T3", resolved: 15, pending: 8 },
+  { name: "T4", resolved: 18, pending: 7 },
+  { name: "T5", resolved: 20, pending: 9 },
+  { name: "T6", resolved: 22, pending: 10 },
+  { name: "T7", resolved: 25, pending: 12 },
+  { name: "T8", resolved: 28, pending: 14 },
+  { name: "T9", resolved: 30, pending: 15 },
+  { name: "T10", resolved: 32, pending: 16 },
+  { name: "T11", resolved: 35, pending: 18 },
+  { name: "T12", resolved: 38, pending: 20 },
 ];
 
 // Màu sắc cho biểu đồ tròn
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884D8",
+  "#82ca9d",
+];
 
 export default function StatisticsPage() {
-  const [timeRange, setTimeRange] = useState('year');
+  const [timeRange, setTimeRange] = useState("year");
   const [chartData, setChartData] = useState({
     users: userActivityData,
     events: eventData,
-    reports: reportData
+    reports: reportData,
   });
 
   // Giả lập thay đổi dữ liệu khi thay đổi khoảng thời gian
   useEffect(() => {
     // Trong thực tế, đây sẽ là API call để lấy dữ liệu theo khoảng thời gian
-    if (timeRange === 'month') {
+    if (timeRange === "month") {
       // Dữ liệu cho 30 ngày gần nhất
-      const days = Array.from({ length: 30 }, (_, i) => ({ name: `${i + 1}`, active: Math.floor(Math.random() * 100) + 20, new: Math.floor(Math.random() * 50) + 5 }));
-      const eventDays = Array.from({ length: 30 }, (_, i) => ({ name: `${i + 1}`, count: Math.floor(Math.random() * 10) + 1 }));
-      const reportDays = Array.from({ length: 30 }, (_, i) => ({ name: `${i + 1}`, resolved: Math.floor(Math.random() * 5) + 1, pending: Math.floor(Math.random() * 3) }));
-      
+      const days = Array.from({ length: 30 }, (_, i) => ({
+        name: `${i + 1}`,
+        active: Math.floor(Math.random() * 100) + 20,
+        new: Math.floor(Math.random() * 50) + 5,
+      }));
+      const eventDays = Array.from({ length: 30 }, (_, i) => ({
+        name: `${i + 1}`,
+        count: Math.floor(Math.random() * 10) + 1,
+      }));
+      const reportDays = Array.from({ length: 30 }, (_, i) => ({
+        name: `${i + 1}`,
+        resolved: Math.floor(Math.random() * 5) + 1,
+        pending: Math.floor(Math.random() * 3),
+      }));
+
       setChartData({
         users: days,
         events: eventDays,
-        reports: reportDays
+        reports: reportDays,
       });
-    } else if (timeRange === 'week') {
+    } else if (timeRange === "week") {
       // Dữ liệu cho 7 ngày gần nhất
-      const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => ({ name: day, active: Math.floor(Math.random() * 100) + 20, new: Math.floor(Math.random() * 50) + 5 }));
-      const eventDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => ({ name: day, count: Math.floor(Math.random() * 10) + 1 }));
-      const reportDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(day => ({ name: day, resolved: Math.floor(Math.random() * 5) + 1, pending: Math.floor(Math.random() * 3) }));
-      
+      const days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => ({
+        name: day,
+        active: Math.floor(Math.random() * 100) + 20,
+        new: Math.floor(Math.random() * 50) + 5,
+      }));
+      const eventDays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map(
+        (day) => ({ name: day, count: Math.floor(Math.random() * 10) + 1 }),
+      );
+      const reportDays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map(
+        (day) => ({
+          name: day,
+          resolved: Math.floor(Math.random() * 5) + 1,
+          pending: Math.floor(Math.random() * 3),
+        }),
+      );
+
       setChartData({
         users: days,
         events: eventDays,
-        reports: reportDays
+        reports: reportDays,
       });
     } else {
       // Dữ liệu cho cả năm (mặc định)
       setChartData({
         users: userActivityData,
         events: eventData,
-        reports: reportData
+        reports: reportData,
       });
     }
   }, [timeRange]);
@@ -149,8 +179,12 @@ export default function StatisticsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Thống kê</h1>
-          <p className="text-muted-foreground text-gray-500 dark:text-gray-400">Phân tích dữ liệu và thống kê hệ thống</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Thống kê
+          </h1>
+          <p className="text-muted-foreground text-gray-500 dark:text-gray-400">
+            Phân tích dữ liệu và thống kê hệ thống
+          </p>
         </div>
         <div className="flex gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -195,7 +229,9 @@ export default function StatisticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Tổng người dùng</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Tổng người dùng
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">1,245</div>
@@ -207,7 +243,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Người dùng mới</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Người dùng mới
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">450</div>
@@ -219,7 +257,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Người dùng hoạt động</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Người dùng hoạt động
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">1,000</div>
@@ -250,8 +290,19 @@ export default function StatisticsPage() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="active" stroke="#8884d8" name="Người dùng hoạt động" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="new" stroke="#82ca9d" name="Người dùng mới" />
+                    <Line
+                      type="monotone"
+                      dataKey="active"
+                      stroke="#8884d8"
+                      name="Người dùng hoạt động"
+                      activeDot={{ r: 8 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="new"
+                      stroke="#82ca9d"
+                      name="Người dùng mới"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -264,7 +315,9 @@ export default function StatisticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Tổng sự kiện</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Tổng sự kiện
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">75</div>
@@ -276,7 +329,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Sự kiện đang diễn ra</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Sự kiện đang diễn ra
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">12</div>
@@ -288,7 +343,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Sự kiện sắp tới</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Sự kiện sắp tới
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">25</div>
@@ -319,7 +376,11 @@ export default function StatisticsPage() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="count" name="Số lượng sự kiện" fill="#8884d8" />
+                    <Bar
+                      dataKey="count"
+                      name="Số lượng sự kiện"
+                      fill="#8884d8"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -332,7 +393,9 @@ export default function StatisticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Tổng câu lạc bộ</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Tổng câu lạc bộ
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">120</div>
@@ -344,7 +407,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Câu lạc bộ mới</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Câu lạc bộ mới
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">15</div>
@@ -356,7 +421,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Thành viên trung bình</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Thành viên trung bình
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">35</div>
@@ -392,10 +459,15 @@ export default function StatisticsPage() {
                       dataKey="value"
                     >
                       {clubCategoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => [`${value} câu lạc bộ`, 'Số lượng']} />
+                    <Tooltip
+                      formatter={(value) => [`${value} câu lạc bộ`, "Số lượng"]}
+                    />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -409,7 +481,9 @@ export default function StatisticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Tổng báo cáo</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Tổng báo cáo
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">58</div>
@@ -421,7 +495,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Báo cáo đã giải quyết</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Báo cáo đã giải quyết
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">38</div>
@@ -433,7 +509,9 @@ export default function StatisticsPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Báo cáo chờ xử lý</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Báo cáo chờ xử lý
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">20</div>
@@ -464,8 +542,18 @@ export default function StatisticsPage() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="resolved" name="Đã giải quyết" stackId="a" fill="#82ca9d" />
-                    <Bar dataKey="pending" name="Chờ xử lý" stackId="a" fill="#ffc658" />
+                    <Bar
+                      dataKey="resolved"
+                      name="Đã giải quyết"
+                      stackId="a"
+                      fill="#82ca9d"
+                    />
+                    <Bar
+                      dataKey="pending"
+                      name="Chờ xử lý"
+                      stackId="a"
+                      fill="#ffc658"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import accountApiRequest from "@/apiRequest/account";
 import {
   UpdatePasswordBody,
   UpdatePasswordBodyType,
@@ -57,7 +56,7 @@ export default function ChangePasswordModal({
 
     setIsSubmitting(true);
     try {
-      const res = await authApiRequest.updatePassword({
+      await authApiRequest.updatePassword({
         password: values.password,
         newPassword: values.newPassword,
         confirmPassword: values.confirmPassword,
@@ -67,7 +66,7 @@ export default function ChangePasswordModal({
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Đổi mật khẩu thất bại"
+        error instanceof Error ? error.message : "Đổi mật khẩu thất bại",
       );
     } finally {
       setIsSubmitting(false);

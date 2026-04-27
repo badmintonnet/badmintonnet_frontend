@@ -44,11 +44,11 @@ export const JoinClubButton = ({
     try {
       const res = await clubServiceApi.joinClub(
         clubId,
-        description // gửi kèm mô tả
+        description, // gửi kèm mô tả
       );
       if (res.status === 200) {
         toast.success(
-          `Bạn đã gửi yêu cầu tham gia câu lạc bộ ${clubName}. Vui lòng chờ phê duyệt.`
+          `Bạn đã gửi yêu cầu tham gia câu lạc bộ ${clubName}. Vui lòng chờ phê duyệt.`,
         );
         setOpen(false);
         if (isRefresh) {
@@ -61,7 +61,7 @@ export const JoinClubButton = ({
       }
     } catch (error) {
       toast.error(
-        `Tham gia câu lạc bộ ${clubName} thất bại. Vui lòng thử lại.`
+        `Tham gia câu lạc bộ ${clubName} thất bại. Vui lòng thử lại.`,
       );
       console.error("Error joining club:", error);
     }

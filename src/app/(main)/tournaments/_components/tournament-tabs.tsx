@@ -12,7 +12,9 @@ export default function TournamentTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<"INDIVIDUAL" | "CLUB">("INDIVIDUAL");
+  const [activeTab, setActiveTab] = useState<"INDIVIDUAL" | "CLUB">(
+    "INDIVIDUAL",
+  );
   const [tournaments, setTournaments] = useState<TournamentResponse[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function TournamentTabs() {
           currentPage,
           size,
           "",
-          activeTab
+          activeTab,
         );
         const data = response.payload.data;
         setTournaments(data.content);

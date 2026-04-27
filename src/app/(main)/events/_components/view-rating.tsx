@@ -22,7 +22,7 @@ export default async function ViewRating({
   const accessToken = cookieStore.get("accessToken");
   const response = await ratingApiRequest.getRatingByClub(
     eventId,
-    accessToken?.value || ""
+    accessToken?.value || "",
   );
   const ratings = response.payload.data || [];
   const avgRating =

@@ -34,7 +34,7 @@ function OtpForm({ email }: { email: string | null }) {
 
   const handleKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     // Xử lý phím Backspace
     if (e.key === "Backspace" && !otp[index] && index > 0) {

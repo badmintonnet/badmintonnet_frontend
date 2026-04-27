@@ -6,9 +6,7 @@ import {
   Users,
   DollarSign,
   Clock,
-  Club,
   CircleStar,
-  Building2,
   GraduationCap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
-import FilterForm from "@/app/(main)/events/_components/filter-form";
 
 interface ClubEventsProps {
   searchParams: Promise<{
@@ -100,37 +97,6 @@ const InfoItem = ({
   </div>
 );
 
-// Skeleton UI
-const ClubEventsSkeleton = () => (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-emerald-50 to-blue-50 dark:from-blue-900 dark:via-emerald-900 dark:to-blue-900">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 text-center">
-        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mx-auto mb-2 animate-pulse" />
-        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto animate-pulse" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <Card
-            key={i}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border-none animate-pulse flex flex-col"
-          >
-            <div className="relative h-40 bg-gray-200 dark:bg-gray-700" />
-            <CardContent className="p-4 flex-1">
-              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3" />
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3" />
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-              </div>
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg mt-4" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
 export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value || "";
@@ -150,7 +116,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const response = await eventClubApiRequest.getMyClubsEventClubs(
     page,
     size,
-    accessToken
+    accessToken,
     // searchQuery,
     // province,
     // ward
@@ -243,7 +209,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         <Badge
                           key={cat}
                           className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
-                            cat
+                            cat,
                           )}`}
                         >
                           {categoryMapVN[cat] || cat}
@@ -330,7 +296,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         icon={Clock}
                         label="Giờ"
                         value={`${formatTime(event.startTime)} - ${formatTime(
-                          event.endTime
+                          event.endTime,
                         )}`}
                       />
                     </div>

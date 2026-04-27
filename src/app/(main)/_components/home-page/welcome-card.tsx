@@ -11,8 +11,8 @@ export default function WelcomeCard({ fullName }: WelcomeCardProps) {
     hour < 12
       ? "Chào buổi sáng"
       : hour < 18
-      ? "Chào buổi chiều"
-      : "Chào buổi tối";
+        ? "Chào buổi chiều"
+        : "Chào buổi tối";
 
   return (
     <section className="relative overflow-hidden rounded-3xl">

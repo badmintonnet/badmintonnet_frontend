@@ -1,10 +1,9 @@
 import ratingApiRequest from "@/apiRequest/rating";
 import LoadMoreRatings from "@/app/(main)/my-clubs/_components/load-more-rating";
 import RatingInfoTooltip from "@/components/rating_info_tooltip";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { RatingType } from "@/schemaValidations/rating.schema";
-import { Flag, MessageCircle, Plus, Star, ThumbsUp } from "lucide-react";
+import { Star } from "lucide-react";
 import Image from "next/image";
 
 export default async function RatingView({ id }: { id: string }) {

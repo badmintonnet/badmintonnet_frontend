@@ -18,7 +18,7 @@ export default async function ClubsPage({
     const response = await adminApiRequest.getAllClubs(
       page,
       size,
-      accessToken?.value
+      accessToken?.value,
     );
 
     if (!response.payload || !response.payload.data) {

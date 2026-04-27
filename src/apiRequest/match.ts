@@ -8,7 +8,7 @@ import {
 const matchApiRequest = {
   generateBracket: (categoryId: string) =>
     http.post<GenerateBracketResponseType>(
-      `/bracket/${categoryId}/generate-bracket`
+      `/bracket/${categoryId}/generate-bracket`,
     ),
 
   getBracketTree: (categoryId: string) =>

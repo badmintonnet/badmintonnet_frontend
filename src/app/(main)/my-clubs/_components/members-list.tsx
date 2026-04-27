@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Users, Crown, CalendarDays, AlertTriangle } from "lucide-react";
+import { Users, Crown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MemberType } from "@/schemaValidations/clubs.schema";
@@ -24,7 +24,6 @@ export default function MembersList({
   currentUserId?: string;
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
-  const MAX_MEMBERS = 100;
 
   const handleShowMore = () => {
     setVisibleCount((prev) => Math.min(prev + 10, members.length));

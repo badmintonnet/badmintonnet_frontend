@@ -1,6 +1,6 @@
 "use client";
 
-import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
@@ -21,7 +21,7 @@ export default function GoogleLoginButton() {
 
       const idToken = await user.getIdToken(true);
 
-      const res = await authApiRequest.loginWithFirebase(idToken);
+      await authApiRequest.loginWithFirebase(idToken);
 
       toast.success("Đăng nhập thành công!");
 

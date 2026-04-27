@@ -12,7 +12,7 @@ export interface ChatSession {
   lastMessageTime: string;
   lastMessage: string;
   lastRole: "user" | "assistant";
-  updatedAt: string 
+  updatedAt: string;
 }
 
 export interface AskChatbotResponse {

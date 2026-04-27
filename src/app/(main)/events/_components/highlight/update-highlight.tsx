@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { clientSessionToken } from "@/lib/http";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Image as ImageIcon,
-  X,
-  Plus,
-  UserPlus,
-  Search,
-  Check,
-} from "lucide-react";
+import { Image as ImageIcon, X, UserPlus, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -74,7 +67,7 @@ export default function UpdateHighlightDialog({
   const [filteredFriends, setFilteredFriends] = useState<Friend[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [taggedFriends, setTaggedFriends] = useState<PostFriendSchemaType[]>(
-    highlight.taggedList || []
+    highlight.taggedList || [],
   );
   const [showFriendList, setShowFriendList] = useState(false);
   const [isLoadingFriends, setIsLoadingFriends] = useState(false);
@@ -98,6 +91,29 @@ export default function UpdateHighlightDialog({
       taggedFriendIds: highlight.taggedList?.map((friend) => friend.id) || [],
     },
   });
+
+  const loadFriends = useCallback(async () => {
+    if (!clientSessionToken.value) return;
+
+    try {
+      setIsLoadingFriends(true);
+
+      const res = await friendApiRequest.getFriendList(
+        user.id,
+        clientSessionToken.value,
+      );
+
+      if (res.payload.data) {
+        setFriends(res.payload.data);
+        setFilteredFriends(res.payload.data);
+      }
+    } catch (error) {
+      console.error("Error loading friends:", error);
+      toast.error("Không thể tải danh sách bạn bè");
+    } finally {
+      setIsLoadingFriends(false);
+    }
+  }, [user.id]);
 
   // Reset state when dialog opens or highlight changes
   useEffect(() => {
@@ -124,7 +140,7 @@ export default function UpdateHighlightDialog({
         loadFriends();
       }
     }
-  }, [isOpen, highlight, reset]);
+  }, [isOpen, highlight, reset, loadFriends]);
 
   // Filter friends based on search term
   useEffect(() => {
@@ -132,7 +148,7 @@ export default function UpdateHighlightDialog({
       setFilteredFriends(friends);
     } else {
       const filtered = friends.filter((friend) =>
-        friend.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+        friend.fullName.toLowerCase().includes(searchTerm.toLowerCase()),
       );
       setFilteredFriends(filtered);
     }
@@ -159,29 +175,6 @@ export default function UpdateHighlightDialog({
     };
   }, []);
 
-  const loadFriends = async () => {
-    if (!clientSessionToken.value) return;
-
-    try {
-      setIsLoadingFriends(true);
-
-      const res = await friendApiRequest.getFriendList(
-        user.id,
-        clientSessionToken.value
-      );
-
-      if (res.payload.data) {
-        setFriends(res.payload.data);
-        setFilteredFriends(res.payload.data);
-      }
-    } catch (error) {
-      console.error("Error loading friends:", error);
-      toast.error("Không thể tải danh sách bạn bè");
-    } finally {
-      setIsLoadingFriends(false);
-    }
-  };
-
   const handleNewFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -190,7 +183,7 @@ export default function UpdateHighlightDialog({
         const remainingSlots = 6 - totalMedia;
         const newFiles = [...selectedNewFiles, ...files].slice(
           0,
-          remainingSlots + selectedNewFiles.length
+          remainingSlots + selectedNewFiles.length,
         );
 
         setSelectedNewFiles(newFiles);
@@ -201,7 +194,7 @@ export default function UpdateHighlightDialog({
 
         // Create new preview URLs
         const newPreviewUrls = newFiles.map((file) =>
-          URL.createObjectURL(file)
+          URL.createObjectURL(file),
         );
         setNewFilePreviewUrls(newPreviewUrls);
       }
@@ -245,7 +238,7 @@ export default function UpdateHighlightDialog({
     const newTaggedFriends = [
       ...taggedFriends,
       ...selectedFriends.filter(
-        (friend) => !taggedFriends.find((f) => f.id === friend.id)
+        (friend) => !taggedFriends.find((f) => f.id === friend.id),
       ),
     ];
     setTaggedFriends(newTaggedFriends);
@@ -256,7 +249,7 @@ export default function UpdateHighlightDialog({
     // Update form value
     setValue(
       "taggedFriendIds",
-      newTaggedFriends.map((f) => f.id)
+      newTaggedFriends.map((f) => f.id),
     );
     console.log(newTaggedFriends.map((f) => f.id));
   };
@@ -268,7 +261,7 @@ export default function UpdateHighlightDialog({
     // Update form value
     setValue(
       "taggedFriendIds",
-      newTaggedFriends.map((f) => f.id)
+      newTaggedFriends.map((f) => f.id),
     );
     console.log(newTaggedFriends.map((f) => f.id));
   };
@@ -335,7 +328,7 @@ export default function UpdateHighlightDialog({
 
       const response = await highlightApiRequest.updateHighlight(
         updateData,
-        clientSessionToken.value
+        clientSessionToken.value,
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -351,7 +344,7 @@ export default function UpdateHighlightDialog({
         typeof err === "object" && err !== null && "message" in err
           ? (err as { message?: string }).message ||
               "Đã xảy ra lỗi khi cập nhật highlight"
-          : "Đã xảy ra lỗi khi cập nhật highlight"
+          : "Đã xảy ra lỗi khi cập nhật highlight",
       );
     } finally {
       setIsSubmitting(false);
@@ -616,10 +609,10 @@ export default function UpdateHighlightDialog({
                 <div className="max-h-60 overflow-y-auto space-y-2">
                   {filteredFriends.map((friend) => {
                     const isTagged = taggedFriends.find(
-                      (f) => f.id === friend.id
+                      (f) => f.id === friend.id,
                     );
                     const isSelected = selectedFriends.find(
-                      (f) => f.id === friend.id
+                      (f) => f.id === friend.id,
                     );
 
                     return (
@@ -629,8 +622,8 @@ export default function UpdateHighlightDialog({
                           isTagged
                             ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-600"
                             : isSelected
-                            ? "bg-blue-50 dark:bg-blue-900/20"
-                            : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                              ? "bg-blue-50 dark:bg-blue-900/20"
+                              : "hover:bg-gray-50 dark:hover:bg-gray-800"
                         }`}
                         onClick={() =>
                           !isTagged && toggleFriendSelection(friend)

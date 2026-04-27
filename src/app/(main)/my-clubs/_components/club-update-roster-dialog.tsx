@@ -104,7 +104,11 @@ export default function UpdateRosterDialog({
   };
 
   const initialIds = useMemo(
-    () => (participant?.roster ?? []).map((r) => r.accountId).sort().join(","),
+    () =>
+      (participant?.roster ?? [])
+        .map((r) => r.accountId)
+        .sort()
+        .join(","),
     [participant?.roster],
   );
   const currentIds = useMemo(() => [...selected].sort().join(","), [selected]);
@@ -252,7 +256,9 @@ export default function UpdateRosterDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={submitting || loading || unchanged || selected.length === 0}
+            disabled={
+              submitting || loading || unchanged || selected.length === 0
+            }
             className="bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50"
           >
             {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

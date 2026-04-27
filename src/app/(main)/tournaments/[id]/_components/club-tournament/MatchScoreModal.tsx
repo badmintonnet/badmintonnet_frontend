@@ -208,9 +208,7 @@ export default function MatchScoreModal({
             disabled={submitting}
             className="bg-teal-600 hover:bg-teal-700 text-white"
           >
-            {submitting && (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            )}
+            {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Lưu kết quả
           </Button>
         </DialogFooter>

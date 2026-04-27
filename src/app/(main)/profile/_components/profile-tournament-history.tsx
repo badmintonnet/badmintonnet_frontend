@@ -26,7 +26,7 @@ export default function ProfileTournamentHistory({
   userId,
 }: ProfileTournamentHistoryProps) {
   const [history, setHistory] = useState<PlayerTournamentHistorySchemaType[]>(
-    []
+    [],
   );
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,9 +34,8 @@ export default function ProfileTournamentHistory({
     const fetchHistory = async () => {
       try {
         setIsLoading(true);
-        const res = await accountApiRequest.getHistoryTournamentByPlayer(
-          userId
-        );
+        const res =
+          await accountApiRequest.getHistoryTournamentByPlayer(userId);
         setHistory(res.payload.data);
       } catch (error) {
         console.error("Error fetching tournament history:", error);
@@ -103,7 +102,7 @@ export default function ProfileTournamentHistory({
   const totalMatches = history.reduce((sum, h) => sum + h.rounds.length, 0);
   const totalWins = history.reduce(
     (sum, h) => sum + h.rounds.filter((r) => r.won).length,
-    0
+    0,
   );
   const winRate =
     totalMatches > 0 ? ((totalWins / totalMatches) * 100).toFixed(0) : 0;
@@ -229,7 +228,7 @@ export default function ProfileTournamentHistory({
                           <Calendar className="w-4 h-4" />
                           <span>
                             {new Date(
-                              item.tournament.startDate
+                              item.tournament.startDate,
                             ).toLocaleDateString("vi-VN")}
                           </span>
                         </div>
@@ -239,7 +238,7 @@ export default function ProfileTournamentHistory({
                     {/* Ranking Badge */}
                     <div
                       className={`flex flex-col items-center justify-center w-20 h-20 rounded-xl shadow-lg ${getRankingColor(
-                        item.finalRanking
+                        item.finalRanking,
                       )}`}
                     >
                       <span className="text-2xl font-bold">

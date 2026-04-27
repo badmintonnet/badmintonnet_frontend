@@ -39,10 +39,10 @@ export default async function ProfileDetailPage({
     try {
       const relRes = await friendApiRequest.getRelationships(
         profile.id,
-        accessToken.value
+        accessToken.value,
       );
       relationship = relRes.payload.data ?? null;
-    } catch (e) {
+    } catch {
       relationship = null;
     }
   } catch (error) {

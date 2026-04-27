@@ -20,8 +20,6 @@ interface Props {
 export default function ClubWarningDialog({ warnings }: Props) {
   const [open, setOpen] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -126,11 +124,7 @@ export default function ClubWarningDialog({ warnings }: Props) {
 
           <div className="flex gap-2">
             {/* Close always present */}
-            <Button
-              variant="ghost"
-              onClick={() => setOpen(false)}
-              disabled={loading}
-            >
+            <Button variant="ghost" onClick={() => setOpen(false)}>
               Đóng
             </Button>
 

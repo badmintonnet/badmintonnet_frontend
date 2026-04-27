@@ -1,10 +1,9 @@
 import Image from "next/image";
 import { Calendar, GraduationCap, MapPin, Users } from "lucide-react";
 import { CreateClubButton } from "@/app/(main)/clubs/_components/create-club-button";
-import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
-import { isClubOwner, isHTML } from "@/lib/utils";
+import { isHTML } from "@/lib/utils";
 import Link from "next/link";
 import ClubFilterForm from "@/app/(main)/clubs/_components/club-filter-form";
 import {

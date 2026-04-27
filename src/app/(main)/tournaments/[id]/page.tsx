@@ -1,14 +1,7 @@
 import { cookies } from "next/headers";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import {
-  Calendar,
-  MapPin,
-  Trophy,
-  Info,
-  BarChart3,
-  Users,
-} from "lucide-react";
+import { Calendar, MapPin, Trophy, Info, BarChart3, Users } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +36,7 @@ export default async function TournamentDetailPage({
   try {
     const resultsResponse = await tournamentApiRequest.getTournamentResults(
       tournament.id,
-      accessToken
+      accessToken,
     );
     tournamentResults = resultsResponse.payload.data;
   } catch (error) {
@@ -72,7 +65,7 @@ export default async function TournamentDetailPage({
               <MapPin className="w-4 h-4" />{" "}
               {tournament.facility
                 ? tournament.facility.name
-                : tournament.location ?? "Chưa cập nhật"}
+                : (tournament.location ?? "Chưa cập nhật")}
             </p>
           </div>
         </div>
@@ -112,7 +105,9 @@ export default async function TournamentDetailPage({
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full ">
-          <TabsList className={`grid w-full ${tournament.participationType === "CLUB" ? "grid-cols-4" : "grid-cols-4"} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg`}>
+          <TabsList
+            className={`grid w-full ${tournament.participationType === "CLUB" ? "grid-cols-4" : "grid-cols-4"} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg`}
+          >
             <TabsTrigger value="overview">
               <Info className="w-4 h-4 mr-1" />
               Tổng quan

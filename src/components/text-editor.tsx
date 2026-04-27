@@ -9,6 +9,7 @@ import React, {
 } from "react";
 
 type QuillType = typeof import("quill");
+type QuillInstance = InstanceType<QuillType["default"]>;
 
 export type RichTextEditorHandle = {
   getContent: () => string;
@@ -23,7 +24,7 @@ interface RichTextEditorProps {
 const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
   ({ value = "", onChange, height = 300 }, ref) => {
     const editorRef = useRef<HTMLDivElement>(null);
-    const quillRef = useRef<QuillType["default"] | null>(null);
+    const quillRef = useRef<QuillInstance | null>(null);
     const isSettingContent = useRef(false); // tránh loop khi set value
     const [isClient, setIsClient] = useState(false);
 
@@ -34,14 +35,11 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
     useEffect(() => {
       if (!isClient || !editorRef.current || quillRef.current) return;
 
-      // Dynamic import Quill and its CSS only on client
-      Promise.all([
-        import("quill"),
-        import("quill/dist/quill.snow.css"),
-      ]).then(([QuillModule]) => {
+      // Dynamic import Quill only on client (CSS imported statically above)
+      import("quill").then(({ default: Quill }) => {
         if (!editorRef.current || quillRef.current) return;
 
-        quillRef.current = new QuillModule.default(editorRef.current, {
+        quillRef.current = new Quill(editorRef.current, {
           theme: "snow",
           modules: {
             toolbar: [
@@ -87,7 +85,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
         <div ref={editorRef} style={{ height: "100%" }} />
       </div>
     );
-  }
+  },
 );
 
 RichTextEditor.displayName = "RichTextEditor";

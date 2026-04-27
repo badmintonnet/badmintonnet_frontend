@@ -1,10 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Trophy,
@@ -246,21 +244,21 @@ export default function PlayerRatingForm() {
   const [actives, setActives] = useState<number[]>([0]);
   const handleChange = (
     field: keyof PlayerRatingCreateBodyType,
-    value: number
+    value: number,
   ) => {
     setRatings((prev) => ({ ...prev, [field]: value }));
   };
 
   const getPlayerLevel = (score: number) => {
     const level = levelRanges.find(
-      (range) => score > range.min && score <= range.max
+      (range) => score > range.min && score <= range.max,
     );
     return level ? level.label : "Mới bắt đầu";
   };
 
   const getLevelColor = (score: number) => {
     const level = levelRanges.find(
-      (range) => score > range.min && score <= range.max
+      (range) => score > range.min && score <= range.max,
     );
     return level ? level.color : "bg-gray-500";
   };
@@ -521,7 +519,7 @@ export default function PlayerRatingForm() {
 
                   <div
                     className={`inline-flex items-center px-6 py-3 rounded-full text-white font-semibold text-lg shadow-md ${getLevelColor(
-                      totalScore
+                      totalScore,
                     )}`}
                   >
                     {playerLevel}
@@ -583,7 +581,7 @@ export default function PlayerRatingForm() {
     return (
       <div className="space-y-6">
         {currentTab.fields.map((field) =>
-          renderRatingField(field as keyof typeof initialRatings)
+          renderRatingField(field as keyof typeof initialRatings),
         )}
       </div>
     );
@@ -632,8 +630,8 @@ export default function PlayerRatingForm() {
                         ? "border-emerald-500 text-emerald-500"
                         : "border-blue-500 text-blue-500"
                       : isCompleted
-                      ? "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400"
-                      : "border-transparent text-gray-500 dark:text-gray-400"
+                        ? "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400"
+                        : "border-transparent text-gray-500 dark:text-gray-400"
                   }`}
                 >
                   <Icon className="h-4 w-4" />

@@ -39,12 +39,6 @@ export type UpdateEventParticipantStatus = z.infer<
   typeof UpdateEventParticipantStatus
 >;
 export const ParticipantRoleEnum = z.enum(["OWNER", "MEMBER", "GUEST"]);
-// Schema for file uploads (MultipartFile in Java)
-const FileSchema = z
-  .any()
-  .refine((file) => file instanceof File || file === undefined, {
-    message: "Must be a valid file or undefined",
-  });
 
 // Schema for the event creation request
 export const CreateEventBody = z.object({

@@ -48,7 +48,8 @@ export default function ClubInfoCard({ tournament }: ClubInfoCardProps) {
               Giải đấu theo CLB
             </h3>
             <p className="text-violet-100 text-sm">
-              Đăng ký theo câu lạc bộ • {currentClubCount ?? 0}/{maxClubs ?? "?"} CLB
+              Đăng ký theo câu lạc bộ • {currentClubCount ?? 0}/
+              {maxClubs ?? "?"} CLB
             </p>
           </div>
         </div>
@@ -93,7 +94,9 @@ export default function ClubInfoCard({ tournament }: ClubInfoCardProps) {
               <Calendar className="w-4 h-4" />
               <span className="text-xs font-medium">Hạn đăng ký</span>
             </div>
-            <p className={`font-bold ${isExpired ? "text-red-500" : "text-gray-900 dark:text-white"}`}>
+            <p
+              className={`font-bold ${isExpired ? "text-red-500" : "text-gray-900 dark:text-white"}`}
+            >
               {endDate
                 ? endDate.toLocaleDateString("vi-VN", {
                     day: "2-digit",
@@ -142,8 +145,12 @@ export default function ClubInfoCard({ tournament }: ClubInfoCardProps) {
               <Users className="w-4 h-4 inline mr-1" />
               {currentClubCount ?? 0}/{maxClubs ?? "?"} CLB đã đăng ký
             </span>
-            <span className={isFull ? "text-red-500 font-medium" : "text-gray-500"}>
-              {isFull ? "Đã đầy" : `${Math.round(100 - filledPercent)}% còn trống`}
+            <span
+              className={isFull ? "text-red-500 font-medium" : "text-gray-500"}
+            >
+              {isFull
+                ? "Đã đầy"
+                : `${Math.round(100 - filledPercent)}% còn trống`}
             </span>
           </div>
           <Progress

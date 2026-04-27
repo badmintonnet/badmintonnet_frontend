@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  RatingBody,
-  RatingBodyType,
-  RatingResponseType,
-  RatingType,
-} from "@/schemaValidations/rating.schema";
+import { RatingBody, RatingBodyType } from "@/schemaValidations/rating.schema";
 import ratingApiRequest from "@/apiRequest/rating";
 
 import { Star } from "lucide-react";
@@ -36,14 +31,10 @@ interface AddRatingButtonProps {
   onSuccess?: () => void; // callback để refresh list nếu cần
 }
 
-export default function AddRatingButton({
-  eventId,
-  onSuccess,
-}: AddRatingButtonProps) {
+export default function AddRatingButton({ eventId }: AddRatingButtonProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [rating, setRating] = useState<RatingType | null>(null);
   const form = useForm<RatingBodyType>({
     resolver: zodResolver(RatingBody),
     defaultValues: {
@@ -57,7 +48,6 @@ export default function AddRatingButton({
       try {
         const res = await ratingApiRequest.getOwnRating(eventId); // API trả 1 rating
         const data = res.payload.data;
-        setRating(data);
 
         if (data) {
           form.reset({

@@ -87,7 +87,7 @@ export default function ViewDetailParticipants({
       await eventClubApiRequest.rejectParticipant(
         participant.id,
         eventId,
-        rejectReason
+        rejectReason,
       );
       toast.success("Đã từ chối người tham gia");
     } catch (error) {
@@ -159,7 +159,7 @@ export default function ViewDetailParticipants({
                     Tham gia:{" "}
                     {participant.joinedAt
                       ? new Date(participant.joinedAt).toLocaleDateString(
-                          "vi-VN"
+                          "vi-VN",
                         )
                       : "-"}
                   </span>
@@ -226,7 +226,7 @@ export default function ViewDetailParticipants({
                   </div>
                   <div
                     className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-white text-sm font-semibold bg-gradient-to-r ${getLevelGradient(
-                      participant.overallScore
+                      participant.overallScore,
                     )}`}
                   >
                     <Trophy className="h-4 w-4" />

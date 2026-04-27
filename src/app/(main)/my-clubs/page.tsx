@@ -4,7 +4,6 @@ import { MapPin, Users, User, Calendar, ArrowRight } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
 import { isHTML } from "@/lib/utils";
-import LeaveClubModal from "@/app/(main)/my-clubs/_components/leave-club-modal";
 
 export default async function MyClubs({
   searchParams,
@@ -29,7 +28,7 @@ export default async function MyClubs({
     clubsResponse = await clubServiceApi.getMyClubs(
       page,
       size,
-      accessToken?.value || ""
+      accessToken?.value || "",
     );
     clubs = clubsResponse.payload.data.content;
 

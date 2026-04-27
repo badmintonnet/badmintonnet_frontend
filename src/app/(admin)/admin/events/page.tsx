@@ -18,7 +18,7 @@ export default async function EventsPage({
     const response = await adminApiRequest.getAllEvents(
       page,
       size,
-      accessToken?.value
+      accessToken?.value,
     );
 
     if (!response.payload || !response.payload.data) {

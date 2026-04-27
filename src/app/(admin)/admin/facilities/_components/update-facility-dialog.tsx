@@ -32,10 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Upload } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import addressApiRequest from "@/apiRequest/address";
 import facilityApiRequest from "@/apiRequest/facility";
 import { FacilityType } from "@/schemaValidations/event.schema";
+import Image from "next/image";
 
 // Định nghĩa schema cho form
 const formSchema = z.object({
@@ -79,7 +80,7 @@ export function UpdateFacilityDialog({
   const [wards, setWards] = useState<Ward[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string | null>(
-    facility.image || null
+    facility.image || null,
   );
 
   const form = useForm<FormValues>({
@@ -121,9 +122,8 @@ export function UpdateFacilityDialog({
       }
 
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         setWards(response.payload.data.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách quận/huyện:", error);
@@ -383,7 +383,7 @@ export function UpdateFacilityDialog({
                 >
                   {imagePreview ? (
                     <div className="relative w-full h-full">
-                      <img
+                      <Image
                         src={imagePreview}
                         alt="Preview"
                         className="object-cover w-full h-full rounded-md"

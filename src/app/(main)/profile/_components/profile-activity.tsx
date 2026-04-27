@@ -32,7 +32,7 @@ export default async function ProfileActivity({
 
   const res = await highlightApiRequest.getHighlightsByUserId(
     userId,
-    accessToken?.value || ""
+    accessToken?.value || "",
   );
 
   const highlights = res.payload.data || [];
@@ -75,7 +75,7 @@ export default async function ProfileActivity({
                 fileName: media.fileName,
                 mediaUrl: media.url,
                 mediaType: media.type.toLowerCase() as "image" | "video",
-              })
+              }),
             ),
             taggedList: highlight.taggedList || [],
             authorName: highlight.authorName,
@@ -125,7 +125,7 @@ export default async function ProfileActivity({
                               {highlight.taggedList.map(
                                 (
                                   friend: PostFriendSchemaType,
-                                  index: number
+                                  index: number,
                                 ) => (
                                   <span
                                     key={friend.id}
@@ -146,7 +146,7 @@ export default async function ProfileActivity({
                                       </span>
                                     )}
                                   </span>
-                                )
+                                ),
                               )}
                             </span>
                           )}
@@ -159,7 +159,7 @@ export default async function ProfileActivity({
                             month: "short",
                             hour: "2-digit",
                             minute: "2-digit",
-                          }
+                          },
                         )}
                       </p>
                     </div>

@@ -18,12 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  EllipsisVerticalIcon,
-  UserMinusIcon,
-  UsersIcon,
-  UserPlusIcon,
-} from "lucide-react";
+import { EllipsisVerticalIcon, UserMinusIcon, UsersIcon } from "lucide-react";
 import { toast } from "sonner";
 import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
 import friendApiRequest from "@/apiRequest/friend";
@@ -53,7 +48,7 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
         setLoading(true);
         const res = await friendApiRequest.getFriendList(
           accountId,
-          accessToken
+          accessToken,
         );
         setFriends(res.payload.data ?? []);
       } catch (error) {
@@ -69,7 +64,7 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
 
   // Filter friends based on search term
   const filteredFriends = friends.filter((friend) =>
-    friend.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    friend.fullName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleActionUnfriend = (friend: AccountFriendSchemaType) => {
@@ -82,7 +77,7 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
       // uncomment / adapt API call if available:
       await friendApiRequest.unfriend(confirmDialog.friend.id);
       setFriends((prev) =>
-        prev.filter((f) => f.id !== confirmDialog.friend!.id)
+        prev.filter((f) => f.id !== confirmDialog.friend!.id),
       );
       toast.success(`Đã hủy kết bạn với ${confirmDialog.friend.fullName}`);
       setConfirmDialog({ isOpen: false, friend: null });

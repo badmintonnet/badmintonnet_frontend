@@ -16,7 +16,7 @@ export default async function MyClubSection({
   try {
     const res = await clubServiceApi.getMyClubs(0, 4, accessToken);
     clubs = res.payload.data.content;
-  } catch (error) {
+  } catch {
     return (
       <div className="py-10 text-center text-red-500">
         Lỗi khi tải danh sách CLB

@@ -23,7 +23,6 @@ import {
   Check,
   Clock,
   Award,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -70,7 +69,6 @@ export default function FilterForm({
 }: FilterSidebarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState(searchQuery);
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState(searchQuery);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState(province);
   const [selectedWard, setSelectedWard] = useState(ward);
@@ -157,9 +155,8 @@ export default function FilterForm({
       }
       setLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvince
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvince);
         setWards(response.payload.data.data || []);
       } catch (error) {
         console.error("Error fetching wards:", error);
@@ -189,13 +186,13 @@ export default function FilterForm({
 
   const handleLevelToggle = useCallback((level: string) => {
     setSelectedLevels((prev) =>
-      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level],
     );
   }, []);
 
   const handleCategoryToggle = useCallback((key: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key],
     );
   }, []);
 
@@ -203,7 +200,7 @@ export default function FilterForm({
     setSelectedStatus((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status]
+        : [...prev, status],
     );
   }, []);
 
@@ -223,7 +220,6 @@ export default function FilterForm({
 
   const clearAllFilters = useCallback(() => {
     setSearchValue("");
-    setDebouncedSearchValue("");
     setSelectedProvince("");
     setSelectedWard("");
     setWards([]);
@@ -289,12 +285,14 @@ export default function FilterForm({
     if (dateRange.start)
       params.append(
         "startDate",
-        dayjs(dateRange.start, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+        dayjs(dateRange.start, "DD/MM/YYYY HH:mm").format(
+          "YYYY-MM-DDTHH:mm:ss",
+        ),
       );
     if (dateRange.end)
       params.append(
         "endDate",
-        dayjs(dateRange.end, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+        dayjs(dateRange.end, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss"),
       );
 
     if (selectedLevels.length > 0)
@@ -400,7 +398,6 @@ export default function FilterForm({
                 onChange={(e) => {
                   const value = e.target.value;
                   const timeoutId = setTimeout(() => {
-                    setDebouncedSearchValue(value);
                     setSearchValue(value);
                   }, 500);
                   return () => clearTimeout(timeoutId);
@@ -578,7 +575,7 @@ export default function FilterForm({
                   }
                   optionRender={(option) => {
                     const facility = facilities.find(
-                      (f) => f.id === option.value
+                      (f) => f.id === option.value,
                     );
                     return (
                       <div className="flex items-center gap-2">

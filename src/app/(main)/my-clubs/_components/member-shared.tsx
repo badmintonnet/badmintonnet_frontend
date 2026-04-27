@@ -17,5 +17,3 @@ export const MemberSkeleton = () => (
     </div>
   </div>
 );
-
-

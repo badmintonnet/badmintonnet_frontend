@@ -1,12 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
 import {
@@ -31,7 +28,6 @@ import {
 } from "lucide-react";
 import {
   EventDetailResponseType,
-  EventType,
   FacilityType,
 } from "@/schemaValidations/event.schema";
 import eventClubApiRequest from "@/apiRequest/club.event";
@@ -126,7 +122,7 @@ export default function EditEventModal({
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(
-    eventData.image || ""
+    eventData.image || "",
   );
 
   // Address related states
@@ -204,13 +200,13 @@ export default function EditEventModal({
 
           // Parse existing location and find matching province
           const { additional, province } = parseExistingLocation(
-            eventData.location
+            eventData.location,
           );
           setAdditionalAddress(additional);
 
           // Find province by name
           const matchedProvince = (response.payload.data.data || []).find(
-            (p: Province) => p.full_name === province
+            (p: Province) => p.full_name === province,
           );
 
           if (matchedProvince) {
@@ -238,9 +234,8 @@ export default function EditEventModal({
 
       setIsLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         const wardList = response.payload.data.data || [];
         setWards(wardList);
 
@@ -270,7 +265,7 @@ export default function EditEventModal({
   useEffect(() => {
     const updateLocation = () => {
       const selectedProvince = provinces.find(
-        (p) => p.id === selectedProvinceId
+        (p) => p.id === selectedProvinceId,
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
 
@@ -398,29 +393,24 @@ export default function EditEventModal({
     setIsLoading(true);
     try {
       let imageUrl = formData.image;
-      let imageChanged = false;
 
       if (imageFile) {
         // Nếu có file mới, upload và lấy fileName
         const uploadForm = new FormData();
         uploadForm.append("files", imageFile);
-        const uploadRes = await eventClubApiRequest.uploadImageClubEvent(
-          uploadForm
-        );
+        const uploadRes =
+          await eventClubApiRequest.uploadImageClubEvent(uploadForm);
         if (uploadRes.status === 200) {
           imageUrl = uploadRes.payload.data.fileName;
-          imageChanged = true;
         } else {
           throw new Error(uploadRes.payload?.message || "Upload ảnh thất bại");
         }
       } else if (imagePreview === "" && formData.image) {
         // Nếu đã xóa ảnh
         imageUrl = "";
-        imageChanged = true;
       } else if (!imageFile && imagePreview === eventData.image) {
         // Không đổi ảnh
         imageUrl = null;
-        imageChanged = true;
       }
 
       const res = await eventClubApiRequest.updateEventClub({
@@ -435,15 +425,18 @@ export default function EditEventModal({
       } else {
         toast.error("Cập nhật sự kiện thất bại");
       }
-    } catch (error: any) {
-      toast.error(error?.payload?.message || "Cập nhật thất bại");
+    } catch {
+      toast.error("Cập nhật thất bại");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof EventData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof EventData, value: unknown) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value as EventData[keyof EventData],
+    }));
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -830,7 +823,7 @@ export default function EditEventModal({
                       onChange={(e) =>
                         handleInputChange(
                           "startTime",
-                          parseLocalDateTime(e.target.value)
+                          parseLocalDateTime(e.target.value),
                         )
                       }
                       className={`${
@@ -860,7 +853,7 @@ export default function EditEventModal({
                       onChange={(e) =>
                         handleInputChange(
                           "endTime",
-                          parseLocalDateTime(e.target.value)
+                          parseLocalDateTime(e.target.value),
                         )
                       }
                       className={`${
@@ -889,7 +882,7 @@ export default function EditEventModal({
                       onChange={(e) =>
                         handleInputChange(
                           "deadline",
-                          parseLocalDateTime(e.target.value)
+                          parseLocalDateTime(e.target.value),
                         )
                       }
                       className={`${

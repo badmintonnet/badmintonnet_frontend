@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { clientSessionToken } from "@/lib/http";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Image as ImageIcon,
-  X,
-  Plus,
-  UserPlus,
-  Search,
-  Check,
-} from "lucide-react";
+import { Image as ImageIcon, X, UserPlus, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -77,26 +70,7 @@ export default function CreateHighlightButton({
     },
   });
 
-  // Load danh sách bạn bè khi mở dialog
-  useEffect(() => {
-    if (isDialogOpen && clientSessionToken.value) {
-      loadFriends();
-    }
-  }, [isDialogOpen]);
-
-  // Filter friends based on search term
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredFriends(friends);
-    } else {
-      const filtered = friends.filter((friend) =>
-        friend.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredFriends(filtered);
-    }
-  }, [searchTerm, friends]);
-
-  const loadFriends = async () => {
+  const loadFriends = useCallback(async () => {
     if (!clientSessionToken.value) return;
 
     try {
@@ -104,7 +78,7 @@ export default function CreateHighlightButton({
 
       const res = await friendApiRequest.getFriendList(
         user.id,
-        clientSessionToken.value
+        clientSessionToken.value,
       );
 
       if (res.payload.data) {
@@ -117,7 +91,26 @@ export default function CreateHighlightButton({
     } finally {
       setIsLoadingFriends(false);
     }
-  };
+  }, [user.id]);
+
+  // Load danh sách bạn bè khi mở dialog
+  useEffect(() => {
+    if (isDialogOpen && clientSessionToken.value) {
+      loadFriends();
+    }
+  }, [isDialogOpen, loadFriends]);
+
+  // Filter friends based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredFriends(friends);
+    } else {
+      const filtered = friends.filter((friend) =>
+        friend.fullName.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      setFilteredFriends(filtered);
+    }
+  }, [searchTerm, friends]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -127,7 +120,7 @@ export default function CreateHighlightButton({
         setSelectedFiles(newFiles);
 
         const newPreviewUrls = newFiles.map((file) =>
-          URL.createObjectURL(file)
+          URL.createObjectURL(file),
         );
         setPreviewUrls(newPreviewUrls);
       }
@@ -162,7 +155,7 @@ export default function CreateHighlightButton({
     const newTaggedFriends = [
       ...taggedFriends,
       ...selectedFriends.filter(
-        (friend) => !taggedFriends.find((f) => f.id === friend.id)
+        (friend) => !taggedFriends.find((f) => f.id === friend.id),
       ),
     ];
     setTaggedFriends(newTaggedFriends);
@@ -173,7 +166,7 @@ export default function CreateHighlightButton({
     // Update form value
     setValue(
       "taggedFriendIds",
-      newTaggedFriends.map((f) => f.id)
+      newTaggedFriends.map((f) => f.id),
     );
   };
 
@@ -184,7 +177,7 @@ export default function CreateHighlightButton({
     // Update form value
     setValue(
       "taggedFriendIds",
-      newTaggedFriends.map((f) => f.id)
+      newTaggedFriends.map((f) => f.id),
     );
   };
 
@@ -239,7 +232,7 @@ export default function CreateHighlightButton({
 
       const response = await highlightApiRequest.createHighlight(
         highlightData,
-        clientSessionToken.value
+        clientSessionToken.value,
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -532,10 +525,10 @@ export default function CreateHighlightButton({
                   <div className="max-h-60 overflow-y-auto space-y-2">
                     {filteredFriends.map((friend) => {
                       const isTagged = taggedFriends.find(
-                        (f) => f.id === friend.id
+                        (f) => f.id === friend.id,
                       );
                       const isSelected = selectedFriends.find(
-                        (f) => f.id === friend.id
+                        (f) => f.id === friend.id,
                       );
 
                       return (
@@ -545,8 +538,8 @@ export default function CreateHighlightButton({
                             isTagged
                               ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-600"
                               : isSelected
-                              ? "bg-blue-50 dark:bg-blue-900/20"
-                              : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                                ? "bg-blue-50 dark:bg-blue-900/20"
+                                : "hover:bg-gray-50 dark:hover:bg-gray-800"
                           }`}
                           onClick={() =>
                             !isTagged && toggleFriendSelection(friend)

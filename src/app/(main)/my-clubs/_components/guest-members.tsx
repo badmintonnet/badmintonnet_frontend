@@ -3,13 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { GuestType } from "@/schemaValidations/clubs.schema";
-import MembersList from "@/app/(main)/my-clubs/_components/members-list";
 import GuestList from "@/app/(main)/my-clubs/_components/guests-list";
 // component client hiển thị thành viên
 
 async function getGuestMembers(
   id: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<GuestType[]> {
   const res = await clubServiceApi.getGuests(id, accessToken);
   return res.payload.data;

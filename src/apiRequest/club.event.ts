@@ -6,14 +6,11 @@ import {
   CreateEventClubBodyType,
   EventDetailResponseType,
   EventFilterType,
-  EventParticipantStatus,
   PagedEventResponseType,
   PagedParticipantResponseType,
-  ParticipantType,
   UpdateEventClubBodyType,
   UpdateEventParticipantStatus,
 } from "@/schemaValidations/event.schema";
-import { Update } from "next/dist/build/swc/types";
 
 const eventClubApiRequest = {
   uploadImageClubEvent: (body: FormData) =>
@@ -27,7 +24,7 @@ const eventClubApiRequest = {
     clubId: string,
     page: number,
     size: number,
-    accessToken: string
+    accessToken: string,
   ) =>
     http.get<PagedEventResponseType>(
       `/club-event/all/${clubId}?page=${page}&size=${size}`,
@@ -35,7 +32,7 @@ const eventClubApiRequest = {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
 
   updateEventClub: (body: Partial<UpdateEventClubBodyType>) =>
@@ -57,7 +54,7 @@ const eventClubApiRequest = {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
 
   //Lấy danh sách event clubs tất cả
@@ -74,7 +71,7 @@ const eventClubApiRequest = {
     maxFee?: number,
     startDate?: string,
     endDate?: string,
-    advancedFilter?: EventFilterType
+    advancedFilter?: EventFilterType,
   ) => {
     const query = new URLSearchParams({
       page: String(page),
@@ -97,7 +94,7 @@ const eventClubApiRequest = {
         headers: accessToken
           ? { Authorization: `Bearer ${accessToken}` }
           : undefined,
-      }
+      },
     );
   },
   getMyClubsEventClubs: (page: number, size: number, accessToken: string) =>
@@ -107,7 +104,7 @@ const eventClubApiRequest = {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
   getAllJoinedClubEvents: (accessToken: string) =>
     http.get<PagedEventResponseType>(`/club-event/all/joined`, {
@@ -140,7 +137,7 @@ const eventClubApiRequest = {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
 
   getMyJoinedEventClubs: (page: number, size: number, accessToken: string) =>
@@ -150,7 +147,7 @@ const eventClubApiRequest = {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     ),
   approvedParticipant: (id: string, eventId: string) =>
     http.put(`/club-event/${eventId}/participant/${id}/approve`),
@@ -158,13 +155,13 @@ const eventClubApiRequest = {
   rejectParticipant: (id: string, eventId: string, reason: string) =>
     http.put(
       `/club-event/${eventId}/participant/${id}/reject?reason=${encodeURIComponent(
-        reason
-      )}`
+        reason,
+      )}`,
     ),
   updateStatusParticipant: (
     id: string,
     eventId: string,
-    body: UpdateEventParticipantStatus
+    body: UpdateEventParticipantStatus,
   ) => http.put(`/club-event/${eventId}/participant/${id}`, body),
 };
 export default eventClubApiRequest;
