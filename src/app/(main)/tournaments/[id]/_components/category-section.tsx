@@ -5,30 +5,10 @@ import {
   getCategoryLabel,
   TournamentCategoryDetailResponse,
 } from "@/schemaValidations/tournament.schema";
-import { Users, Info, ChevronRight, Calendar, Coins } from "lucide-react";
+import { Users, Info, ChevronRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import JoinCategoryButton from "./join-category-button";
-
-// Helper function to format fee
-const formatFee = (fee: number | null | undefined): string => {
-  if (!fee && fee !== 0) return "Miễn phí";
-  return fee.toLocaleString("vi-VN") + " VNĐ";
-};
-
-// Helper function to format date
-const formatDate = (dateStr: string | null | undefined): string => {
-  if (!dateStr) return "";
-  try {
-    return new Date(dateStr).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return "";
-  }
-};
 
 export default function CategorySection({
   categories,
@@ -135,17 +115,6 @@ export default function CategorySection({
             {/* Content */}
             <CardContent>
               <div className="space-y-3">
-                {/* Fee */}
-                <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                  <Coins className="h-4 w-4 text-teal-600" />
-                  <span>
-                    Phí đăng ký:{" "}
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {formatFee(cat.registrationFee)}
-                    </span>
-                  </span>
-                </div>
-
                 <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                   <Users className="h-4 w-4 text-teal-600" />
                   <span>
@@ -155,19 +124,6 @@ export default function CategorySection({
                     </span>
                   </span>
                 </div>
-
-                {/* Registration Period */}
-                {(cat.registrationStartDate || cat.registrationEndDate) && (
-                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <Calendar className="h-4 w-4 text-teal-600" />
-                    <span className="text-sm">
-                      Đăng ký:{" "}
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {formatDate(cat.registrationStartDate)} - {formatDate(cat.registrationEndDate)}
-                      </span>
-                    </span>
-                  </div>
-                )}
 
                 {/* Thanh tiến độ */}
                 <Progress

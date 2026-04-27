@@ -15,7 +15,6 @@ import {
   Star,
   ThumbsUp,
   Info,
-  Trophy,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,9 +41,6 @@ import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
 import ClubWarningDialog from "@/app/(main)/my-clubs/_components/warning-list";
 import { isHTML } from "@/lib/utils";
 import LeaveClubModal from "@/app/(main)/my-clubs/_components/leave-club-modal";
-import ClubTournamentRegistrations from "@/app/(main)/my-clubs/_components/club-tournament-registrations";
-import clubTournamentApiRequest from "@/apiRequest/club-tournament";
-import { ClubTournamentParticipant } from "@/schemaValidations/tournament.schema";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -75,28 +71,12 @@ export default async function MyClubDetail({
   const search = awaitedSearchParams?.search ?? "";
 
   let clubDetail = null;
-  let clubTournaments: ClubTournamentParticipant[] = [];
-
   try {
     const response = await clubServiceApi.getMyClubById(
       id,
       accessToken?.value || "",
     );
     clubDetail = response.payload.data || null;
-
-    // Fetch tournaments that this club has registered for
-    if (clubDetail?.id) {
-      try {
-        const tournamentsRes = await clubTournamentApiRequest.getMyTournaments(
-          clubDetail.id,
-          accessToken?.value || "",
-        );
-        clubTournaments = (tournamentsRes.payload.data as ClubTournamentParticipant[]) || [];
-      } catch (error) {
-        console.error("Error fetching tournaments:", error);
-        // Ignore error, tournaments will be empty
-      }
-    }
   } catch (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -203,7 +183,7 @@ export default async function MyClubDetail({
 
         {/* Tab Navigation */}
         <Tabs defaultValue={tab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 w-full lg:grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 w-full lg:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <TabsTrigger
               value="overview"
               className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300"
@@ -231,13 +211,6 @@ export default async function MyClubDetail({
             >
               <MessageCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Đánh giá</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="tournaments"
-              className="flex items-center gap-2 data-[state=active]:bg-violet-50 data-[state=active]:text-violet-600 dark:data-[state=active]:bg-violet-900 dark:data-[state=active]:text-violet-300"
-            >
-              <Trophy className="h-4 w-4" />
-              <span className="hidden sm:inline">Giải đấu</span>
             </TabsTrigger>
           </TabsList>
 
@@ -363,11 +336,6 @@ export default async function MyClubDetail({
           {/* Reviews & Comments Tab */}
           <TabsContent value="reviews" className="mt-6">
             <RatingView id={clubDetail.id} />
-          </TabsContent>
-
-          {/* Tournament Registrations Tab */}
-          <TabsContent value="tournaments" className="mt-6">
-            <ClubTournamentRegistrations participations={clubTournaments} />
           </TabsContent>
 
           {/* Stats Tab */}

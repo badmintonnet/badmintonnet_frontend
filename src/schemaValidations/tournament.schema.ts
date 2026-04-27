@@ -4,44 +4,6 @@ import { email, z } from "zod";
 import { InvitationStatusEnum } from "./club-invitation";
 import { AccountFriendSchema } from "@/schemaValidations/friend.schema";
 
-// Enum loại hình tham gia tournament
-export const TournamentParticipationTypeEnum = z.enum(["INDIVIDUAL", "CLUB"]);
-export type TournamentParticipationType = z.infer<
-  typeof TournamentParticipationTypeEnum
->;
-
-export function getParticipationTypeInfo(
-  type?: TournamentParticipationType | null,
-) {
-  if (type === "CLUB") {
-    return {
-      label: "Theo CLB",
-      badgeClass:
-        "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 border border-violet-200 dark:border-violet-700",
-    };
-  }
-  return {
-    label: "Cá nhân",
-    badgeClass:
-      "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 border border-sky-200 dark:border-sky-700",
-  };
-}
-
-// Enum trạng thái participant CLB
-export const ClubTournamentParticipantStatusEnum = z.enum([
-  "DRAFT",
-  "PENDING",
-  "PAYMENT_REQUIRED",
-  "PAID",
-  "APPROVED",
-  "REJECTED",
-  "CANCELLED",
-  "ELIMINATED",
-]);
-export type ClubTournamentParticipantStatus = z.infer<
-  typeof ClubTournamentParticipantStatusEnum
->;
-
 // Enum giống backend (nên đồng bộ với BadmintonCategoryEnum)
 export const BadmintonCategoryEnum = z.enum([
   "MEN_SINGLE",
@@ -59,27 +21,6 @@ export const CategoryFormatEnum = z.enum([
   "KET_HOP",
 ]);
 export type CategoryFormatEnum = z.infer<typeof CategoryFormatEnum>;
-
-// Schema cho Club Tournament Category (mới - CLUB type)
-export const ClubTournamentCategorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  clubRegistrationFee: z.number(),
-  minClubRosterSize: z.number(),
-  maxClubRosterSize: z.number(),
-  teamMatchFormat: z.string(), // JSON: {"singles": 3, "menDoubles": 2, "mixedDoubles": 1}
-  maxClubs: z.number(),
-  currentClubCount: z.number(),
-  rules: z.string(),
-  firstPrize: z.string(),
-  secondPrize: z.string(),
-  thirdPrize: z.string(),
-  slug: z.string(),
-});
-export type ClubTournamentCategory = z.infer<
-  typeof ClubTournamentCategorySchema
->;
 
 export const TournamentParticipantEnum = z.enum([
   "DRAFT",
@@ -186,16 +127,6 @@ export const TournamentCategoryRequest = z.object({
 
   registrationFee: z.number().nonnegative("Lệ phí phải >= 0").optional(),
 
-  // Fields cho CLB tournament (optional, chỉ gửi khi participationType = CLUB)
-  clubRegistrationFee: z
-    .number()
-    .nonnegative("Phí CLB phải >= 0")
-    .nullable()
-    .optional(),
-  minClubRosterSize: z.number().int().positive().nullable().optional(),
-  maxClubRosterSize: z.number().int().positive().nullable().optional(),
-  teamMatchFormat: z.string().nullable().optional(),
-
   description: z
     .string()
     .max(2000, "Mô tả không được quá 2000 ký tự")
@@ -253,86 +184,40 @@ export const FacilitySchema = z.object({
   image: z.string(),
 });
 
-// Schema cho Club Category Request (CLUB tournament)
-export const ClubCategoryRequest = z.object({
-  name: z.string().min(1, "Tên hạng mục CLB là bắt buộc"),
-  description: z.string().optional(),
-  clubRegistrationFee: z.number().min(0, "Phí đăng ký CLB phải >= 0"),
-  minClubRosterSize: z.number().int().min(1, "Tối thiểu phải >= 1"),
-  maxClubRosterSize: z.number().int().min(1, "Tối đa phải >= 1"),
-  teamMatchFormat: z.string(), // JSON string
-  maxClubs: z.number().int().min(2, "Tối thiểu 2 CLB"),
-  rules: z.string().optional(),
-  firstPrize: z.string().optional(),
-  secondPrize: z.string().optional(),
-  thirdPrize: z.string().optional(),
-});
-export type ClubCategoryRequestType = z.infer<typeof ClubCategoryRequest>;
-
 // Schema cho TournamentCreateRequest
-export const TournamentCreateRequest = z
-  .object({
-    name: z
-      .string()
-      .min(1, "Tên giải đấu là bắt buộc")
-      .max(255, "Tên giải đấu không được quá 255 ký tự"),
-    description: z
-      .string()
-      .max(2000, "Mô tả không được vượt quá 2000 ký tự")
-      .optional(),
-    location: z
-      .string()
-      .max(255, "Địa điểm không được quá 255 ký tự")
-      .optional(),
-    facilityId: z.string().optional(),
-    bannerUrl: z.string().optional(),
-    logoUrl: z.string().optional(),
-    rules: z.string().optional(),
-    fee: z.number().optional(),
-    startDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-      message: "Ngày bắt đầu không hợp lệ",
-    }),
-    endDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-      message: "Ngày kết thúc không hợp lệ",
-    }),
-    registrationStartDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-      message: "Ngày bắt đầu đăng ký không hợp lệ",
-    }),
-    registrationEndDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-      message: "Ngày kết thúc đăng ký không hợp lệ",
-    }),
+export const TournamentCreateRequest = z.object({
+  name: z
+    .string()
+    .min(1, "Tên giải đấu là bắt buộc")
+    .max(255, "Tên giải đấu không được quá 255 ký tự"),
+  description: z
+    .string()
+    .max(2000, "Mô tả không được vượt quá 2000 ký tự")
+    .optional(),
+  location: z.string().max(255, "Địa điểm không được quá 255 ký tự").optional(),
+  facilityId: z.string().optional(),
+  bannerUrl: z.string().optional(),
+  logoUrl: z.string().optional(),
+  rules: z.string().optional(),
+  fee: z.number().optional(),
+  startDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Ngày bắt đầu không hợp lệ",
+  }),
+  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Ngày kết thúc không hợp lệ",
+  }),
+  registrationStartDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Ngày bắt đầu đăng ký không hợp lệ",
+  }),
+  registrationEndDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Ngày kết thúc đăng ký không hợp lệ",
+  }),
 
-    // Loại hình tham gia
-    participationType: TournamentParticipationTypeEnum.optional(),
-
-    // INDIVIDUAL: categories array
-    categories: z.array(TournamentCategoryRequest).optional(),
-
-    // CLUB: các fields trực tiếp trên Tournament
-    teamMatchFormat: z.string().optional(), // JSON: {"singles": 3, "menDoubles": 2}
-    clubRegistrationFee: z.number().min(0).optional(), // Phí đăng ký CLB
-    minClubRosterSize: z.number().int().min(1).optional(), // Số thành viên tối thiểu
-    maxClubRosterSize: z.number().int().min(1).optional(), // Số thành viên tối đa
-    maxClubs: z.number().int().min(2).optional(), // Số CLB tối đa
-  })
-  .refine(
-    (data) => {
-      // Must have either categories (INDIVIDUAL) or club fields (CLUB)
-      const hasCategories = data.categories && data.categories.length > 0;
-      const hasClubFields =
-        data.participationType === "CLUB" &&
-        data.teamMatchFormat &&
-        data.clubRegistrationFee &&
-        data.minClubRosterSize &&
-        data.maxClubRosterSize &&
-        data.maxClubs;
-      return hasCategories || hasClubFields;
-    },
-    {
-      message:
-        "Giải đấu phải có ít nhất một hạng mục thi đấu (INDIVIDUAL) hoặc thông tin CLB (CLUB)",
-    },
-  );
+  // Danh sách category (phải có ít nhất 1)
+  categories: z
+    .array(TournamentCategoryRequest)
+    .min(1, "Giải đấu phải có ít nhất một hạng mục thi đấu"),
+});
 
 export type TournamentCreateRequest = z.infer<typeof TournamentCreateRequest>;
 
@@ -355,10 +240,6 @@ export const TournamentCategoryDetailResponse = z.object({
   minLevel: z.number(),
   maxLevel: z.number(),
   participantStatus: TournamentParticipantEnum.nullable().optional(),
-  // Thêm mới theo backend update
-  registrationFee: z.number().nullable().optional(),
-  registrationStartDate: z.string().nullable().optional(),
-  registrationEndDate: z.string().nullable().optional(),
 });
 
 export type TournamentCategoryDetailResponse = z.infer<
@@ -383,7 +264,6 @@ export const TournamentResponse = z.object({
   createdAt: z.coerce.date(),
 
   status: TournamentStatusEnum,
-  participationType: TournamentParticipationTypeEnum.nullable().optional(),
   createdBy: z.string().nullable().optional(),
 
   categories: z.array(TournamentCategoryResponse),
@@ -424,24 +304,10 @@ export const TournamentDetail = z.object({
   createdAt: z.coerce.date(),
 
   status: TournamentStatusEnum,
-  participationType: TournamentParticipationTypeEnum.nullable().optional(),
   createdBy: z.string().nullable().optional(),
 
-  // INDIVIDUAL tournament
-  categories: z.array(TournamentCategoryDetailResponse).optional(),
-  players: z.array(TournamentPlayer).optional(),
-
-  // CLUB tournament - các fields trực tiếp trên Tournament
-  // Sử dụng chung registrationStartDate và registrationEndDate từ tournament
-  teamMatchFormat: z.string().nullable().optional(), // JSON: {"singles": 3, "menDoubles": 2}
-  clubRegistrationFee: z.number().nullable().optional(), // Phí đăng ký CLB
-  minClubRosterSize: z.number().nullable().optional(), // Số thành viên tối thiểu
-  maxClubRosterSize: z.number().nullable().optional(), // Số thành viên tối đa
-  maxClubs: z.number().nullable().optional(), // Số CLB tối đa
-  currentClubCount: z.number().nullable().optional(), // Số CLB đã đăng ký
-
-  // Legacy: still keep for backward compatibility
-  clubCategories: z.array(ClubTournamentCategorySchema).optional(),
+  categories: z.array(TournamentCategoryDetailResponse),
+  players: z.array(TournamentPlayer),
 });
 
 export type TournamentDetail = z.infer<typeof TournamentDetail>;
@@ -512,7 +378,6 @@ export const CategoryDetail = z.object({
   currentParticipantCount: z.number(),
 
   registrationFee: z.number(),
-
   description: z.string(),
 
   rules: z.string(),
@@ -522,8 +387,7 @@ export const CategoryDetail = z.object({
   thirdPrize: z.string(),
 
   format: CategoryFormatEnum,
-  registrationStartDate: z.string().nullable().optional(),
-  registrationEndDate: z.string().nullable().optional(),
+  registrationDeadline: z.string(), // nhận ISO string từ BE
   admin: z.boolean(),
   double: z.boolean(),
   paid: z.boolean(),
@@ -631,162 +495,4 @@ export const TournamentPartnerInvitationUpdate = z.object({
 
 export type TournamentPartnerInvitationUpdateType = z.TypeOf<
   typeof TournamentPartnerInvitationUpdate
->;
-
-// ============================================================
-// CLB TOURNAMENT SCHEMAS
-// ============================================================
-
-export const ClubTournamentStatusEnum = z.enum([
-  "DRAFT",
-  "PENDING",
-  "PAYMENT_REQUIRED",
-  "PAID",
-  "APPROVED",
-  "REJECTED",
-  "CANCELLED",
-  "ELIMINATED",
-]);
-export type ClubTournamentStatus = z.infer<typeof ClubTournamentStatusEnum>;
-
-export function getClubTournamentStatusInfo(status: ClubTournamentStatus) {
-  switch (status) {
-    case "DRAFT":
-      return {
-        label: "Bản nháp",
-        badgeClass:
-          "bg-gray-100 text-gray-600 dark:bg-gray-800/40 dark:text-gray-400 border border-gray-200 dark:border-gray-700",
-      };
-    case "PENDING":
-      return {
-        label: "Chờ thanh toán",
-        badgeClass:
-          "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-700",
-      };
-    case "PAYMENT_REQUIRED":
-      return {
-        label: "Đang xử lý thanh toán",
-        badgeClass:
-          "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 border border-orange-200 dark:border-orange-700",
-      };
-    case "PAID":
-      return {
-        label: "Đã thanh toán",
-        badgeClass:
-          "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-700",
-      };
-    case "APPROVED":
-      return {
-        label: "Đã được duyệt",
-        badgeClass:
-          "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border border-green-200 dark:border-green-700",
-      };
-    case "REJECTED":
-      return {
-        label: "Bị từ chối",
-        badgeClass:
-          "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-700",
-      };
-    case "CANCELLED":
-      return {
-        label: "Đã hủy",
-        badgeClass:
-          "bg-gray-100 text-gray-700 dark:bg-gray-800/60 dark:text-gray-300 border border-gray-200 dark:border-gray-600",
-      };
-    case "ELIMINATED":
-      return {
-        label: "Đã bị loại",
-        badgeClass:
-          "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-700",
-      };
-  }
-}
-
-export const ClubRosterMemberSchema = z.object({
-  rosterEntryId: z.string(),
-  clubMemberId: z.string(),
-  accountId: z.string(),
-  fullName: z.string(),
-  email: z.string(),
-  avatarUrl: z.string().nullable().optional(),
-  slug: z.string(),
-  skillLevel: z.string().nullable().optional(),
-  role: z.enum(["OWNER", "MEMBER"]),
-  position: z.string().nullable().optional(),
-  canModify: z.boolean(),
-});
-export type ClubRosterMember = z.infer<typeof ClubRosterMemberSchema>;
-
-export const ClubTournamentParticipantSchema = z.object({
-  id: z.string(),
-  clubId: z.string(),
-  clubName: z.string(),
-  clubLogoUrl: z.string().nullable().optional(),
-  clubSlug: z.string(),
-  clubLocation: z.string().nullable().optional(),
-  ownerName: z.string(),
-  ownerEmail: z.string().nullable().optional(),
-  categoryId: z.string(),
-  categoryName: z.string().nullable().optional(),
-  tournamentId: z.string(),
-  tournamentName: z.string().nullable().optional(),
-  tournamentSlug: z.string().nullable().optional(),
-  status: ClubTournamentStatusEnum,
-  registeredAt: z.coerce.date().nullable().optional(),
-  paid: z.boolean(),
-  rosterSize: z.number(),
-  roster: z.array(ClubRosterMemberSchema),
-});
-export type ClubTournamentParticipant = z.infer<
-  typeof ClubTournamentParticipantSchema
->;
-
-export const ClubTournamentParticipantResponse = z.object({
-  status: z.number(),
-  message: z.string(),
-  data: ClubTournamentParticipantSchema,
-});
-export type ClubTournamentParticipantResponseType = z.infer<
-  typeof ClubTournamentParticipantResponse
->;
-
-export const PagedClubTournamentParticipantsResponse = z.object({
-  status: z.number(),
-  message: z.string(),
-  data: z.object({
-    content: z.array(ClubTournamentParticipantSchema),
-    pageNumber: z.number(),
-    pageSize: z.number(),
-    totalElements: z.number(),
-    totalPages: z.number(),
-    last: z.boolean(),
-  }),
-});
-export type PagedClubTournamentParticipantsResponseType = z.infer<
-  typeof PagedClubTournamentParticipantsResponse
->;
-
-// Response type for /my-tournaments endpoint (returns array directly)
-export const ClubTournamentMyListResponse = z.object({
-  status: z.number(),
-  message: z.string(),
-  data: z.array(ClubTournamentParticipantSchema),
-});
-export type ClubTournamentMyListResponseType = z.infer<
-  typeof ClubTournamentMyListResponse
->;
-
-export const ClubTournamentRegisterRequest = z.object({
-  clubId: z.string().min(1),
-  rosterAccountIds: z.array(z.string()).min(1),
-});
-export type ClubTournamentRegisterRequestType = z.infer<
-  typeof ClubTournamentRegisterRequest
->;
-
-export const ClubTournamentUpdateRosterRequest = z.object({
-  rosterAccountIds: z.array(z.string()).min(1),
-});
-export type ClubTournamentUpdateRosterRequestType = z.infer<
-  typeof ClubTournamentUpdateRosterRequest
 >;

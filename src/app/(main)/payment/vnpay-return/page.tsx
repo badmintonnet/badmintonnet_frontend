@@ -15,7 +15,8 @@ export default function VNPayReturnPage() {
   );
   const [message, setMessage] = useState("");
 
-  const [redirectUrl, setRedirectUrl] = useState("");
+  const [tournamentId, setTournamentId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
     const handlePaymentReturn = async () => {
@@ -24,30 +25,14 @@ export default function VNPayReturnPage() {
           searchParams
         );
 
-        const data = response.payload.data;
-        const paymentStatus: PaymentStatus = data.status;
-        const participationType = data.participationType;
+        setTournamentId(response.payload.data.tournamentId);
+        setCategoryId(response.payload.data.categoryId);
 
-        // Determine redirect URL based on participation type
-        if (participationType === "CLUB") {
-          setRedirectUrl(`/my-clubs`);
-        } else {
-          // INDIVIDUAL or default: go to category page
-          const catId = data.categoryId;
-          setRedirectUrl(
-            catId
-              ? `/tournaments/${data.tournamentId}/categories/${catId}`
-              : `/tournaments/${data.tournamentId}`
-          );
-        }
+        const paymentStatus: PaymentStatus = response.payload.data.status;
 
         if (paymentStatus === "SUCCESS") {
           setStatus("success");
-          setMessage(
-            participationType === "CLUB"
-              ? "Thanh toán CLB thành công!"
-              : "Thanh toán thành công!"
-          );
+          setMessage("Thanh toán thành công!");
         } else if (paymentStatus === "FAILED") {
           setStatus("error");
           setMessage("Thanh toán thất bại");
@@ -55,7 +40,7 @@ export default function VNPayReturnPage() {
           setStatus("error");
           setMessage("Thanh toán đang được xử lý");
         }
-      } catch {
+      } catch (error: unknown) {
         setStatus("error");
         setMessage("Có lỗi xảy ra");
       }
@@ -131,7 +116,11 @@ export default function VNPayReturnPage() {
 
                 <Button
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
-                  onClick={() => router.push(redirectUrl)}
+                  onClick={() =>
+                    router.push(
+                      `/tournaments/${tournamentId}/categories/${categoryId}`
+                    )
+                  }
                 >
                   Quay về trang giải đấu
                 </Button>

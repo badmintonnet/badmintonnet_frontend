@@ -10,7 +10,6 @@ import SelectPartnerModal from "@/app/(main)/tournaments/[id]/categories/[catego
 import SentPartnerInvitationModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/sent-partner-invitation-modal";
 import InviterList from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/inviter-list";
 import PartnerMatchedModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-matched-modal";
-import ClubRegisterButton from "./club-register-button";
 
 interface CategoryHeaderProps {
   category: CategoryDetail;
@@ -25,10 +24,6 @@ export default function CategoryHeader({
     (category.currentParticipantCount / category.maxParticipants) * 100;
   const spotsLeft = category.maxParticipants - category.currentParticipantCount;
   const isFull = category.currentParticipantCount >= category.maxParticipants;
-
-  // Detect if this is a CLUB tournament (club fields present)
-  const isClubTournament =
-    category.clubRegistrationFee != null || category.minClubRosterSize != null;
 
   // Determine button text and state based on participant status
   const getButtonConfig = () => {
@@ -121,48 +116,37 @@ export default function CategoryHeader({
           </div>
           {!category.admin && (
             <div className="flex flex-col gap-2 w-full sm:w-auto">
-              {isClubTournament ? (
-                <ClubRegisterButton
+              {(!category.double ||
+                (category.participantStatus &&
+                  category.participantStatus != "DRAFT")) && (
+                <JoinCategoryButton
                   categoryId={categoryId}
-                  category={category}
+                  isDisabled={buttonConfig.disabled}
+                  buttonText={buttonConfig.text}
+                  className={buttonConfig.className}
                 />
-              ) : (
-                <>
-                  {(!category.double ||
-                    (category.participantStatus &&
-                      category.participantStatus != "DRAFT")) && (
-                    <JoinCategoryButton
-                      categoryId={categoryId}
-                      isDisabled={buttonConfig.disabled}
-                      buttonText={buttonConfig.text}
-                      className={buttonConfig.className}
-                    />
-                  )}
-                  {category.double &&
-                    category.response == null &&
-                    category.partner == null && (
-                      <SelectPartnerModal categoryId={categoryId} />
-                    )}
-                  {category.double &&
-                    category.response != null &&
-                    category.partner == null && (
-                      <SentPartnerInvitationModal
-                        invitation={category.response}
-                      />
-                    )}
-                  {category.double && category.partner == null && (
-                    <InviterList inviterList={category.requests} />
-                  )}
-                  {category.double &&
-                    category.partner != null &&
-                    category.participantStatus == "DRAFT" && (
-                      <PartnerMatchedModal
-                        partner={category.partner}
-                        categoryId={category.id}
-                      />
-                    )}
-                </>
               )}
+              {category.double &&
+                category.response == null &&
+                category.partner == null && (
+                  <SelectPartnerModal categoryId={categoryId} />
+                )}
+              {category.double &&
+                category.response != null &&
+                category.partner == null && (
+                  <SentPartnerInvitationModal invitation={category.response} />
+                )}
+              {category.double && category.partner == null && (
+                <InviterList inviterList={category.requests} />
+              )}
+              {category.double &&
+                category.partner != null &&
+                category.participantStatus == "DRAFT" && (
+                  <PartnerMatchedModal
+                    partner={category.partner}
+                    categoryId={category.id}
+                  />
+                )}
             </div>
           )}
         </div>

@@ -9,14 +9,12 @@ import {
   Tag,
   Users,
   ClipboardList,
-  UserCircle2,
 } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import {
   getCategoryLabel,
-  getParticipationTypeInfo,
   TournamentDetail,
 } from "@/schemaValidations/tournament.schema";
 import { isHTML } from "@/lib/utils";
@@ -95,7 +93,7 @@ export default function OverviewSection({
               ) : (
                 <div className="pl-8">
                   <p className="text-sm text-gray-500 dark:text-gray-500 italic">
-                    tournament.location
+                    tournament.loca
                   </p>
                 </div>
               )}
@@ -142,25 +140,6 @@ export default function OverviewSection({
                 locale: vi,
               })}`}
             />
-
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-700">
-              <div className="flex-shrink-0 mt-0.5">
-                <UserCircle2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                  Loại hình tham gia
-                </p>
-                <span
-                  className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${
-                    getParticipationTypeInfo(tournament.participationType)
-                      .badgeClass
-                  }`}
-                >
-                  {getParticipationTypeInfo(tournament.participationType).label}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
 

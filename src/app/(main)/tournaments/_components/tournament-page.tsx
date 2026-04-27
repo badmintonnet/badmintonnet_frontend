@@ -2,7 +2,6 @@
 
 import {
   getCategoryLabel,
-  getParticipationTypeInfo,
   getTournamentStatusInfo,
   TournamentResponse,
 } from "@/schemaValidations/tournament.schema";
@@ -15,18 +14,15 @@ interface TournamentPageProps {
 }
 
 export default function TournamentPage({ tournaments }: TournamentPageProps) {
-  const tournamentsByMonth = tournaments.reduce(
-    (acc, t) => {
-      const date = new Date(t.startDate);
-      const monthKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1,
-      ).padStart(2, "0")}`;
-      if (!acc[monthKey]) acc[monthKey] = [];
-      acc[monthKey].push(t);
-      return acc;
-    },
-    {} as Record<string, TournamentResponse[]>,
-  );
+  const tournamentsByMonth = tournaments.reduce((acc, t) => {
+    const date = new Date(t.startDate);
+    const monthKey = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}`;
+    if (!acc[monthKey]) acc[monthKey] = [];
+    acc[monthKey].push(t);
+    return acc;
+  }, {} as Record<string, TournamentResponse[]>);
 
   const dataBymonth = Object.keys(tournamentsByMonth);
 
@@ -97,31 +93,12 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                             className="object-cover w-full h-48 sm:h-56"
                           />
                           <div className="p-5 flex flex-col flex-grow">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div
-                                className={`${
-                                  getTournamentStatusInfo(tournament.status)
-                                    .color
-                                } text-xs font-semibold uppercase tracking-wider`}
-                              >
-                                {
-                                  getTournamentStatusInfo(tournament.status)
-                                    .label
-                                }
-                              </div>
-                              <span
-                                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                  getParticipationTypeInfo(
-                                    tournament.participationType,
-                                  ).badgeClass
-                                }`}
-                              >
-                                {
-                                  getParticipationTypeInfo(
-                                    tournament.participationType,
-                                  ).label
-                                }
-                              </span>
+                            <div
+                              className={`${
+                                getTournamentStatusInfo(tournament.status).color
+                              } text-xs font-semibold uppercase mb-2 tracking-wider`}
+                            >
+                              {getTournamentStatusInfo(tournament.status).label}
                             </div>
                             <h3
                               className={`text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug`}
@@ -131,7 +108,7 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                             <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2 flex-grow">
                               {tournament.facility
                                 ? tournament.facility.location
-                                : (tournament.location ?? "Chưa cập nhật")}
+                                : tournament.location ?? "Chưa cập nhật"}
                             </p>
                             {tournament.categories &&
                               tournament.categories.length > 0 && (
@@ -152,13 +129,13 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                               Đăng ký:{" "}
                               <span className="text-sky-600 dark:text-sky-400 font-medium">
                                 {new Date(
-                                  tournament.registrationStartDate,
+                                  tournament.registrationStartDate
                                 ).toLocaleDateString("vi-VN")}
                               </span>{" "}
                               →{" "}
                               <span className="text-sky-600 dark:text-sky-400 font-medium">
                                 {new Date(
-                                  tournament.registrationEndDate,
+                                  tournament.registrationEndDate
                                 ).toLocaleDateString("vi-VN")}
                               </span>
                             </div>
@@ -168,13 +145,13 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                               Thi đấu:{" "}
                               <span className="text-sky-500 dark:text-sky-400 font-medium">
                                 {new Date(
-                                  tournament.startDate,
+                                  tournament.startDate
                                 ).toLocaleDateString("vi-VN")}
                               </span>{" "}
                               →{" "}
                               <span className="text-sky-500 dark:text-sky-400 font-medium">
                                 {new Date(
-                                  tournament.endDate,
+                                  tournament.endDate
                                 ).toLocaleDateString("vi-VN")}
                               </span>
                             </p>
