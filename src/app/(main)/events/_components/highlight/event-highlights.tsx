@@ -21,7 +21,7 @@ import { AccountResType } from "@/schemaValidations/account.schema";
 interface EventHighlightsProps {
   eventId: string;
   isFinished: boolean;
-  user: AccountResType["data"];
+  user: AccountResType["data"] | null;
 }
 
 export default async function EventHighlights({
@@ -165,14 +165,16 @@ export default async function EventHighlights({
                       </p>
                     </div>
                   </div>
-                  <HighlightMenu
-                    highlightId={highlight.id}
-                    userId={highlight.userId}
-                    currentUserId={highlight.currentUserId}
-                    highlight={highlightForEdit}
-                    accessToken={accessToken?.value}
-                    user={user}
-                  />
+                  {user && accessToken?.value && (
+                    <HighlightMenu
+                      highlightId={highlight.id}
+                      userId={highlight.userId}
+                      currentUserId={highlight.currentUserId}
+                      highlight={highlightForEdit}
+                      accessToken={accessToken.value}
+                      user={user}
+                    />
+                  )}
                 </div>
               </CardHeader>
               {/* Content */}

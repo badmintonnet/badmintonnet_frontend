@@ -44,6 +44,7 @@ interface EventDetailPageProps {
 export default async function EventDetail({ params }: EventDetailPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
+  const isLoggedIn = !!accessToken?.value;
   const { id } = await params;
 
   const response = await eventClubApiRequest.getEventById(
@@ -51,8 +52,9 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
     accessToken?.value || ""
   );
 
-  const me = await accountApiRequest.getAccount(accessToken?.value || "");
-  const user = me.payload.data;
+  const user = isLoggedIn
+    ? (await accountApiRequest.getAccount(accessToken.value)).payload.data
+    : null;
 
   const eventDetail = response.payload.data || null;
   let participantRes;
@@ -522,7 +524,8 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   </div>
                 )}
 
-                {eventDetail.participantRole === "MEMBER" &&
+                {isLoggedIn &&
+                  eventDetail.participantRole === "MEMBER" &&
                   eventDetail.status == "OPEN" && (
                     <div className="flex flex-col gap-3">
                       {eventDetail.joinedMember == eventDetail.totalMember ? (
@@ -547,7 +550,8 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     </div>
                   )}
 
-                {eventDetail.participantRole === "GUEST" &&
+                {isLoggedIn &&
+                  eventDetail.participantRole === "GUEST" &&
                   eventDetail.status == "OPEN" && (
                     <>
                       {eventDetail.joinedMember == eventDetail.totalMember ? (
@@ -628,7 +632,8 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
             />
             <div className="mt-8">
               {/* Hiển thị form đăng highlights cho người dùng đã tham gia sự kiện */}
-              {(eventDetail.joined ||
+              {user &&
+                (eventDetail.joined ||
                 eventDetail.participantRole === "OWNER") && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
