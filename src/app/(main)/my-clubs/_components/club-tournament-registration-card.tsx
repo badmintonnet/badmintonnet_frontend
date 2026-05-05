@@ -95,7 +95,24 @@ export default function ClubTournamentRegistrationCard({
 }: ClubTournamentRegistrationCardProps) {
   const [paying, setPaying] = useState(false);
   const [repDialogOpen, setRepDialogOpen] = useState(false);
-  const statusInfo = getClubTournamentStatusInfo(participant.status);
+
+  // Tournament kết thúc: status COMPLETED từ phía tournament
+  const tournamentCompleted = participant.tournamentStatus === "COMPLETED";
+
+  // Hiển thị kết quả khi: ELIMINATED, hoặc APPROVED + tournament đã COMPLETED (winner)
+  const showResults =
+    participant.status === "ELIMINATED" ||
+    (participant.status === "APPROVED" && tournamentCompleted);
+
+  // Override label khi tournament đã kết thúc nhưng club vẫn APPROVED (winner)
+  const statusInfo =
+    participant.status === "APPROVED" && tournamentCompleted
+      ? {
+          label: "Đã kết thúc",
+          badgeClass:
+            "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 border border-teal-200 dark:border-teal-700",
+        }
+      : getClubTournamentStatusInfo(participant.status);
   const accent = STATUS_ACCENT[participant.status];
 
   const canUpdate = ["DRAFT", "PENDING", "PAYMENT_REQUIRED"].includes(
@@ -105,9 +122,9 @@ export default function ClubTournamentRegistrationCard({
     participant.status,
   );
   const canPay = participant.status === "PENDING";
-  const canSelectRepresentative = ["PAID", "APPROVED"].includes(
-    participant.status,
-  );
+  // Không cho chọn đại diện khi tournament đã kết thúc
+  const canSelectRepresentative =
+    ["PAID", "APPROVED"].includes(participant.status) && !tournamentCompleted;
   const isTerminal = ["CANCELLED", "REJECTED"].includes(participant.status);
 
   // Có người có position === "SINGLES" → CLB đã chọn đại diện
@@ -132,7 +149,8 @@ export default function ClubTournamentRegistrationCard({
       case "PAID":
         return 2;
       case "APPROVED":
-        return hasRepresentative ? 4 : 3;
+        // Tournament đã kết thúc → all steps done
+        return tournamentCompleted ? 5 : hasRepresentative ? 4 : 3;
       case "ELIMINATED":
         return 5;
       default:
@@ -321,13 +339,15 @@ export default function ClubTournamentRegistrationCard({
         )}
 
         {/* ===== Action hint banner ===== */}
-        <ActionHint
-          status={participant.status}
-          hasRepresentative={hasRepresentative}
-        />
+        {!tournamentCompleted && (
+          <ActionHint
+            status={participant.status}
+            hasRepresentative={hasRepresentative}
+          />
+        )}
 
-        {/* ===== Kết quả giải đấu (chỉ khi ELIMINATED) ===== */}
-        {participant.status === "ELIMINATED" && (
+        {/* ===== Kết quả giải đấu (ELIMINATED hoặc APPROVED khi tournament COMPLETED) ===== */}
+        {showResults && (
           <ClubTournamentResultInline
             tournamentId={participant.tournamentId}
             tournamentSlug={participant.tournamentSlug}
