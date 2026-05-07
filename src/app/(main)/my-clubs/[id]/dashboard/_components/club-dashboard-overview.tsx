@@ -362,7 +362,9 @@ function TopEventTable({ data }: { data: TopEventMetricType[] }) {
     <Card>
       <CardHeader>
         <CardTitle>Event nổi bật</CardTitle>
-        <CardDescription>Xếp theo số lượt tham gia trong khoảng lọc</CardDescription>
+        <CardDescription>
+          Xếp theo số lượt tham gia trong khoảng lọc
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (

@@ -131,4 +131,3 @@ export type AdminDashboardOverviewResType = z.TypeOf<
 >;
 export type ClubDashboardType = z.TypeOf<typeof ClubDashboard>;
 export type ClubDashboardResType = z.TypeOf<typeof ClubDashboardRes>;
-
