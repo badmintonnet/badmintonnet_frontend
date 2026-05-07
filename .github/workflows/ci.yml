@@ -1,6 +1,8 @@
 name: NextJS CI
 
-on: push
+on:
+  push:
+  pull_request:
 
 jobs:
   ci-check:
