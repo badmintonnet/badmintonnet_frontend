@@ -2,6 +2,8 @@ name: NextJS CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:
