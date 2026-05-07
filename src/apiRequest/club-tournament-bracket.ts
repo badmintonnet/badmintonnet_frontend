@@ -4,8 +4,10 @@ import {
   ClubRepresentativeRequest,
   ClubRepresentativeResponseType,
   UpdateClubMatchResultBodyType,
+  ClubLineupRequestPayload,
 } from "@/schemaValidations/club-match.schema";
 import { ClubTournamentResultResponseType } from "@/schemaValidations/club-tournament-result.schema";
+import type { ClubLineupDataType } from "@/schemaValidations/club-lineup.schema";
 
 const clubTournamentBracketApiRequest = {
   // 1. Lấy bảng đấu CLB theo tournamentId (tự động tìm/tạo category MEN_SINGLE)
@@ -38,6 +40,20 @@ const clubTournamentBracketApiRequest = {
     http.get<ClubRepresentativeResponseType>(
       `/club-tournament/participants/${participantId}/representative`,
     ),
+
+  getLineup: (participantId: string) =>
+    http.get<{
+      status: number;
+      message: string;
+      data: ClubLineupDataType;
+    }>(`/club-tournament/participants/${participantId}/lineup`),
+
+  setLineup: (participantId: string, body: ClubLineupRequestPayload) =>
+    http.put<{
+      status: number;
+      message: string;
+      data: ClubLineupDataType;
+    }>(`/club-tournament/participants/${participantId}/lineup`, body),
 
   // 4. Admin: Tạo bảng đấu cho tournament
   generateBracket: (tournamentId: string) =>
