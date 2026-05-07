@@ -93,7 +93,9 @@ export default function AdminDashboardOverview({
   const eventStatusData = toStatusChartData(
     dashboard.eventActivity.statusCounts,
   );
-  const clubStatusData = toStatusChartData(dashboard.clubStatistics.statusCounts);
+  const clubStatusData = toStatusChartData(
+    dashboard.clubStatistics.statusCounts,
+  );
   const tournamentStatusData = toStatusChartData(
     dashboard.tournamentStatistics.statusCounts,
   );
@@ -262,33 +264,51 @@ export default function AdminDashboardOverview({
             <BarChart data={dashboard.revenue.revenueByPeriod}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" />
-              <YAxis tickFormatter={(value) => compactCurrency(Number(value))} />
+              <YAxis
+                tickFormatter={(value) => compactCurrency(Number(value))}
+              />
               <Tooltip formatter={(value) => formatCurrency(Number(value))} />
               <Bar dataKey="value" name="Doanh thu" fill="#d97706" radius={4} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Trạng thái sự kiện" description="Hoạt động CLB theo trạng thái">
+        <ChartCard
+          title="Trạng thái sự kiện"
+          description="Hoạt động CLB theo trạng thái"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={eventStatusData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis allowDecimals={false} />
               <Tooltip formatter={(value) => formatNumber(Number(value))} />
-              <Bar dataKey="count" name="Số sự kiện" fill="#e11d48" radius={4} />
+              <Bar
+                dataKey="count"
+                name="Số sự kiện"
+                fill="#e11d48"
+                radius={4}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Trạng thái giải đấu" description="Giải đấu trong khoảng lọc">
+        <ChartCard
+          title="Trạng thái giải đấu"
+          description="Giải đấu trong khoảng lọc"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={tournamentStatusData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis allowDecimals={false} />
               <Tooltip formatter={(value) => formatNumber(Number(value))} />
-              <Bar dataKey="count" name="Số giải đấu" fill="#7c3aed" radius={4} />
+              <Bar
+                dataKey="count"
+                name="Số giải đấu"
+                fill="#7c3aed"
+                radius={4}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -315,7 +335,9 @@ export default function AdminDashboardOverview({
       <Card>
         <CardHeader>
           <CardTitle>Trạng thái câu lạc bộ</CardTitle>
-          <CardDescription>Tổng hợp toàn hệ thống theo trạng thái CLB</CardDescription>
+          <CardDescription>
+            Tổng hợp toàn hệ thống theo trạng thái CLB
+          </CardDescription>
         </CardHeader>
         <CardContent className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
