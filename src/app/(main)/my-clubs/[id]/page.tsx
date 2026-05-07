@@ -8,11 +8,14 @@ import {
   MessageCircle,
   Info,
   Trophy,
+  BarChart3,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
+import Link from "next/link";
 
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
@@ -179,6 +182,12 @@ export default async function MyClubDetail({
             {!clubDetail.owner && <LeaveClubModal clubId={clubDetail.id} />}
             {clubDetail.owner && (
               <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                <Button asChild variant="outline">
+                  <Link href={`/my-clubs/${clubDetail.slug}/dashboard`}>
+                    <BarChart3 className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </Button>
                 <EditClubButton
                   clubDetail={clubDetail}
                   token={accessToken?.value || ""}
