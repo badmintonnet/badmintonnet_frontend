@@ -14,6 +14,27 @@ import {
 } from "@/schemaValidations/clubs.schema";
 
 import { FileResType } from "@/schemaValidations/common.schema";
+import {
+  ClubDashboardResType,
+  DashboardPeriodType,
+} from "@/schemaValidations/dashboard.schema";
+
+type DashboardQuery = {
+  from?: string;
+  to?: string;
+  period?: DashboardPeriodType;
+};
+
+const buildDashboardQuery = (query: DashboardQuery = {}) => {
+  const params = new URLSearchParams();
+
+  if (query.from) params.set("from", query.from);
+  if (query.to) params.set("to", query.to);
+  if (query.period) params.set("period", query.period);
+
+  const search = params.toString();
+  return search ? `?${search}` : "";
+};
 
 const clubServiceApi = {
   uploadImage: (body: FormData) =>
@@ -81,6 +102,14 @@ const clubServiceApi = {
     http.get<ClubResType>(`/clubs/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     }),
+  getClubDashboard: (id: string, query: DashboardQuery = {}, token = "") =>
+    http.get<ClubDashboardResType>(
+      `/clubs/${id}/dashboard${buildDashboardQuery(query)}`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        cache: "no-store",
+      },
+    ),
   getMyClubById: (slug: string, token = "") =>
     http.get<MyClubResType>(`/clubs/my_clubs/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
