@@ -29,7 +29,7 @@ import {
 } from "@/schemaValidations/tournament.schema";
 import paymentApiRequest from "@/apiRequest/payment";
 import ClubRosterModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/club-roster-modal";
-import RepresentativeSelector from "./representative-selector";
+import LineupBuilderDialog from "./lineup-builder-dialog";
 import ClubTournamentResultInline from "./club-tournament-result-inline";
 import { toast } from "sonner";
 
@@ -127,18 +127,26 @@ export default function ClubTournamentRegistrationCard({
     ["PAID", "APPROVED"].includes(participant.status) && !tournamentCompleted;
   const isTerminal = ["CANCELLED", "REJECTED"].includes(participant.status);
 
-  // Có người có position === "SINGLES" → CLB đã chọn đại diện
-  const hasRepresentative = useMemo(
-    () => participant.roster?.some((r) => r.position === "SINGLES") ?? false,
-    [participant.roster],
-  );
+  // Roster có position khác null → đã gán một phần lineup (draft hoặc full)
+  const rosterAssigned = useMemo(() => {
+    return (participant.roster ?? []).filter(
+      (r) => r.position != null && r.position !== "",
+    );
+  }, [participant.roster]);
 
-  const representative = useMemo(
-    () => participant.roster?.find((r) => r.position === "SINGLES"),
-    [participant.roster],
-  );
+  const hasRepresentative = rosterAssigned.length > 0;
 
-  // Stepper: Đăng ký → Thanh toán → Duyệt → Đại diện → Thi đấu
+  const representative =
+    rosterAssigned.find(
+      (r) =>
+        r.position === "SINGLES" ||
+        r.position === "SINGLES_1" ||
+        r.position?.startsWith("SINGLES") === true,
+    ) ?? rosterAssigned[0];
+
+  const showcaseName = representative?.fullName;
+
+  // Stepper: Đăng ký → Thanh toán → Duyệt → Lineup → Thi đấu
   const stepIndex = useMemo(() => {
     switch (participant.status) {
       case "DRAFT":
@@ -156,7 +164,7 @@ export default function ClubTournamentRegistrationCard({
       default:
         return -1;
     }
-  }, [participant.status, hasRepresentative]);
+  }, [participant.status, hasRepresentative, tournamentCompleted]);
 
   const registeredAtText = participant.registeredAt
     ? new Date(participant.registeredAt).toLocaleDateString("vi-VN", {
@@ -287,14 +295,21 @@ export default function ClubTournamentRegistrationCard({
           {/* Representative */}
           <MetaBlock
             icon={<UserCheck className={`w-4 h-4 ${accent.iconColor}`} />}
-            label="Đại diện"
+            label="Lineup"
           >
             {hasRepresentative ? (
-              <div className="flex items-center gap-2 min-w-0">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
-                  {representative?.fullName ?? "Đã chọn"}
-                </span>
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                    {showcaseName ?? "Đã có vị trí"}
+                  </span>
+                </div>
+                {rosterAssigned.length > 1 ? (
+                  <span className="text-[10px] text-gray-500 pl-6">
+                    {rosterAssigned.length} vị trí đã gán
+                  </span>
+                ) : null}
               </div>
             ) : (
               <span className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
@@ -408,7 +423,7 @@ export default function ClubTournamentRegistrationCard({
               onClick={() => setRepDialogOpen(true)}
             >
               <UserCheck className="w-3.5 h-3.5 mr-1" />
-              {hasRepresentative ? "Đổi đại diện" : "Chọn đại diện"}
+              {hasRepresentative ? "Cập nhật lineup" : "Chọn lineup"}
             </Button>
           )}
 
@@ -438,13 +453,11 @@ export default function ClubTournamentRegistrationCard({
         </div>
       </CardContent>
 
-      <RepresentativeSelector
-        participantId={participant.id}
-        roster={participant.roster ?? []}
-        representativeId={undefined}
-        onSuccess={() => onRepresentativeChanged?.()}
+      <LineupBuilderDialog
+        participant={participant}
         open={repDialogOpen}
         onOpenChange={setRepDialogOpen}
+        onSaved={() => onRepresentativeChanged?.()}
       />
     </Card>
   );
@@ -517,7 +530,7 @@ function ProgressStepper({ currentIndex }: { currentIndex: number }) {
     { label: "Đăng ký", Icon: ClipboardCheck },
     { label: "Thanh toán", Icon: CreditCard },
     { label: "Duyệt", Icon: ShieldCheck },
-    { label: "Đại diện", Icon: UserCheck },
+    { label: "Đội hình", Icon: UserCheck },
     { label: "Thi đấu", Icon: Trophy },
   ];
   return (
@@ -615,7 +628,7 @@ function ActionHint({
         : {
             tone: "emerald",
             Icon: UserCheck,
-            text: "Hãy chọn đại diện đơn nam để CLB được xếp vào bảng đấu.",
+            text: "Hãy xếp lineup (đơn / đôi theo giải) để CLB được xếp vào bảng đấu.",
           };
       break;
     case "REJECTED":
