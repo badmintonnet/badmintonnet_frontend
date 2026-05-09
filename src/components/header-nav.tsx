@@ -8,6 +8,7 @@ const navItems = [
   { name: "Hoạt động", href: "/events" },
   { name: "Câu lạc bộ", href: "/clubs" },
   { name: "Giải đấu", href: "/tournaments" },
+  { name: "Bảng xếp hạng", href: "/rankings" },
   { name: "Chatbot AI", href: "/chatbot" },
   { name: "Về chúng tôi", href: "/about" },
 ];
@@ -16,7 +17,7 @@ export default function HeaderNav() {
   const pathname = usePathname();
   return (
     <NavigationMenu.Root className="hidden md:block">
-      <NavigationMenu.List className="flex space-x-8 items-center">
+      <NavigationMenu.List className="flex items-center gap-3 lg:gap-6 xl:gap-8">
         {navItems.map((item) => {
           const isActive =
             item.href === "/"
@@ -30,7 +31,7 @@ export default function HeaderNav() {
                   className={`
                     whitespace-nowrap
                     hover:text-blue-600 dark:hover:text-blue-400
-                    transition-colors px-2 py-1
+                    transition-colors px-2 py-1 text-sm lg:text-base
                     ${
                       isActive
                         ? "text-blue-600 dark:text-blue-400 underline underline-offset-4 font-semibold"

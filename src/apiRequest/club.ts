@@ -56,6 +56,7 @@ const clubServiceApi = {
     selectedLevels = [],
     reputationSort = "",
     facilityNames = [],
+    includeJoined = false,
     token = "",
   }: {
     page?: number;
@@ -66,6 +67,7 @@ const clubServiceApi = {
     selectedLevels?: string[];
     reputationSort?: string;
     facilityNames?: string[];
+    includeJoined?: boolean;
     token?: string;
   }) => {
     const params = new URLSearchParams();
@@ -77,6 +79,7 @@ const clubServiceApi = {
     if (province) params.append("province", province);
     if (ward) params.append("ward", ward);
     if (reputationSort) params.append("reputationSort", reputationSort);
+    if (includeJoined) params.append("includeJoined", "true");
 
     selectedLevels.forEach((level) => params.append("selectedLevels", level));
     facilityNames.forEach((name) => params.append("facilityNames", name));
