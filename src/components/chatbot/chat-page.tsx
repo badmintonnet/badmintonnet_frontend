@@ -178,10 +178,10 @@ export function ChatPage() {
     [loadingSessions, sessionTotalPages],
   );
 
-  const handleSend = useCallback(async () => {
-    if (!input.trim() || loading) return;
+  const handleSend = useCallback(async (overrideQuestion?: string) => {
+    const question = (overrideQuestion ?? input).trim();
+    if (!question || loading) return;
 
-    const question = input;
     setInput("");
     setLoading(true);
 

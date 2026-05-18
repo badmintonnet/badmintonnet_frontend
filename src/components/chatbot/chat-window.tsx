@@ -20,8 +20,14 @@ interface ChatWindowProps {
   loadingMore: boolean;
   onLoadMore: () => void;
   onInputChange: (value: string) => void;
-  onSend: () => void;
+  onSend: (question?: string) => void;
 }
+
+const recommendationPrompts = [
+  "Gợi ý CLB phù hợp với tôi",
+  "Gợi ý hoạt động gần tôi và không trùng lịch",
+  "Tôi nên tham gia giải đấu nào?",
+];
 
 const markdownComponents = {
   h1: (props: React.ComponentPropsWithoutRef<"h1">) => (
@@ -196,7 +202,24 @@ export function ChatWindow({
 
           {messages.length === 0 && (
             <div className="rounded-xl border border-dashed bg-background p-4 text-sm text-muted-foreground">
-              Session này chưa có tin nhắn. Hãy bắt đầu bằng một câu hỏi.
+              <p>
+                Session này chưa có tin nhắn. Hãy bắt đầu bằng một câu hỏi.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {recommendationPrompts.map((prompt) => (
+                  <Button
+                    key={prompt}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSend(prompt)}
+                    disabled={loading}
+                    className="h-8 border-emerald-200 text-xs text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/30"
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -283,7 +306,7 @@ export function ChatWindow({
           />
           <Button
             type="button"
-            onClick={onSend}
+            onClick={() => onSend()}
             disabled={loading || !input.trim()}
             className="h-10 bg-emerald-500 px-3 hover:bg-emerald-600"
           >

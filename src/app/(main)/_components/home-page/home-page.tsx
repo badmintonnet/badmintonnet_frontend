@@ -1,6 +1,7 @@
 import ClubSection from "@/app/(main)/_components/home-page/club-section";
 import MyClubEventSection from "@/app/(main)/_components/home-page/my-club-event-section";
 import MyClubSection from "@/app/(main)/_components/home-page/my-club-section";
+import SmartRecommendationSection from "@/app/(main)/_components/home-page/smart-recommendation-section";
 import WelcomeCard from "@/app/(main)/_components/home-page/welcome-card";
 import { jwtDecode } from "jwt-decode";
 
@@ -29,10 +30,13 @@ export default async function HomePage({ accessToken }: HomePageProps) {
         {/* 2. My Clubs */}
         <MyClubSection accessToken={accessToken} />
 
-        {/* 3. Suggested Clubs */}
+        {/* 3. Smart recommendations */}
+        <SmartRecommendationSection accessToken={accessToken} />
+
+        {/* 4. Suggested Clubs */}
         <ClubSection accessToken={accessToken} />
 
-        {/* 4. My Events */}
+        {/* 5. My Events */}
         <MyClubEventSection accessToken={accessToken} />
       </div>
     </main>
