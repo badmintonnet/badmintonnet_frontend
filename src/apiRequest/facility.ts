@@ -9,8 +9,13 @@ import {
 } from "@/schemaValidations/event.schema";
 
 const facilityApiRequest = {
-  uploadImage: (body: FormData) =>
-    http.post<FileResType>("/facilities/upload", body),
+  uploadImage: (body: FormData, facilityId?: string) => {
+    if (facilityId) {
+      body.set("facilityId", facilityId);
+    }
+
+    return http.post<FileResType>("/facilities/upload", body);
+  },
 
   getAllFacilities: (page: number, size: number, token = "") =>
     http.get<PagedFacilityResponseType>(

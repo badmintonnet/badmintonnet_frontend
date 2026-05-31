@@ -180,7 +180,10 @@ export function UpdateFacilityDialog({
         const formData = new FormData();
         formData.append("file", values.image);
 
-        const uploadResponse = await facilityApiRequest.uploadImage(formData);
+        const uploadResponse = await facilityApiRequest.uploadImage(
+          formData,
+          values.id,
+        );
         imageFileName = uploadResponse.payload.data.fileName;
       }
 
@@ -386,7 +389,9 @@ export function UpdateFacilityDialog({
                       <Image
                         src={imagePreview}
                         alt="Preview"
-                        className="object-cover w-full h-full rounded-md"
+                        fill
+                        sizes="100vw"
+                        className="object-cover rounded-md"
                       />
                     </div>
                   ) : (
