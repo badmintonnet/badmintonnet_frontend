@@ -365,7 +365,9 @@ export function CreateFacilityDialog({
                       <Image
                         src={imagePreview}
                         alt="Preview"
-                        className="object-cover w-full h-full rounded-md"
+                        fill
+                        sizes="100vw"
+                        className="object-cover rounded-md"
                       />
                     </div>
                   ) : (

@@ -2,8 +2,13 @@ import { cookies } from "next/headers";
 import facilityApiRequest from "@/apiRequest/facility";
 import FacilitiesClient from "./_components/facilities-client";
 
-export default async function FacilitiesPage() {
-  const page = Math.max(0, parseInt("0", 10));
+export default async function FacilitiesPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const params = await searchParams;
+  const page = Math.max(0, parseInt((params.page as string) || "0", 10));
   const size = 10;
 
   const cookieStore = await cookies();
