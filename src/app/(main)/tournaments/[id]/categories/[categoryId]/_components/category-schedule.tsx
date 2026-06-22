@@ -1,7 +1,9 @@
+'use client'
+
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Trophy, Sparkles, Edit, X, Check } from "lucide-react";
+import { Calendar, Trophy, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import matchApiRequest from "@/apiRequest/match";
@@ -18,9 +20,9 @@ import {
   CategoryDetail,
   getCategoryLabel,
 } from "@/schemaValidations/tournament.schema";
-import { Input } from "@/components/ui/input";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import BracketView from "./bracket/BracketView";
 
 type ApiErrorLike = {
   payload?: {
@@ -40,6 +42,7 @@ const getApiErrorMessage = (error: unknown, fallback: string) => {
 
 interface CategoryScheduleProps {
   category: CategoryDetail;
+  initialBracketData?: BracketTreeSchemaType;
 }
 
 const getMatchStatusText = (status: MatchStatus) => {
@@ -172,14 +175,14 @@ const validateMatchResult = (
   return { valid: true, message: "" };
 };
 
-export default function CategorySchedule({ category }: CategoryScheduleProps) {
+export default function CategorySchedule({ category, initialBracketData }: CategoryScheduleProps) {
   const router = useRouter();
   const [bracketData, setBracketData] = useState<BracketTreeSchemaType | null>(
-    null,
+    initialBracketData ?? null,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [hasBracket, setHasBracket] = useState<boolean | null>(null);
+  const [hasBracket, setHasBracket] = useState<boolean | null>(initialBracketData ? true : null);
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [editingSets, setEditingSets] = useState<
     Array<{ p1: number | null; p2: number | null }>
@@ -191,6 +194,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
   const matchUpdateSubRef = useRef<any>(null);
 
   const fetchBracketTree = useCallback(async () => {
+    if (initialBracketData) return;
     try {
       setIsLoading(true);
       const response = await matchApiRequest.getBracketTree(category.id);
@@ -201,7 +205,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [category.id]);
+  }, [category.id, initialBracketData]);
 
   const fetchCategoryResults = useCallback(async () => {
     try {
@@ -473,357 +477,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
             </p>
           </div>
         ) : bracketData && bracketData.rounds.length > 0 ? (
-          <div className="space-y-8">
-            {bracketData.rounds.map((round) => (
-              <div key={round.round} className="space-y-4">
-                {/* Round Header */}
-                <div className="flex items-center justify-between pb-3 border-b">
-                  <div className="flex items-center gap-3">
-                    <Trophy className="w-5 h-5 text-amber-500" />
-                    <h4 className="font-semibold text-lg text-gray-900 dark:text-white">
-                      {getRoundName(round.round, bracketData.totalRounds)}
-                    </h4>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      • Vòng {round.round}
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="font-normal">
-                    {round.matches.length} trận
-                  </Badge>
-                </div>
-
-                {/* Matches Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {round.matches.map((match) => {
-                    const isEditing = editingMatchId === match.matchId;
-                    const hasScores =
-                      match.setScoreP1 && match.setScoreP1.length > 0;
-
-                    return (
-                      <div
-                        key={match.matchId}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors overflow-hidden"
-                      >
-                        {/* Match Header */}
-                        <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                            Trận {match.matchIndex}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              className={getMatchStatusColor(match.status)}
-                            >
-                              {getMatchStatusText(match.status)}
-                            </Badge>
-                            {category.admin && !isEditing && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleEditMatch(match)}
-                                className="h-7 w-7 p-0 hover:bg-blue-200 dark:hover:bg-blue-800"
-                              >
-                                <Edit className="w-3.5 h-3.5" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="p-4">
-                          {isEditing ? (
-                            <>
-                              {/* Editing Mode */}
-                              <div className="space-y-4">
-                                <div className="flex items-center justify-between pb-2 border-b">
-                                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                    Nhập kết quả
-                                  </span>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={handleAddSet}
-                                    className="h-7 text-xs"
-                                  >
-                                    + Thêm set
-                                  </Button>
-                                </div>
-
-                                {/* Score Table */}
-                                <div className="space-y-3">
-                                  {editingSets.map((set, setIndex) => (
-                                    <div key={setIndex} className="space-y-2">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
-                                          Set {setIndex + 1}
-                                        </span>
-                                        {editingSets.length > 1 && (
-                                          <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={() =>
-                                              handleRemoveSet(setIndex)
-                                            }
-                                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                          >
-                                            <X className="w-3.5 h-3.5" />
-                                          </Button>
-                                        )}
-                                      </div>
-
-                                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 space-y-2">
-                                        <div className="flex items-center gap-2">
-                                          <div className="flex-1">
-                                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">
-                                              {match.player1Name || "Player 1"}
-                                            </label>
-                                            <Input
-                                              type="number"
-                                              min="0"
-                                              max="30"
-                                              value={set.p1 ?? ""}
-                                              onChange={(e) =>
-                                                handleSetScoreChange(
-                                                  setIndex,
-                                                  "p1",
-                                                  e.target.value,
-                                                )
-                                              }
-                                              className="h-10 text-center text-lg font-bold"
-                                              placeholder="0"
-                                            />
-                                          </div>
-                                          <div className="text-gray-400 font-bold">
-                                            :
-                                          </div>
-                                          <div className="flex-1">
-                                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">
-                                              {match.player2Name || "Player 2"}
-                                            </label>
-                                            <Input
-                                              type="number"
-                                              min="0"
-                                              max="30"
-                                              value={set.p2 ?? ""}
-                                              onChange={(e) =>
-                                                handleSetScoreChange(
-                                                  setIndex,
-                                                  "p2",
-                                                  e.target.value,
-                                                )
-                                              }
-                                              className="h-10 text-center text-lg font-bold"
-                                              placeholder="0"
-                                            />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-
-                                <div className="flex gap-2 pt-3 border-t">
-                                  <Button
-                                    size="sm"
-                                    onClick={() =>
-                                      handleUpdateResult(match.matchId)
-                                    }
-                                    disabled={isUpdating}
-                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white h-10"
-                                  >
-                                    {isUpdating ? (
-                                      <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                        Đang lưu...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Check className="w-4 h-4 mr-2" />
-                                        Lưu kết quả
-                                      </>
-                                    )}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={handleCancelEdit}
-                                    disabled={isUpdating}
-                                    className="flex-1 h-10"
-                                  >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Hủy
-                                  </Button>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              {/* Display Mode - BWF Style */}
-                              <div className="space-y-0">
-                                {/* Player 1 Row */}
-                                <div
-                                  className={`flex items-center p-3 ${
-                                    match.winnerId === match.player1Id
-                                      ? "bg-green-50 dark:bg-green-950/30"
-                                      : "bg-white dark:bg-gray-800"
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <div
-                                      className={`w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold ${
-                                        match.winnerId === match.player1Id
-                                          ? "bg-green-600 text-white"
-                                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                      }`}
-                                    >
-                                      1
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div
-                                        className={`font-semibold truncate ${
-                                          match.winnerId === match.player1Id
-                                            ? "text-green-900 dark:text-green-100"
-                                            : "text-gray-900 dark:text-white"
-                                        }`}
-                                      >
-                                        {match.player1Name || "TBD"}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Set Scores with fixed width container */}
-                                  <div className="flex items-center gap-1.5 ml-3 min-w-[160px] justify-end">
-                                    {hasScores ? (
-                                      <div className="flex items-center gap-1.5">
-                                        {match.setScoreP1!.map(
-                                          (score, index) => {
-                                            const p2Score =
-                                              match.setScoreP2![index];
-                                            const wonSet = score > p2Score;
-                                            return (
-                                              <div
-                                                key={index}
-                                                className={`w-10 h-10 flex items-center justify-center rounded text-lg font-bold ${
-                                                  wonSet
-                                                    ? "bg-green-600 text-white"
-                                                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                                }`}
-                                              >
-                                                {score}
-                                              </div>
-                                            );
-                                          },
-                                        )}
-                                        <div className="w-6 h-10 flex items-center justify-center">
-                                          {match.winnerId ===
-                                            match.player1Id && (
-                                            <Trophy className="w-5 h-5 text-amber-500" />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-sm">
-                                        -
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Divider */}
-                                <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
-
-                                {/* Player 2 Row */}
-                                <div
-                                  className={`flex items-center p-3 ${
-                                    match.winnerId === match.player2Id
-                                      ? "bg-green-50 dark:bg-green-950/30"
-                                      : "bg-white dark:bg-gray-800"
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <div
-                                      className={`w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold ${
-                                        match.winnerId === match.player2Id
-                                          ? "bg-green-600 text-white"
-                                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                      }`}
-                                    >
-                                      2
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div
-                                        className={`font-semibold truncate ${
-                                          match.winnerId === match.player2Id
-                                            ? "text-green-900 dark:text-green-100"
-                                            : "text-gray-900 dark:text-white"
-                                        }`}
-                                      >
-                                        {match.player2Name || "TBD"}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Set Scores with fixed width container */}
-                                  <div className="flex items-center gap-1.5 ml-3 min-w-[160px] justify-end">
-                                    {hasScores ? (
-                                      <div className="flex items-center gap-1.5">
-                                        {match.setScoreP2!.map(
-                                          (score, index) => {
-                                            const p1Score =
-                                              match.setScoreP1![index];
-                                            const wonSet = score > p1Score;
-                                            return (
-                                              <div
-                                                key={index}
-                                                className={`w-10 h-10 flex items-center justify-center rounded text-lg font-bold ${
-                                                  wonSet
-                                                    ? "bg-green-600 text-white"
-                                                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                                }`}
-                                              >
-                                                {score}
-                                              </div>
-                                            );
-                                          },
-                                        )}
-                                        <div className="w-6 h-10 flex items-center justify-center">
-                                          {match.winnerId ===
-                                            match.player2Id && (
-                                            <Trophy className="w-5 h-5 text-amber-500" />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-sm">
-                                        -
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Winner Badge */}
-                              {match.winnerName && (
-                                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                  <div className="flex items-center justify-center gap-2 text-sm">
-                                    <Trophy className="w-4 h-4 text-amber-500" />
-                                    <span className="font-semibold text-green-700 dark:text-green-400">
-                                      {match.winnerName}
-                                    </span>
-                                    <span className="text-gray-500 dark:text-gray-400">
-                                      chiến thắng
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <BracketView bracketData={bracketData} />
         ) : (
           <div className="text-center py-16">
             <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
