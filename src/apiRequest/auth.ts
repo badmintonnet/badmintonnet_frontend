@@ -19,7 +19,7 @@ const authApiRequest = {
     http.post<LoginResType>("auth/verify", body),
   sendOtp: (email: string) => http.get(`auth/send-otp/${email}`),
   loginWithFirebase: (idToken: string) =>
-    http.post<LoginResType>("auth/login/firebase", { idToken }),
+    http.post<LoginResType>("/api/auth/login/firebase", { idToken }, { baseUrl: "" }),
   forgetPassword: (email: string) => http.post(`auth/forget/${email}`),
   updatePassword: (body: UpdatePasswordBodyType) =>
     http.put("auth/update-password", body),
