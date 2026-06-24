@@ -26,6 +26,7 @@ export default function GoogleSignUpButton() {
       toast.success("Đăng ký thành công!");
 
       router.push("/");
+      router.refresh();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error("Đăng nhập Google thất bại: " + (error.message || ""));
