@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut, Moon, Search, Sun, User } from "lucide-react";
+import { LogOut, Moon, Search, Sun, User } from "lucide-react";
+import NotificationBell from "@/components/notification";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -60,14 +61,7 @@ export function Header() {
             )}
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full h-9 w-9 p-0 relative"
-          >
-            <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-          </Button>
+          <NotificationBell />
 
           <div className="relative">
             <Button
