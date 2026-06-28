@@ -354,20 +354,14 @@ export default async function ClubDetailPage({
 
           {/* Activity Tab */}
           <TabsContent value="activity" className="mt-6">
-            {!isLoggedIn ? (
-              <LoginRequiredMessage tabName="hoạt động" />
-            ) : !isJoined ? (
-              <JoinRequiredMessage tabName="hoạt động" />
-            ) : (
-              <ClubEvents
-                page={page}
-                status={status}
-                type={type}
-                search={search}
-                owner={isOwner}
-                clubId={clubDetail.slug}
-              />
-            )}
+            <ClubEvents
+              page={page}
+              status={status}
+              type={type}
+              search={search}
+              owner={isOwner}
+              clubId={clubDetail.slug}
+            />
           </TabsContent>
 
           {/* Members Tab */}
