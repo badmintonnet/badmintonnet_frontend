@@ -21,6 +21,7 @@ import { toast } from "sonner";
 interface ClubBracketViewProps {
   tournamentId: string;
   isAdmin?: boolean;
+  initialData?: ClubBracketResponse;
 }
 
 const getMatchStatusText = (status: string) => {
@@ -541,13 +542,15 @@ function ClubTieCard({
 export default function ClubBracketView({
   tournamentId,
   isAdmin = false,
+  initialData,
 }: ClubBracketViewProps) {
   const router = useRouter();
 
-  const [bracket, setBracket] = useState<ClubBracketResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [bracket, setBracket] = useState<ClubBracketResponse | null>(initialData ?? null);
+  const [loading, setLoading] = useState(!initialData);
 
   const loadBracket = useCallback(() => {
+    if (initialData) return;
     if (!tournamentId) return;
     setLoading(true);
     clubTournamentBracketApiRequest
@@ -555,7 +558,7 @@ export default function ClubBracketView({
       .then((res) => setBracket(res.payload.data as ClubBracketResponse))
       .catch(() => setBracket(null))
       .finally(() => setLoading(false));
-  }, [tournamentId]);
+  }, [tournamentId, initialData]);
 
   useEffect(() => {
     loadBracket();
