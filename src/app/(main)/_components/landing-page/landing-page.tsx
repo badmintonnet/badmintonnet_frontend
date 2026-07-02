@@ -317,7 +317,7 @@ export default function LandingPage() {
               >
                 {/* Quote mark */}
                 <div className="text-5xl leading-none text-green-200 dark:text-green-900 font-serif mb-3 select-none">
-                  "
+                  &ldquo;
                 </div>
                 {/* Stars */}
                 <div className="flex gap-0.5 mb-4">
