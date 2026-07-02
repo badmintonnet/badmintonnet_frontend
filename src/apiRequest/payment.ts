@@ -1,13 +1,13 @@
 import http from "@/lib/http";
 import {
-  VNPayCreateResponseType,
-  VNPayReturnResponseType,
+  PaymentStatusApiResponseType,
+  SePayCreateResponseType,
 } from "@/schemaValidations/payment";
 
 const paymentApiRequest = {
-  // Thanh toán INDIVIDUAL tournament (cũ)
+  // Thanh toán INDIVIDUAL tournament
   createPayment: (categoryId: string, amount: number) =>
-    http.post<VNPayCreateResponseType>(
+    http.post<SePayCreateResponseType>(
       `/payment/create?categoryId=${categoryId}&amount=${amount}`,
     ),
 
@@ -18,16 +18,14 @@ const paymentApiRequest = {
     if (amount !== undefined && amount !== null) {
       params.append("amount", amount.toString());
     }
-    return http.post<VNPayCreateResponseType>(
+    return http.post<SePayCreateResponseType>(
       `/payment/club/create?${params.toString()}`,
     );
   },
 
-  // Xử lý VNPay return callback
-  handleVNPayReturn: (params: URLSearchParams) =>
-    http.get<VNPayReturnResponseType>(
-      `/payment/vnpay-return?${params.toString()}`,
-    ),
+  // Polling trạng thái giao dịch SePay
+  getStatus: (txnRef: string) =>
+    http.get<PaymentStatusApiResponseType>(`/payment/${txnRef}/status`),
 };
 
 export default paymentApiRequest;

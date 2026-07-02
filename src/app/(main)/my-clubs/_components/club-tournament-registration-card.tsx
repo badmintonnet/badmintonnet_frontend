@@ -32,6 +32,8 @@ import ClubRosterModal from "@/app/(main)/tournaments/[id]/categories/[categoryI
 import LineupBuilderDialog from "./lineup-builder-dialog";
 import ClubTournamentResultInline from "./club-tournament-result-inline";
 import { toast } from "sonner";
+import SePayPaymentDialog from "@/components/payment/sepay-payment-dialog";
+import { SePayCreateType } from "@/schemaValidations/payment";
 
 interface ClubTournamentRegistrationCardProps {
   participant: ClubTournamentParticipant;
@@ -95,6 +97,7 @@ export default function ClubTournamentRegistrationCard({
 }: ClubTournamentRegistrationCardProps) {
   const [paying, setPaying] = useState(false);
   const [repDialogOpen, setRepDialogOpen] = useState(false);
+  const [sePayData, setSePayData] = useState<SePayCreateType | null>(null);
 
   // Tournament kết thúc: status COMPLETED từ phía tournament
   const tournamentCompleted = participant.tournamentStatus === "COMPLETED";
@@ -174,23 +177,27 @@ export default function ClubTournamentRegistrationCard({
       })
     : null;
 
+  const createSePayPayment = async () => {
+    const response = await paymentApiRequest.createClubPayment(
+      participant.id,
+    );
+    setSePayData(response.payload.data);
+  };
+
   const handlePayment = async () => {
     setPaying(true);
     try {
-      const response = await paymentApiRequest.createClubPayment(
-        participant.id,
-      );
-      const data = response.payload.data;
-      if (data?.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        toast.error("Không nhận được đường dẫn thanh toán");
-      }
+      await createSePayPayment();
     } catch {
       toast.error("Không thể tạo thanh toán. Vui lòng thử lại.");
     } finally {
       setPaying(false);
     }
+  };
+
+  const handlePaymentSuccess = () => {
+    setSePayData(null);
+    onRepresentativeChanged?.();
   };
 
   return (
@@ -459,6 +466,18 @@ export default function ClubTournamentRegistrationCard({
         onOpenChange={setRepDialogOpen}
         onSaved={() => onRepresentativeChanged?.()}
       />
+
+      {sePayData && (
+        <SePayPaymentDialog
+          open={!!sePayData}
+          onOpenChange={(v) => {
+            if (!v) setSePayData(null);
+          }}
+          data={sePayData}
+          onSuccess={handlePaymentSuccess}
+          onRetry={createSePayPayment}
+        />
+      )}
     </Card>
   );
 }
@@ -608,7 +627,7 @@ function ActionHint({
       config = {
         tone: "orange",
         Icon: Loader2,
-        text: "Đang chờ cổng thanh toán VNPay xác nhận. Nếu thất bại bạn có thể thử lại.",
+        text: "Đang chờ xác nhận chuyển khoản. Nếu hết hạn bạn có thể tạo lại giao dịch.",
       };
       break;
     case "PAID":
