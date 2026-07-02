@@ -1,36 +1,40 @@
 import { z } from "zod";
 
-export const PaymentStatus = z.enum(["PENDING", "SUCCESS", "FAILED"]);
+export const PaymentStatus = z.enum(["PENDING", "SUCCESS", "FAILED", "EXPIRED"]);
 
 export type PaymentStatus = z.infer<typeof PaymentStatus>;
 
-export const VNPayReturnSchema = z.object({
+export const SePayCreateSchema = z.object({
+  txnRef: z.string(),
+  amount: z.number(),
+  qrUrl: z.string(),
+  bankAccount: z.string(),
+  bankName: z.string(),
+  expiresAt: z.string(),
+});
+
+export type SePayCreateType = z.infer<typeof SePayCreateSchema>;
+
+export const SePayCreateResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: SePayCreateSchema,
+});
+
+export type SePayCreateResponseType = z.infer<typeof SePayCreateResponse>;
+
+export const PaymentStatusSchema = z.object({
   status: PaymentStatus,
-  tournamentId: z.string(),
-  categoryId: z.string().nullable(),
-  participationType: z.enum(["INDIVIDUAL", "CLUB"]).optional(),
 });
 
-export type VNPayReturnSchemaType = z.infer<typeof VNPayReturnSchema>;
+export type PaymentStatusSchemaType = z.infer<typeof PaymentStatusSchema>;
 
-export const VNPayReturnResponse = z.object({
+export const PaymentStatusApiResponse = z.object({
   status: z.number(),
   message: z.string(),
-  data: VNPayReturnSchema,
+  data: PaymentStatusSchema,
 });
 
-export type VNPayReturnResponseType = z.infer<typeof VNPayReturnResponse>;
-
-export const VNPayCreateSchema = z.object({
-  paymentUrl: z.string(),
-});
-
-export type VNPayCreateType = z.infer<typeof VNPayCreateSchema>;
-
-export const VNPayCreateResponse = z.object({
-  status: z.number(),
-  message: z.string(),
-  data: VNPayCreateSchema,
-});
-
-export type VNPayCreateResponseType = z.infer<typeof VNPayCreateResponse>;
+export type PaymentStatusApiResponseType = z.infer<
+  typeof PaymentStatusApiResponse
+>;

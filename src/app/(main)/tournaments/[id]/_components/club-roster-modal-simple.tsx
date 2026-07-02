@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,8 @@ import {
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
 import paymentApiRequest from "@/apiRequest/payment";
 import { toast } from "sonner";
+import SePayPaymentDialog from "@/components/payment/sepay-payment-dialog";
+import { SePayCreateType } from "@/schemaValidations/payment";
 
 interface ClubRosterModalSimpleProps {
   participant: ClubTournamentParticipant;
@@ -29,12 +32,14 @@ export default function ClubRosterModalSimple({
   participant,
   trigger,
 }: ClubRosterModalSimpleProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [roster, setRoster] = useState<ClubRosterMember[]>(
     participant.roster ?? [],
   );
   const [loading, setLoading] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [sePayData, setSePayData] = useState<SePayCreateType | null>(null);
 
   const handleOpen = async (isOpen: boolean) => {
     setOpen(isOpen);
@@ -53,16 +58,17 @@ export default function ClubRosterModalSimple({
     }
   };
 
+  const createSePayPayment = async () => {
+    const response = await paymentApiRequest.createClubPayment(
+      participant.id,
+    );
+    setSePayData(response.payload.data);
+  };
+
   const handlePayment = async () => {
     setPaying(true);
     try {
-      const response = await paymentApiRequest.createClubPayment(
-        participant.id,
-      );
-      const data = response.payload.data;
-      if (data?.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      }
+      await createSePayPayment();
     } catch {
       toast.error("Không thể tạo thanh toán. Vui lòng thử lại.");
     } finally {
@@ -70,11 +76,18 @@ export default function ClubRosterModalSimple({
     }
   };
 
+  const handlePaymentSuccess = () => {
+    setSePayData(null);
+    setOpen(false);
+    router.refresh();
+  };
+
   const canPay = participant.status === "PENDING";
 
   const statusInfo = getClubTournamentStatusInfo(participant.status);
 
   return (
+    <>
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
@@ -167,5 +180,18 @@ export default function ClubRosterModalSimple({
         </div>
       </DialogContent>
     </Dialog>
+
+    {sePayData && (
+      <SePayPaymentDialog
+        open={!!sePayData}
+        onOpenChange={(v) => {
+          if (!v) setSePayData(null);
+        }}
+        data={sePayData}
+        onSuccess={handlePaymentSuccess}
+        onRetry={createSePayPayment}
+      />
+    )}
+    </>
   );
 }

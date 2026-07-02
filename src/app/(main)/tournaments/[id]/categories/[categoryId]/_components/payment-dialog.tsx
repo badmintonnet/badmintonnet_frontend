@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import paymentApiRequest from "@/apiRequest/payment";
 import { CreditCard, Wallet, Building2, Smartphone } from "lucide-react";
+import SePayPaymentDialog from "@/components/payment/sepay-payment-dialog";
+import { SePayCreateType } from "@/schemaValidations/payment";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -25,10 +28,10 @@ interface PaymentDialogProps {
 
 const paymentMethods = [
   {
-    id: "vnpay",
-    name: "VNPay",
+    id: "sepay",
+    name: "Chuyển khoản QR (SePay)",
     icon: Wallet,
-    description: "Thanh toán qua ví điện tử VNPay",
+    description: "Quét mã VietQR bằng app ngân hàng bất kỳ",
   },
   {
     id: "momo",
@@ -39,9 +42,9 @@ const paymentMethods = [
   },
   {
     id: "banking",
-    name: "Chuyển khoản ngân hàng",
+    name: "Internet Banking",
     icon: Building2,
-    description: "Chuyển khoản trực tiếp qua ngân hàng",
+    description: "Thanh toán qua cổng ngân hàng",
     disabled: true, // Chưa tích hợp
   },
   {
@@ -59,10 +62,15 @@ export default function PaymentDialog({
   categoryId,
   amount,
 }: PaymentDialogProps) {
-  const [selectedMethod, setSelectedMethod] = useState("vnpay");
+  const router = useRouter();
+  const [selectedMethod, setSelectedMethod] = useState("sepay");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [sePayData, setSePayData] = useState<SePayCreateType | null>(null);
 
-  console.log("Amount to pay:", amount);
+  const createSePayPayment = async () => {
+    const response = await paymentApiRequest.createPayment(categoryId, amount);
+    setSePayData(response.payload.data);
+  };
 
   const handlePayment = async () => {
     if (!selectedMethod) {
@@ -70,22 +78,15 @@ export default function PaymentDialog({
       return;
     }
 
+    if (selectedMethod !== "sepay") {
+      toast.error("Phương thức thanh toán chưa được hỗ trợ");
+      return;
+    }
+
     setIsProcessing(true);
-
     try {
-      if (selectedMethod === "vnpay") {
-        const response = await paymentApiRequest.createPayment(
-          categoryId,
-          amount,
-        );
-        // console.log("Create payment response:", response);
-
-        if (response.payload.data) {
-          window.location.href = response.payload.data.paymentUrl;
-        }
-      } else {
-        toast.error("Phương thức thanh toán chưa được hỗ trợ");
-      }
+      await createSePayPayment();
+      onOpenChange(false);
     } catch {
       toast.error("Có lỗi xảy ra khi tạo thanh toán");
     } finally {
@@ -93,98 +94,117 @@ export default function PaymentDialog({
     }
   };
 
+  const handlePaymentSuccess = () => {
+    setSePayData(null);
+    router.refresh();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Thanh toán lệ phí tham gia</DialogTitle>
-          <DialogDescription>
-            Chọn phương thức thanh toán phù hợp với bạn
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Thanh toán lệ phí tham gia</DialogTitle>
+            <DialogDescription>
+              Chọn phương thức thanh toán phù hợp với bạn
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Thông tin thanh toán */}
-          <div className="rounded-lg bg-muted p-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Số tiền:</span>
-              <span className="text-lg font-bold text-primary">
-                {amount.toLocaleString("vi-VN")} VNĐ
-              </span>
+          <div className="space-y-6">
+            {/* Thông tin thanh toán */}
+            <div className="rounded-lg bg-muted p-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Số tiền:</span>
+                <span className="text-lg font-bold text-primary">
+                  {amount.toLocaleString("vi-VN")} VNĐ
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Chọn phương thức */}
-          <RadioGroup value={selectedMethod} onValueChange={setSelectedMethod}>
-            <div className="space-y-3">
-              {paymentMethods.map((method) => {
-                const Icon = method.icon;
-                return (
-                  <div
-                    key={method.id}
-                    className={`relative flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
-                      method.disabled
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-pointer hover:bg-accent"
-                    } ${
-                      selectedMethod === method.id && !method.disabled
-                        ? "border-primary bg-accent"
-                        : ""
-                    }`}
-                  >
-                    <RadioGroupItem
-                      value={method.id}
-                      id={method.id}
-                      disabled={method.disabled}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <Label
-                        htmlFor={method.id}
-                        className={`flex items-center gap-2 ${
-                          method.disabled
-                            ? "cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                      >
-                        <Icon className="h-5 w-5" />
-                        <span className="font-medium">{method.name}</span>
-                        {method.disabled && (
-                          <span className="text-xs text-muted-foreground">
-                            (Sắp ra mắt)
-                          </span>
-                        )}
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {method.description}
-                      </p>
+            {/* Chọn phương thức */}
+            <RadioGroup value={selectedMethod} onValueChange={setSelectedMethod}>
+              <div className="space-y-3">
+                {paymentMethods.map((method) => {
+                  const Icon = method.icon;
+                  return (
+                    <div
+                      key={method.id}
+                      className={`relative flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
+                        method.disabled
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer hover:bg-accent"
+                      } ${
+                        selectedMethod === method.id && !method.disabled
+                          ? "border-primary bg-accent"
+                          : ""
+                      }`}
+                    >
+                      <RadioGroupItem
+                        value={method.id}
+                        id={method.id}
+                        disabled={method.disabled}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label
+                          htmlFor={method.id}
+                          className={`flex items-center gap-2 ${
+                            method.disabled
+                              ? "cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                        >
+                          <Icon className="h-5 w-5" />
+                          <span className="font-medium">{method.name}</span>
+                          {method.disabled && (
+                            <span className="text-xs text-muted-foreground">
+                              (Sắp ra mắt)
+                            </span>
+                          )}
+                        </Label>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {method.description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </RadioGroup>
+                  );
+                })}
+              </div>
+            </RadioGroup>
 
-          {/* Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onOpenChange(false)}
-              disabled={isProcessing}
-            >
-              Hủy
-            </Button>
-            <Button
-              className="flex-1"
-              onClick={handlePayment}
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Đang xử lý..." : "Thanh toán"}
-            </Button>
+            {/* Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => onOpenChange(false)}
+                disabled={isProcessing}
+              >
+                Hủy
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handlePayment}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Đang xử lý..." : "Thanh toán"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {sePayData && (
+        <SePayPaymentDialog
+          open={!!sePayData}
+          onOpenChange={(v) => {
+            if (!v) setSePayData(null);
+          }}
+          data={sePayData}
+          onSuccess={handlePaymentSuccess}
+          onRetry={createSePayPayment}
+        />
+      )}
+    </>
   );
 }
