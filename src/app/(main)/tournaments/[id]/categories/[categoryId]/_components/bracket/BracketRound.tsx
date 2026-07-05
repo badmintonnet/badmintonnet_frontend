@@ -1,4 +1,7 @@
-import type { BracketRoundSchemaType } from "@/schemaValidations/match";
+import type {
+  BracketRoundSchemaType,
+  TournamentMatchSchemaType,
+} from "@/schemaValidations/match";
 import BracketMatchCard from "./BracketMatchCard";
 
 function getRoundLabel(round: number, totalRounds: number): string {
@@ -12,9 +15,16 @@ function getRoundLabel(round: number, totalRounds: number): string {
 interface Props {
   round: BracketRoundSchemaType;
   totalRounds: number;
+  isAdmin?: boolean;
+  onEditMatch?: (match: TournamentMatchSchemaType) => void;
 }
 
-export default function BracketRound({ round, totalRounds }: Props) {
+export default function BracketRound({
+  round,
+  totalRounds,
+  isAdmin,
+  onEditMatch,
+}: Props) {
   const isFinalRound = round.round === totalRounds;
   const label = getRoundLabel(round.round, totalRounds);
 
@@ -34,6 +44,8 @@ export default function BracketRound({ round, totalRounds }: Props) {
             key={match.matchId}
             match={match}
             isFinal={isFinalRound}
+            isAdmin={isAdmin}
+            onEditMatch={onEditMatch}
           />
         ))}
       </div>

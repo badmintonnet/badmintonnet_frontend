@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { TournamentMatchSchemaType } from "@/schemaValidations/match";
+import { PencilLine } from "lucide-react";
 
 const STATUS_BG: Record<string, string> = {
   NOT_STARTED:
@@ -84,12 +87,29 @@ function PlayerRow({
 interface Props {
   match: TournamentMatchSchemaType;
   isFinal?: boolean;
+  isAdmin?: boolean;
+  onEditMatch?: (match: TournamentMatchSchemaType) => void;
 }
 
-export default function BracketMatchCard({ match, isFinal }: Props) {
+export default function BracketMatchCard({
+  match,
+  isFinal,
+  isAdmin,
+  onEditMatch,
+}: Props) {
   const p1Wins = !!match.winnerId && match.winnerId === match.player1Id;
   const p2Wins = !!match.winnerId && match.winnerId === match.player2Id;
   const hasResult = match.status === "FINISHED";
+
+  // Chỉ admin mới nhập được điểm, và chỉ khi cặp đấu đã đủ 2 VĐV
+  // và trận chưa kết thúc / chưa bị hủy (tránh sửa lại kết quả đã chốt).
+  const canScore =
+    !!isAdmin &&
+    !!onEditMatch &&
+    !!match.player1Id &&
+    !!match.player2Id &&
+    match.status !== "FINISHED" &&
+    match.status !== "CANCELLED";
 
   return (
     <div
@@ -128,6 +148,17 @@ export default function BracketMatchCard({ match, isFinal }: Props) {
         isWinner={p2Wins}
         hasResult={hasResult}
       />
+
+      {canScore && (
+        <button
+          type="button"
+          onClick={() => onEditMatch?.(match)}
+          className="mt-0.5 flex items-center justify-center gap-1 rounded-md border border-teal-500/40 bg-teal-50/70 px-1.5 py-1 text-[10px] font-medium text-teal-700 transition-colors hover:bg-teal-100 dark:border-teal-800/55 dark:bg-teal-950/35 dark:text-teal-300 dark:hover:bg-teal-900/50"
+        >
+          <PencilLine className="h-3 w-3" />
+          Nhập điểm
+        </button>
+      )}
     </div>
   );
 }
