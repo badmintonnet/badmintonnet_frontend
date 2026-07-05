@@ -198,7 +198,12 @@ const request = async <Response>(
   // 👉 Lưu token sau login/register
   if (typeof window !== "undefined") {
     if (
-      ["auth/login", "api/auth/login", "auth/login/firebase"].some(
+      [
+        "auth/login",
+        "api/auth/login",
+        "auth/login/firebase",
+        "api/auth/login/firebase",
+      ].some(
         (item) => item === normalizePath(url),
       )
     ) {
