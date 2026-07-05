@@ -137,13 +137,13 @@ export default function BracketMatchCard({
 
       {/* Player rows */}
       <PlayerRow
-        name={match.player1Name}
+        name={match.player1Name ?? (hasResult ? "BYE" : null)}
         scores={match.setScoreP1}
         isWinner={p1Wins}
         hasResult={hasResult}
       />
       <PlayerRow
-        name={match.player2Name}
+        name={match.player2Name ?? (hasResult ? "BYE" : null)}
         scores={match.setScoreP2}
         isWinner={p2Wins}
         hasResult={hasResult}
