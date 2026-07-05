@@ -1,4 +1,5 @@
 import rankingApiRequest from "@/apiRequest/ranking";
+import RankingInfoDialog from "@/app/(main)/rankings/_components/ranking-info-dialog";
 import RankingScopeFilter from "@/app/(main)/rankings/_components/ranking-scope-filter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -136,9 +137,12 @@ export default async function RankingsPage({
                 Bảng xếp hạng người chơi
               </div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-4xl">
-                  Xếp hạng cạnh tranh BadmintonNet
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-3xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-4xl">
+                    Xếp hạng cạnh tranh BadmintonNet
+                  </h1>
+                  <RankingInfoDialog />
+                </div>
                 <p className="mt-3 max-w-3xl text-base leading-7 text-gray-600 dark:text-gray-300">
                   Điểm được tổng hợp từ thành tích giải đấu, tỷ lệ thắng, số
                   trận đã chơi và điểm uy tín hiện tại.
