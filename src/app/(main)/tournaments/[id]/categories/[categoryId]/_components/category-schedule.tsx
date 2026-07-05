@@ -3,7 +3,16 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Trophy, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Calendar, Trophy, Sparkles, Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import matchApiRequest from "@/apiRequest/match";
@@ -192,6 +201,13 @@ export default function CategorySchedule({ category, initialBracketData }: Categ
     useState<CategoryResultType | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const matchUpdateSubRef = useRef<any>(null);
+
+  // Trận đang được nhập điểm (dò theo editingMatchId trong bracket hiện tại)
+  const editingMatch = editingMatchId
+    ? (bracketData?.rounds
+        .flatMap((r) => r.matches)
+        .find((m) => m.matchId === editingMatchId) ?? null)
+    : null;
 
   const fetchBracketTree = useCallback(async () => {
     if (initialBracketData) return;
@@ -477,7 +493,11 @@ export default function CategorySchedule({ category, initialBracketData }: Categ
             </p>
           </div>
         ) : bracketData && bracketData.rounds.length > 0 ? (
-          <BracketView bracketData={bracketData} />
+          <BracketView
+            bracketData={bracketData}
+            isAdmin={!!category.admin}
+            onEditMatch={handleEditMatch}
+          />
         ) : (
           <div className="text-center py-16">
             <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
@@ -604,6 +624,134 @@ export default function CategorySchedule({ category, initialBracketData }: Categ
             </div>
           </CardContent>
         )}
+
+      {/* Dialog nhập / cập nhật tỉ số (chỉ admin) */}
+      <Dialog
+        open={!!editingMatchId}
+        onOpenChange={(o) => {
+          if (!o) handleCancelEdit();
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cập nhật tỉ số</DialogTitle>
+            <DialogDescription>
+              Nhập kết quả từng set. Điểm hợp lệ: 21 (cách biệt ≥ 2) hoặc deuce
+              đến 30. Thắng 2 set để kết thúc trận.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingMatch && (
+            <>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                    VĐV 1
+                  </Badge>
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {editingMatch.player1Name ?? "TBD"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                    VĐV 2
+                  </Badge>
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {editingMatch.player2Name ?? "TBD"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {editingSets.map((set, setIndex) => (
+                  <div key={setIndex} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold uppercase text-gray-600 dark:text-gray-400">
+                        Set {setIndex + 1}
+                      </span>
+                      {editingSets.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSet(setIndex)}
+                          className="text-gray-400 transition-colors hover:text-red-500"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">
+                          {editingMatch.player1Name ?? "VĐV 1"}
+                        </label>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={30}
+                          value={set.p1 ?? ""}
+                          onChange={(e) =>
+                            handleSetScoreChange(setIndex, "p1", e.target.value)
+                          }
+                          placeholder="0"
+                          className="h-10 text-center text-lg font-bold"
+                        />
+                      </div>
+                      <div className="pt-5 text-xl font-bold text-gray-400">
+                        :
+                      </div>
+                      <div className="flex-1">
+                        <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">
+                          {editingMatch.player2Name ?? "VĐV 2"}
+                        </label>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={30}
+                          value={set.p2 ?? ""}
+                          onChange={(e) =>
+                            handleSetScoreChange(setIndex, "p2", e.target.value)
+                          }
+                          placeholder="0"
+                          className="h-10 text-center text-lg font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {editingSets.length < 3 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddSet}
+                    className="w-full text-xs"
+                  >
+                    + Thêm set
+                  </Button>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  disabled={isUpdating}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={() => handleUpdateResult(editingMatch.matchId)}
+                  disabled={isUpdating}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Lưu kết quả
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
