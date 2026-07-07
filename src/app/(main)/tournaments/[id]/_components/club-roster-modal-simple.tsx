@@ -82,7 +82,8 @@ export default function ClubRosterModalSimple({
     router.refresh();
   };
 
-  const canPay = participant.status === "PENDING";
+  // Cho phép thanh toán ở cả PAYMENT_REQUIRED để không bị kẹt khi bỏ dở giao dịch (T1)
+  const canPay = ["PENDING", "PAYMENT_REQUIRED"].includes(participant.status);
 
   const statusInfo = getClubTournamentStatusInfo(participant.status);
 

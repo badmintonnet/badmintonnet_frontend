@@ -5,6 +5,8 @@ import {
   TournamentDetail,
   getClubTournamentStatusInfo,
   ClubTournamentStatus,
+  canAdminApproveClub,
+  canAdminRejectClub,
 } from "@/schemaValidations/tournament.schema";
 import {
   Users,
@@ -68,9 +70,8 @@ export default function ClubCategorySection({
         50,
       );
       setParticipants(res.payload.data.content || []);
-      console.log("Fetched participants:", res.payload.data.content);
     } catch {
-      console.error("Failed to fetch participants");
+      toast.error("Không thể tải danh sách CLB đã đăng ký");
     } finally {
       setLoading(false);
     }
@@ -82,6 +83,11 @@ export default function ClubCategorySection({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournament.id, tournament.participationType]);
+
+  // Số CLB còn hiệu lực (không tính đã hủy/bị từ chối) — dùng cho đếm & tính "đầy" (D3)
+  const activeCount = participants.filter(
+    (p) => p.status !== "CANCELLED" && p.status !== "REJECTED",
+  ).length;
 
   const handleApprove = async (participantId: string) => {
     setActionLoading(participantId);
@@ -144,7 +150,7 @@ export default function ClubCategorySection({
                   {tournament.name}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {participants.length} CLB đã đăng ký
+                  {activeCount} CLB đã đăng ký
                 </p>
               </div>
             </div>
@@ -210,7 +216,7 @@ export default function ClubCategorySection({
               minRoster={tournament.minClubRosterSize || 1}
               maxRoster={tournament.maxClubRosterSize || 10}
               registrationFee={tournament.clubRegistrationFee || 0}
-              isFull={participants.length >= (tournament.maxClubs || Infinity)}
+              isFull={activeCount >= (tournament.maxClubs || Infinity)}
               registrationDeadline={registrationEndDate || new Date()}
               isAdmin={isAdmin}
             />
@@ -228,7 +234,7 @@ export default function ClubCategorySection({
             Danh sách CLB tham gia
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {participants.length} CLB đã đăng ký
+            {activeCount} CLB đã đăng ký
           </p>
         </div>
       </div>
@@ -289,43 +295,47 @@ export default function ClubCategorySection({
                     }
                   </span>
 
-                  {/* Admin Actions */}
+                  {/* Admin Actions — điều kiện khớp backend & màn duyệt theo category (A2) */}
                   {isAdmin &&
-                    club.status !== "APPROVED" &&
-                    club.status !== "REJECTED" && (
+                    (canAdminApproveClub(club.status as ClubTournamentStatus) ||
+                      canAdminRejectClub(club.status as ClubTournamentStatus)) && (
                       <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-green-600 border-green-300 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900/20"
-                          onClick={() => handleApprove(club.id)}
-                          disabled={actionLoading === club.id}
-                        >
-                          {actionLoading === club.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Duyệt
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
-                          onClick={() => handleReject(club.id)}
-                          disabled={actionLoading === club.id}
-                        >
-                          {actionLoading === club.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <XCircle className="w-4 h-4 mr-1" />
-                              Từ chối
-                            </>
-                          )}
-                        </Button>
+                        {canAdminApproveClub(club.status as ClubTournamentStatus) && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600 border-green-300 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900/20"
+                            onClick={() => handleApprove(club.id)}
+                            disabled={actionLoading === club.id}
+                          >
+                            {actionLoading === club.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Duyệt
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        {canAdminRejectClub(club.status as ClubTournamentStatus) && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+                            onClick={() => handleReject(club.id)}
+                            disabled={actionLoading === club.id}
+                          >
+                            {actionLoading === club.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Từ chối
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
                     )}
                 </div>

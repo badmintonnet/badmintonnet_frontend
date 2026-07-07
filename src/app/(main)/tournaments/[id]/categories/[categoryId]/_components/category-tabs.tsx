@@ -56,7 +56,7 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
       {isClubTournament ? (
         <TabsContent value="club-participants" className="mt-6">
           <ClubTournamentParticipants
-            categoryId={category.id}
+            tournamentId={category.tournamentId}
             isAdmin={category.admin}
           />
         </TabsContent>

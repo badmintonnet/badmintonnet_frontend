@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -40,6 +40,12 @@ export default function ClubTournamentRegistrations({
 }: ClubTournamentRegistrationsProps) {
   const router = useRouter();
   const [participations, setParticipations] = useState(initialParticipations);
+
+  // Đồng bộ khi Server Component cấp props mới sau router.refresh()
+  // (useState chỉ nhận giá trị khởi tạo lần đầu nên cần effect này để cập nhật khi props đổi).
+  useEffect(() => {
+    setParticipations(initialParticipations);
+  }, [initialParticipations]);
   const [updateTarget, setUpdateTarget] =
     useState<ClubTournamentParticipant | null>(null);
   const [cancelTarget, setCancelTarget] =

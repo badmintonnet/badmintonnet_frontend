@@ -124,7 +124,8 @@ export default function ClubTournamentRegistrationCard({
   const canCancel = !["CANCELLED", "REJECTED", "APPROVED"].includes(
     participant.status,
   );
-  const canPay = participant.status === "PENDING";
+  // Cho phép thanh toán ở cả PAYMENT_REQUIRED để không bị kẹt khi bỏ dở giao dịch (T1)
+  const canPay = ["PENDING", "PAYMENT_REQUIRED"].includes(participant.status);
   // Không cho chọn đại diện khi tournament đã kết thúc
   const canSelectRepresentative =
     ["PAID", "APPROVED"].includes(participant.status) && !tournamentCompleted;
@@ -160,14 +161,24 @@ export default function ClubTournamentRegistrationCard({
       case "PAID":
         return 2;
       case "APPROVED":
-        // Tournament đã kết thúc → all steps done
-        return tournamentCompleted ? 5 : hasRepresentative ? 4 : 3;
+        // Tournament đã kết thúc → all steps done. Bước "Đội hình" xong khi lineup ĐỦ vị trí,
+        // không chỉ khi có 1 người (L4). Fallback hasRepresentative nếu BE chưa trả lineupComplete.
+        return tournamentCompleted
+          ? 5
+          : (participant.lineupComplete ?? hasRepresentative)
+            ? 4
+            : 3;
       case "ELIMINATED":
         return 5;
       default:
         return -1;
     }
-  }, [participant.status, hasRepresentative, tournamentCompleted]);
+  }, [
+    participant.status,
+    participant.lineupComplete,
+    hasRepresentative,
+    tournamentCompleted,
+  ]);
 
   const registeredAtText = participant.registeredAt
     ? new Date(participant.registeredAt).toLocaleDateString("vi-VN", {
@@ -415,7 +426,9 @@ export default function ClubTournamentRegistrationCard({
               ) : (
                 <CreditCard className="w-3.5 h-3.5 mr-1" />
               )}
-              Thanh toán ngay
+              {participant.status === "PAYMENT_REQUIRED"
+                ? "Tiếp tục thanh toán"
+                : "Thanh toán ngay"}
             </Button>
           )}
 
