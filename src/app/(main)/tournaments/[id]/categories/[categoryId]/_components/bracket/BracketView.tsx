@@ -5,10 +5,9 @@ import type {
   BracketTreeSchemaType,
   TournamentMatchSchemaType,
 } from "@/schemaValidations/match";
-import BracketRound from "./BracketRound";
 import BracketMatchCard from "./BracketMatchCard";
-import BracketConnector from "./BracketConnector";
 import ChampionCard from "./ChampionCard";
+import { useBracketConnectors } from "@/components/bracket/useBracketConnectors";
 
 function getRoundLabel(round: number, totalRounds: number): string {
   const fromEnd = totalRounds - round + 1;
@@ -33,29 +32,93 @@ export default function BracketView({
   const finalMatch = rounds[rounds.length - 1]?.matches[0];
   const champion = finalMatch?.winnerName ?? null;
 
+  // Đường nối khuỷu giữa các vòng — đo vị trí card thật (dùng chung với bracket CLB)
+  const { containerRef, paths, size } = useBracketConnectors(bracketData);
+
   return (
     <>
       {/* ── Desktop/Tablet: horizontal scrollable bracket ── */}
       <div className="hidden sm:block">
         <div className="w-full overflow-x-auto pb-4">
-          <div className="flex min-w-max items-start gap-0 pb-4 pt-1">
-            {rounds.map((round, idx) => (
-              <div key={round.round} className="flex items-start">
-                <BracketRound
-                  round={round}
-                  totalRounds={totalRounds}
-                  isAdmin={isAdmin}
-                  onEditMatch={onEditMatch}
-                />
-                {idx < rounds.length - 1 && (
-                  <BracketConnector matchCount={round.matches.length} />
-                )}
+          <div
+            ref={containerRef}
+            className="relative flex min-w-max items-stretch gap-0 pb-4 pt-1"
+          >
+            {/* Lớp đường nối khuỷu giữa các vòng */}
+            <svg
+              className="pointer-events-none absolute left-0 top-0 z-0 overflow-visible text-border"
+              width={size.w}
+              height={size.h}
+              aria-hidden="true"
+            >
+              <path
+                d={paths}
+                fill="none"
+                strokeWidth={1.5}
+                className="stroke-current"
+              />
+            </svg>
+
+            {rounds.map((round, roundIdx) => (
+              <div
+                key={round.round}
+                className={`relative z-[1] flex shrink-0 ${
+                  roundIdx > 0 ? "pl-8 sm:pl-12" : ""
+                }`}
+              >
+                <div className="flex w-52 flex-col">
+                  {/* Round label */}
+                  <div className="mb-3 flex h-6 items-center justify-center px-1">
+                    <span className="text-[11px] font-semibold tracking-widest text-muted-foreground">
+                      {getRoundLabel(round.round, totalRounds).toUpperCase()}
+                    </span>
+                  </div>
+
+                  {/* Mỗi card trong 1 ô flex-1 căn giữa dọc → card vòng sau rơi đúng
+                      trung điểm cặp đấu vòng trước, bất kể chiều cao card. */}
+                  <div className="flex flex-1 flex-col">
+                    {round.matches.map((match, idx) => (
+                      <div
+                        key={match.matchId}
+                        className="flex flex-1 items-center justify-center py-2"
+                      >
+                        <div
+                          data-bracket-card
+                          data-bracket-round={round.round}
+                          data-bracket-index={idx}
+                        >
+                          <BracketMatchCard
+                            match={match}
+                            isFinal={round.round === totalRounds}
+                            isAdmin={isAdmin}
+                            onEditMatch={onEditMatch}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
 
-            {/* Champion column */}
-            <div className="ml-3 mt-6">
-              <ChampionCard winnerName={champion} />
+            {/* Champion column — nối tiếp từ trận chung kết */}
+            <div className="relative z-[1] flex shrink-0 pl-8 sm:pl-12">
+              <div className="flex flex-col">
+                <div className="mb-3 flex h-6 items-center justify-center px-1">
+                  <span className="text-[11px] font-semibold tracking-widest text-amber-500">
+                    VÔ ĐỊCH
+                  </span>
+                </div>
+                <div className="flex flex-1 items-center justify-center py-2">
+                  <div
+                    data-bracket-card
+                    data-bracket-round={totalRounds + 1}
+                    data-bracket-index={0}
+                  >
+                    <ChampionCard winnerName={champion} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

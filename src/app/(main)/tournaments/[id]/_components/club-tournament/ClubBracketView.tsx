@@ -16,6 +16,7 @@ import {
   ClubBracketRubber,
 } from "@/schemaValidations/club-match.schema";
 import clubTournamentBracketApiRequest from "@/apiRequest/club-tournament-bracket";
+import { useBracketConnectors } from "@/components/bracket/useBracketConnectors";
 import { toast } from "sonner";
 
 interface ClubBracketViewProps {
@@ -551,6 +552,9 @@ export default function ClubBracketView({
   );
   const [loading, setLoading] = useState(!initialData);
 
+  // Đường nối khuỷu giữa các vòng (đo vị trí card thật) — đo lại khi dữ liệu bracket đổi
+  const { containerRef, paths, size } = useBracketConnectors(bracket);
+
   const loadBracket = useCallback(() => {
     if (initialData) return;
     if (!tournamentId) return;
@@ -655,7 +659,25 @@ export default function ClubBracketView({
       </div>
 
       <div className="relative -mx-1 overflow-x-auto px-1 pb-2">
-        <div className="flex min-w-max items-start gap-0 pb-6 pt-1">
+        {/* items-stretch → mọi cột cao bằng nhau (theo vòng nhiều card nhất) để căn giữa được các vòng sau */}
+        <div
+          ref={containerRef}
+          className="relative flex min-w-max items-stretch gap-0 pb-6 pt-1"
+        >
+          {/* Lớp đường nối khuỷu giữa các vòng (đo vị trí card thật) */}
+          <svg
+            className="pointer-events-none absolute left-0 top-0 z-0 overflow-visible text-border/80"
+            width={size.w}
+            height={size.h}
+            aria-hidden="true"
+          >
+            <path
+              d={paths}
+              fill="none"
+              strokeWidth={1.5}
+              className="stroke-current"
+            />
+          </svg>
           {bracket.rounds.map((round, roundIdx) => {
             const ties = round.ties ?? [];
             const matches = round.matches ?? [];
@@ -668,13 +690,11 @@ export default function ClubBracketView({
             return (
               <div
                 key={round.round}
-                className={`flex shrink-0 items-start ${
-                  roundIdx > 0
-                    ? "border-l border-dashed border-border/70 pl-5 sm:pl-7"
-                    : ""
+                className={`relative z-[1] flex shrink-0 ${
+                  roundIdx > 0 ? "pl-8 sm:pl-12" : ""
                 }`}
               >
-                <div className="w-[min(calc(100vw-4rem),20rem)] min-w-[16.5rem] max-w-[20rem] sm:min-w-[18rem]">
+                <div className="flex w-[min(calc(100vw-4rem),20rem)] min-w-[16.5rem] max-w-[20rem] flex-col sm:min-w-[18rem]">
                   <header className="mb-4 text-center">
                     <div className="mx-auto inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 shadow-sm">
                       <Trophy className="h-4 w-4 shrink-0 text-amber-500" />
@@ -696,33 +716,59 @@ export default function ClubBracketView({
                     </div>
                   </header>
 
-                  <div className="flex flex-col gap-4">
+                  {/* Mỗi card nằm trong 1 ô flex-1 căn giữa dọc. Vòng sau có nửa số ô nên mỗi ô
+                      cao gấp đôi → card tự căn đúng trung điểm cặp đấu của vòng trước (đúng chuẩn
+                      bracket loại trực tiếp, không phụ thuộc chiều cao từng card). */}
+                  <div className="flex flex-1 flex-col">
+                    {slots.length === 0 && (
+                      <div className="flex flex-1 items-center justify-center">
+                        <p className="rounded-xl border border-dashed px-4 py-8 text-center text-xs text-muted-foreground">
+                          Không có cặp đấu trong vòng này.
+                        </p>
+                      </div>
+                    )}
                     {isTieMode
                       ? ties.map((tie, idx) => (
-                          <ClubTieCard
+                          <div
                             key={
                               tie.tieId ??
                               `tie-${tie.round}-${tie.matchIndex}-${idx}`
                             }
-                            tie={tie}
-                            isAdmin={isAdmin}
-                            onUpdate={loadBracket}
-                          />
+                            className="flex flex-1 items-center justify-center py-2"
+                          >
+                            <div
+                              className="w-full"
+                              data-bracket-card
+                              data-bracket-round={round.round}
+                              data-bracket-index={idx}
+                            >
+                              <ClubTieCard
+                                tie={tie}
+                                isAdmin={isAdmin}
+                                onUpdate={loadBracket}
+                              />
+                            </div>
+                          </div>
                         ))
-                      : matches.map((match) => (
-                          <ClubMatchCard
+                      : matches.map((match, idx) => (
+                          <div
                             key={match.matchId}
-                            match={match}
-                            isAdmin={isAdmin}
-                            onUpdate={loadBracket}
-                          />
+                            className="flex flex-1 items-center justify-center py-2"
+                          >
+                            <div
+                              className="w-full"
+                              data-bracket-card
+                              data-bracket-round={round.round}
+                              data-bracket-index={idx}
+                            >
+                              <ClubMatchCard
+                                match={match}
+                                isAdmin={isAdmin}
+                                onUpdate={loadBracket}
+                              />
+                            </div>
+                          </div>
                         ))}
-                    {/* Placeholder căn chỉnh khi ít ô */}
-                    {slots.length === 0 && (
-                      <p className="rounded-xl border border-dashed px-4 py-8 text-center text-xs text-muted-foreground">
-                        Không có cặp đấu trong vòng này.
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
