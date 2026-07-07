@@ -12,9 +12,10 @@ export default function TournamentTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<"INDIVIDUAL" | "CLUB">(
-    "INDIVIDUAL",
-  );
+  // URL là nguồn sự thật cho tab → back/forward giữ đúng tab (trước đây useState cứng "INDIVIDUAL"
+  // khiến back về ?type=CLUB vẫn hiển thị tab Cá nhân).
+  const activeTab: "INDIVIDUAL" | "CLUB" =
+    searchParams.get("type") === "CLUB" ? "CLUB" : "INDIVIDUAL";
   const [tournaments, setTournaments] = useState<TournamentResponse[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export default function TournamentTabs() {
   }, [activeTab, currentPage]);
 
   const handleTabChange = (tab: "INDIVIDUAL" | "CLUB") => {
-    setActiveTab(tab);
+    // Chỉ đổi URL — activeTab được suy ra từ searchParams nên UI tự cập nhật.
     router.push(`/tournaments?type=${tab}&page=0`);
   };
 
