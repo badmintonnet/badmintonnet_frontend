@@ -38,6 +38,8 @@ export default function ClubRegisterButtonSimple({
   const [myParticipation, setMyParticipation] =
     useState<ClubTournamentParticipant | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  // Lỗi khi kiểm tra tình trạng đăng ký — KHÔNG được coi là "chưa đăng ký" (tránh đăng ký trùng)
+  const [checkError, setCheckError] = useState(false);
   const accessToken = clientSessionToken.value;
 
   const checkParticipation = useCallback(async () => {
@@ -45,6 +47,7 @@ export default function ClubRegisterButtonSimple({
       setLoading(false);
       return;
     }
+    setCheckError(false);
     try {
       const clubsRes = await clubServiceApi.getMyClubs(0, 50);
       const ownedClubs = (clubsRes.payload.data.content ?? []).filter(
@@ -55,21 +58,18 @@ export default function ClubRegisterButtonSimple({
         return;
       }
       for (const club of ownedClubs) {
-        try {
-          const res = await clubTournamentApiRequest.getMyParticipation(
-            tournamentId,
-            club.id,
-          );
-          if (res.payload.data) {
-            setMyParticipation(res.payload.data as ClubTournamentParticipant);
-            break;
-          }
-        } catch {
-          // Not registered
+        // Backend trả data=null khi chưa đăng ký (không ném lỗi) → mọi exception ở đây là lỗi thật.
+        const res = await clubTournamentApiRequest.getMyParticipation(
+          tournamentId,
+          club.id,
+        );
+        if (res.payload.data) {
+          setMyParticipation(res.payload.data as ClubTournamentParticipant);
+          break;
         }
       }
     } catch {
-      // ignore
+      setCheckError(true);
     } finally {
       setLoading(false);
     }
@@ -130,6 +130,23 @@ export default function ClubRegisterButtonSimple({
           }
         />
       </div>
+    );
+  }
+
+  // Không xác định được tình trạng đăng ký (lỗi mạng/tạm thời) → cho thử lại, không cho đăng ký mù
+  if (checkError) {
+    return (
+      <Button
+        variant="outline"
+        className="border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300"
+        onClick={() => {
+          setLoading(true);
+          checkParticipation();
+        }}
+      >
+        <Building2 className="w-4 h-4 mr-2" />
+        Không tải được — Thử lại
+      </Button>
     );
   }
 

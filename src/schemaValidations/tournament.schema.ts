@@ -509,6 +509,7 @@ export type TournamentPartnerInvitationResponse = z.infer<
 
 export const CategoryDetail = z.object({
   id: z.string(),
+  tournamentId: z.string(),
   tournamentName: z.string(),
   facility: FacilitySchema,
   startDate: z.string(),
@@ -716,6 +717,18 @@ export function getClubTournamentStatusInfo(status: ClubTournamentStatus) {
   }
 }
 
+// Điều kiện admin thao tác — nguồn sự thật duy nhất, khớp guard backend
+// (approve: chỉ khi đã thanh toán; reject: chỉ trước khi vào bảng đấu).
+export function canAdminApproveClub(status: ClubTournamentStatus): boolean {
+  return status === "PAID";
+}
+
+export function canAdminRejectClub(status: ClubTournamentStatus): boolean {
+  return (["PENDING", "PAYMENT_REQUIRED", "PAID"] as ClubTournamentStatus[]).includes(
+    status,
+  );
+}
+
 export const ClubRosterMemberSchema = z.object({
   rosterEntryId: z.string(),
   clubMemberId: z.string(),
@@ -751,6 +764,7 @@ export const ClubTournamentParticipantSchema = z.object({
   paid: z.boolean(),
   rosterSize: z.number(),
   roster: z.array(ClubRosterMemberSchema),
+  lineupComplete: z.boolean().optional(),
 });
 export type ClubTournamentParticipant = z.infer<
   typeof ClubTournamentParticipantSchema
@@ -770,8 +784,9 @@ export const PagedClubTournamentParticipantsResponse = z.object({
   message: z.string(),
   data: z.object({
     content: z.array(ClubTournamentParticipantSchema),
-    pageNumber: z.number(),
-    pageSize: z.number(),
+    // Khớp PagedResponse của backend: page/size (trước đây lệch tên pageNumber/pageSize)
+    page: z.number(),
+    size: z.number(),
     totalElements: z.number(),
     totalPages: z.number(),
     last: z.boolean(),

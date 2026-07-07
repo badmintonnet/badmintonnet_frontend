@@ -104,8 +104,18 @@ export default function SePayPaymentDialog({
     onSuccess();
   };
 
+  // Nếu thanh toán đã thành công mà người dùng đóng dialog bằng X/overlay (không bấm "Tiếp tục"),
+  // vẫn phải đồng bộ dữ liệu để tránh card kẹt ở trạng thái "Chờ thanh toán" → tránh trả tiền lần 2.
+  const handleDialogOpenChange = (v: boolean) => {
+    if (!v && phase === "success") {
+      onSuccess();
+      return;
+    }
+    onOpenChange(v);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-[440px]">
         {phase === "pending" && (
           <>

@@ -8,6 +8,8 @@ import {
   ClubTournamentParticipant,
   ClubTournamentStatus,
   getClubTournamentStatusInfo,
+  canAdminApproveClub,
+  canAdminRejectClub,
 } from "@/schemaValidations/tournament.schema";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
 import { toast } from "sonner";
@@ -15,12 +17,13 @@ import ClubRosterModal from "./club-roster-modal";
 import Image from "next/image";
 
 interface ClubTournamentParticipantsProps {
-  categoryId: string;
+  // Đăng ký CLB gắn với GIẢI, không phải hạng mục → cần tournamentId (UUID), không phải categoryId
+  tournamentId: string;
   isAdmin?: boolean;
 }
 
 export default function ClubTournamentParticipants({
-  categoryId,
+  tournamentId,
   isAdmin = false,
 }: ClubTournamentParticipantsProps) {
   const [participants, setParticipants] = useState<ClubTournamentParticipant[]>(
@@ -35,8 +38,8 @@ export default function ClubTournamentParticipants({
       const statuses: ClubTournamentStatus[] = isAdmin
         ? [] // admin sees all statuses
         : ["APPROVED", "PAID", "PENDING", "PAYMENT_REQUIRED"];
-      const res = await clubTournamentApiRequest.getParticipantsByCategory(
-        categoryId,
+      const res = await clubTournamentApiRequest.getParticipantsByTournament(
+        tournamentId,
         statuses,
         0,
         100,
@@ -48,7 +51,7 @@ export default function ClubTournamentParticipants({
     } finally {
       setLoading(false);
     }
-  }, [categoryId, isAdmin]);
+  }, [tournamentId, isAdmin]);
 
   useEffect(() => {
     fetchParticipants();
@@ -107,10 +110,8 @@ export default function ClubTournamentParticipants({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {participants.map((p) => {
           const statusInfo = getClubTournamentStatusInfo(p.status);
-          const canApprove = isAdmin && p.status === "PAID";
-          const canReject =
-            isAdmin &&
-            !["REJECTED", "CANCELLED", "APPROVED"].includes(p.status);
+          const canApprove = isAdmin && canAdminApproveClub(p.status);
+          const canReject = isAdmin && canAdminRejectClub(p.status);
           return (
             <Card
               key={p.id}

@@ -51,20 +51,6 @@ const clubTournamentApiRequest = {
     );
   },
 
-  // Alias for backward compatibility
-  getParticipantsByCategory: (
-    tournamentId: string,
-    status?: ClubTournamentStatus[],
-    page = 0,
-    size = 10,
-  ) =>
-    clubTournamentApiRequest.getParticipantsByTournament(
-      tournamentId,
-      status,
-      page,
-      size,
-    ),
-
   // 1.5 Chi tiết đăng ký của một CLB (full roster)
   getParticipantDetail: (participantId: string, token = "") =>
     http.get<ClubTournamentParticipantResponseType>(
