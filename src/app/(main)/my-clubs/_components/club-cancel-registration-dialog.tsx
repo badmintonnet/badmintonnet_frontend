@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Loader2, Trophy, Users, X } from "lucide-react";
 import { ClubTournamentParticipant } from "@/schemaValidations/tournament.schema";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { toast } from "sonner";
 
 interface CancelRegistrationDialogProps {
@@ -37,8 +38,8 @@ export default function CancelRegistrationDialog({
       toast.success("Đã hủy đăng ký giải đấu");
       onCancelled();
       onOpenChange(false);
-    } catch {
-      toast.error("Không thể hủy đăng ký");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể hủy đăng ký"));
     } finally {
       setLoading(false);
     }

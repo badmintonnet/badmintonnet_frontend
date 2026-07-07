@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import clubServiceApi from "@/apiRequest/club";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { toast } from "sonner";
 import { MyClubSchema } from "@/schemaValidations/clubs.schema";
 import z from "zod";
@@ -83,7 +84,9 @@ export default function ClubRegisterModalSimple({
           setStep("select-members");
         }
       })
-      .catch(() => toast.error("Không thể tải danh sách CLB"))
+      .catch((error) =>
+        toast.error(getApiErrorMessage(error, "Không thể tải danh sách CLB")),
+      )
       .finally(() => setLoading(false));
   }, [open]);
 
@@ -116,7 +119,11 @@ export default function ClubRegisterModalSimple({
           ),
         );
       })
-      .catch(() => toast.error("Không thể tải danh sách thành viên"))
+      .catch((error) =>
+        toast.error(
+          getApiErrorMessage(error, "Không thể tải danh sách thành viên"),
+        ),
+      )
       .finally(() => setLoading(false));
   }, [selectedClub]);
 
@@ -143,17 +150,8 @@ export default function ClubRegisterModalSimple({
       toast.success("Đăng ký CLB thành công!");
       onOpenChange(false);
       onRegistered?.();
-    } catch (error: unknown) {
-      console.error("Register club error:", error);
-      const err = error as {
-        payload?: { message?: string };
-        response?: { data?: { message?: string } };
-      };
-      toast.error(
-        err.payload?.message ||
-          err.response?.data?.message ||
-          "Không thể đăng ký CLB",
-      );
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể đăng ký CLB"));
     } finally {
       setSubmitting(false);
     }

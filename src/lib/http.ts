@@ -10,8 +10,6 @@ type CustomOptions = Omit<RequestInit, "method"> & {
 };
 
 const AUTHENTICATION_ERROR_STATUS = 401;
-const BAD_REQUEST_STATUS = 400;
-const SERVER_ERROR_STATUS = 500;
 
 export class HttpError extends Error {
   status: number;
@@ -181,18 +179,13 @@ const request = async <Response>(
     payload,
   };
 
-  // 👉 Chỉ tập trung xử lý 400, 401, 500
+  // 👉 Mọi response lỗi (4xx/5xx: 400, 401, 403, 404, 409, 422, 500...) đều ném HttpError
+  // để phía UI luôn nhận được message từ BE (trước đây 403/404/409 bị bỏ qua → nuốt lỗi).
   if (!res.ok) {
-    if (
-      res.status === BAD_REQUEST_STATUS ||
-      res.status === AUTHENTICATION_ERROR_STATUS ||
-      res.status >= SERVER_ERROR_STATUS
-    ) {
-      throw new HttpError({
-        status: res.status,
-        payload: payload || { message: "Request failed" },
-      });
-    }
+    throw new HttpError({
+      status: res.status,
+      payload: payload || { message: "Request failed" },
+    });
   }
 
   // 👉 Lưu token sau login/register
