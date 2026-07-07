@@ -12,6 +12,7 @@ import {
   canAdminRejectClub,
 } from "@/schemaValidations/tournament.schema";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { toast } from "sonner";
 import ClubRosterModal from "./club-roster-modal";
 import Image from "next/image";
@@ -46,8 +47,10 @@ export default function ClubTournamentParticipants({
       );
       setParticipants(res.payload.data.content ?? []);
       setTotal(res.payload.data.totalElements ?? 0);
-    } catch {
-      toast.error("Không thể tải danh sách CLB đã đăng ký");
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, "Không thể tải danh sách CLB đã đăng ký"),
+      );
     } finally {
       setLoading(false);
     }
@@ -63,8 +66,8 @@ export default function ClubTournamentParticipants({
       await clubTournamentApiRequest.approveParticipant(participantId);
       toast.success("Đã duyệt CLB tham gia giải đấu");
       fetchParticipants();
-    } catch {
-      toast.error("Không thể duyệt CLB này");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể duyệt CLB này"));
     } finally {
       setActionLoading(null);
     }
@@ -76,8 +79,8 @@ export default function ClubTournamentParticipants({
       await clubTournamentApiRequest.rejectParticipant(participantId);
       toast.success("Đã từ chối CLB tham gia giải đấu");
       fetchParticipants();
-    } catch {
-      toast.error("Không thể từ chối CLB này");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể từ chối CLB này"));
     } finally {
       setActionLoading(null);
     }

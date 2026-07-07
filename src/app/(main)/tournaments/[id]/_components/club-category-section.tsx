@@ -19,6 +19,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import { getApiErrorMessage } from "@/lib/api-error";
 import ClubRegisterButtonSimple from "./club-register-button-simple";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -70,8 +71,10 @@ export default function ClubCategorySection({
         50,
       );
       setParticipants(res.payload.data.content || []);
-    } catch {
-      toast.error("Không thể tải danh sách CLB đã đăng ký");
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, "Không thể tải danh sách CLB đã đăng ký"),
+      );
     } finally {
       setLoading(false);
     }
@@ -95,8 +98,8 @@ export default function ClubCategorySection({
       await clubTournamentApiRequest.approveParticipant(participantId);
       toast.success("Đã duyệt đăng ký CLB");
       fetchParticipants();
-    } catch {
-      toast.error("Không thể duyệt đăng ký");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể duyệt đăng ký"));
     } finally {
       setActionLoading(null);
     }
@@ -108,8 +111,8 @@ export default function ClubCategorySection({
       await clubTournamentApiRequest.rejectParticipant(participantId);
       toast.success("Đã từ chối đăng ký CLB");
       fetchParticipants();
-    } catch {
-      toast.error("Không thể từ chối đăng ký");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể từ chối đăng ký"));
     } finally {
       setActionLoading(null);
     }

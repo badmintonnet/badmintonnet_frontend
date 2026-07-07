@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-error";
 import clubTournamentBracketApiRequest from "@/apiRequest/club-tournament-bracket";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
 import type {
@@ -118,8 +119,8 @@ export default function LineupBuilderDialog({
         );
         setRosterMembers(participant.roster ?? []);
       }
-    } catch {
-      toast.error("Không tải được dữ liệu lineup.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không tải được dữ liệu lineup."));
       setLineup(null);
       setRosterMembers(participant.roster ?? []);
     } finally {
@@ -160,8 +161,8 @@ export default function LineupBuilderDialog({
       setLocal(nextLocal);
       toast.success("Đã lưu lineup");
       onSaved?.();
-    } catch {
-      toast.error("Lưu lineup thất bại");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Lưu lineup thất bại"));
     } finally {
       setSaving(false);
     }

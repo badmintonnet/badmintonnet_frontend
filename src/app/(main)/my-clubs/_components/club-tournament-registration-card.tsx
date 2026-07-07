@@ -32,6 +32,7 @@ import ClubRosterModal from "@/app/(main)/tournaments/[id]/categories/[categoryI
 import LineupBuilderDialog from "./lineup-builder-dialog";
 import ClubTournamentResultInline from "./club-tournament-result-inline";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-error";
 import SePayPaymentDialog from "@/components/payment/sepay-payment-dialog";
 import { SePayCreateType } from "@/schemaValidations/payment";
 
@@ -197,8 +198,13 @@ export default function ClubTournamentRegistrationCard({
     setPaying(true);
     try {
       await createSePayPayment();
-    } catch {
-      toast.error("Không thể tạo thanh toán. Vui lòng thử lại.");
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(
+          error,
+          "Không thể tạo thanh toán. Vui lòng thử lại.",
+        ),
+      );
     } finally {
       setPaying(false);
     }

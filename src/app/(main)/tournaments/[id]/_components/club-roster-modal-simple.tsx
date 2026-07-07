@@ -20,6 +20,7 @@ import {
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
 import paymentApiRequest from "@/apiRequest/payment";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-error";
 import SePayPaymentDialog from "@/components/payment/sepay-payment-dialog";
 import { SePayCreateType } from "@/schemaValidations/payment";
 
@@ -50,8 +51,10 @@ export default function ClubRosterModalSimple({
           participant.id,
         );
         setRoster(res.payload.data.roster ?? []);
-      } catch {
-        toast.error("Không thể tải danh sách roster");
+      } catch (error) {
+        toast.error(
+          getApiErrorMessage(error, "Không thể tải danh sách roster"),
+        );
       } finally {
         setLoading(false);
       }
@@ -67,8 +70,13 @@ export default function ClubRosterModalSimple({
     setPaying(true);
     try {
       await createSePayPayment();
-    } catch {
-      toast.error("Không thể tạo thanh toán. Vui lòng thử lại.");
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(
+          error,
+          "Không thể tạo thanh toán. Vui lòng thử lại.",
+        ),
+      );
     } finally {
       setPaying(false);
     }

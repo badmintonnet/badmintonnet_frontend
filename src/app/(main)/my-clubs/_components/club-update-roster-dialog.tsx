@@ -20,6 +20,7 @@ import {
   ClubRosterMember,
 } from "@/schemaValidations/tournament.schema";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { toast } from "sonner";
 
 interface UpdateRosterDialogProps {
@@ -57,7 +58,11 @@ export default function UpdateRosterDialog({
         setMembers(roster);
         setSelected(roster.map((r: ClubRosterMember) => r.accountId));
       })
-      .catch(() => toast.error("Không thể tải danh sách thành viên"))
+      .catch((error) =>
+        toast.error(
+          getApiErrorMessage(error, "Không thể tải danh sách thành viên"),
+        ),
+      )
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, participant?.id]);
@@ -96,8 +101,10 @@ export default function UpdateRosterDialog({
       toast.success("Cập nhật danh sách thành viên thành công");
       onUpdated();
       onOpenChange(false);
-    } catch {
-      toast.error("Không thể cập nhật danh sách thành viên");
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, "Không thể cập nhật danh sách thành viên"),
+      );
     } finally {
       setSubmitting(false);
     }
