@@ -34,12 +34,7 @@ export default function BracketConnector({ matchCount }: Props) {
       className="shrink-0 self-start mt-[2.25rem]"
       aria-hidden="true"
     >
-      <path
-        d={d}
-        fill="none"
-        strokeWidth="1.5"
-        className="stroke-border"
-      />
+      <path d={d} fill="none" strokeWidth="1.5" className="stroke-border" />
     </svg>
   );
 }

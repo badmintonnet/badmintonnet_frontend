@@ -74,13 +74,13 @@ export default function RankingInfoDialog() {
             <ul className="list-disc space-y-1.5 pl-5">
               <li>
                 <strong>Giải đấu:</strong> mỗi giải đã hoàn thành được quy đổi
-                theo hạng chót cuối (vô địch = 100 điểm, hạng cuối = 0 điểm,
-                các hạng giữa nội suy theo số người tham dự), sau đó lấy trung
-                bình các giải.
+                theo hạng chót cuối (vô địch = 100 điểm, hạng cuối = 0 điểm, các
+                hạng giữa nội suy theo số người tham dự), sau đó lấy trung bình
+                các giải.
               </li>
               <li>
-                <strong>Win rate:</strong> % số trận thắng trên tổng số trận
-                đã đấu ở các giải đấu chính thức.
+                <strong>Win rate:</strong> % số trận thắng trên tổng số trận đã
+                đấu ở các giải đấu chính thức.
               </li>
               <li>
                 <strong>Số trận:</strong> tăng dần theo số trận đã chơi nhưng
@@ -108,8 +108,8 @@ export default function RankingInfoDialog() {
 
           <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
             Nhãn <strong>&quot;Tạm tính&quot;</strong> xuất hiện khi người chơi
-            có dưới 3 trận đấu và chưa hoàn thành giải đấu nào — hạng của họ
-            có thể thay đổi nhiều khi có thêm dữ liệu thi đấu.
+            có dưới 3 trận đấu và chưa hoàn thành giải đấu nào — hạng của họ có
+            thể thay đổi nhiều khi có thêm dữ liệu thi đấu.
           </div>
         </div>
       </DialogContent>

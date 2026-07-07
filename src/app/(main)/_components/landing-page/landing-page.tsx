@@ -135,7 +135,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-
       {/* ── HERO ── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-green-950 to-gray-900 text-white">
         {/* Background decorations */}
@@ -206,7 +205,8 @@ export default function LandingPage() {
               Mọi thứ bạn cần, một nơi duy nhất
             </h2>
             <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              Khám phá bộ công cụ mạnh mẽ được thiết kế riêng cho cộng đồng cầu lông Việt Nam.
+              Khám phá bộ công cụ mạnh mẽ được thiết kế riêng cho cộng đồng cầu
+              lông Việt Nam.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -261,7 +261,8 @@ export default function LandingPage() {
               Dành cho mọi đối tượng
             </h2>
             <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              BadmintonNet mang lại giá trị thiết thực cho tất cả mọi người trong cộng đồng cầu lông.
+              BadmintonNet mang lại giá trị thiết thực cho tất cả mọi người
+              trong cộng đồng cầu lông.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -282,7 +283,10 @@ export default function LandingPage() {
                   </h3>
                   <ul className="space-y-3">
                     {benefit.items.map((item, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+                      <li
+                        key={i}
+                        className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300"
+                      >
                         <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0" />
                         {item}
                       </li>
@@ -306,7 +310,8 @@ export default function LandingPage() {
               Người dùng nói gì về chúng tôi
             </h2>
             <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              Hàng nghìn người dùng đã tin tưởng và sử dụng BadmintonNet mỗi ngày.
+              Hàng nghìn người dùng đã tin tưởng và sử dụng BadmintonNet mỗi
+              ngày.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

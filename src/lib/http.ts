@@ -203,9 +203,7 @@ const request = async <Response>(
         "api/auth/login",
         "auth/login/firebase",
         "api/auth/login/firebase",
-      ].some(
-        (item) => item === normalizePath(url),
-      )
+      ].some((item) => item === normalizePath(url))
     ) {
       console.log("Login response payload:", payload);
       clientSessionToken.value = (payload as LoginResType).data.accessToken;

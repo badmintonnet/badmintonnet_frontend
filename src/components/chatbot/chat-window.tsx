@@ -202,9 +202,7 @@ export function ChatWindow({
 
           {messages.length === 0 && (
             <div className="rounded-xl border border-dashed bg-background p-4 text-sm text-muted-foreground">
-              <p>
-                Session này chưa có tin nhắn. Hãy bắt đầu bằng một câu hỏi.
-              </p>
+              <p>Session này chưa có tin nhắn. Hãy bắt đầu bằng một câu hỏi.</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {recommendationPrompts.map((prompt) => (
                   <Button

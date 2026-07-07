@@ -122,7 +122,10 @@ export default function PaymentDialog({
             </div>
 
             {/* Chọn phương thức */}
-            <RadioGroup value={selectedMethod} onValueChange={setSelectedMethod}>
+            <RadioGroup
+              value={selectedMethod}
+              onValueChange={setSelectedMethod}
+            >
               <div className="space-y-3">
                 {paymentMethods.map((method) => {
                   const Icon = method.icon;

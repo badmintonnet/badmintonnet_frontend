@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -184,14 +184,19 @@ const validateMatchResult = (
   return { valid: true, message: "" };
 };
 
-export default function CategorySchedule({ category, initialBracketData }: CategoryScheduleProps) {
+export default function CategorySchedule({
+  category,
+  initialBracketData,
+}: CategoryScheduleProps) {
   const router = useRouter();
   const [bracketData, setBracketData] = useState<BracketTreeSchemaType | null>(
     initialBracketData ?? null,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [hasBracket, setHasBracket] = useState<boolean | null>(initialBracketData ? true : null);
+  const [hasBracket, setHasBracket] = useState<boolean | null>(
+    initialBracketData ? true : null,
+  );
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [editingSets, setEditingSets] = useState<
     Array<{ p1: number | null; p2: number | null }>
@@ -744,7 +749,9 @@ export default function CategorySchedule({ category, initialBracketData }: Categ
                   disabled={isUpdating}
                   className="bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isUpdating && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   Lưu kết quả
                 </Button>
               </DialogFooter>

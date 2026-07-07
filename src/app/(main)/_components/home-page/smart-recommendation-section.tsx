@@ -78,7 +78,9 @@ function RecommendationCard({ item }: { item: RecommendationItemType }) {
   const Icon = config.icon;
   const metadata = [
     item.distanceKm != null ? `${item.distanceKm} km` : null,
-    item.startTime ? `${formatDate(item.startTime)} · ${formatTime(item.startTime)}` : null,
+    item.startTime
+      ? `${formatDate(item.startTime)} · ${formatTime(item.startTime)}`
+      : null,
     item.minLevel != null && item.maxLevel != null
       ? `Trình ${item.minLevel} - ${item.maxLevel}`
       : null,
@@ -215,11 +217,10 @@ export default async function SmartRecommendationSection({
   accessToken,
 }: SmartRecommendationSectionProps) {
   try {
-    const res =
-      await recommendationApiRequest.getPersonalizedRecommendations(
-        4,
-        accessToken,
-      );
+    const res = await recommendationApiRequest.getPersonalizedRecommendations(
+      4,
+      accessToken,
+    );
     const recommendations = res.payload.data;
     const hasRecommendations =
       recommendations.clubs.length > 0 ||
@@ -265,7 +266,10 @@ export default async function SmartRecommendationSection({
           </div>
         </div>
 
-        <RecommendationGroup title={typeConfig.CLUB.title} items={recommendations.clubs} />
+        <RecommendationGroup
+          title={typeConfig.CLUB.title}
+          items={recommendations.clubs}
+        />
         <RecommendationGroup
           title={typeConfig.CLUB_EVENT.title}
           items={recommendations.events}

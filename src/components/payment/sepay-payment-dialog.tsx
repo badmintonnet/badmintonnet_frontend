@@ -46,7 +46,9 @@ export default function SePayPaymentDialog({
   useEffect(() => {
     if (!open) return;
     setPhase("pending");
-    setRemainingMs(Math.max(0, new Date(data.expiresAt).getTime() - Date.now()));
+    setRemainingMs(
+      Math.max(0, new Date(data.expiresAt).getTime() - Date.now()),
+    );
   }, [open, data.txnRef, data.expiresAt]);
 
   // Đếm ngược
@@ -198,11 +200,15 @@ export default function SePayPaymentDialog({
             <div>
               <h3 className="text-lg font-bold">Giao dịch đã hết hạn</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Mã QR đã hết hạn hoặc thanh toán không thành công. Vui lòng
-                tạo giao dịch mới.
+                Mã QR đã hết hạn hoặc thanh toán không thành công. Vui lòng tạo
+                giao dịch mới.
               </p>
             </div>
-            <Button className="w-full" onClick={handleRetry} disabled={retrying}>
+            <Button
+              className="w-full"
+              onClick={handleRetry}
+              disabled={retrying}
+            >
               {retrying ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
@@ -232,9 +238,7 @@ function InfoRow({
     <div className="flex items-center justify-between gap-2">
       <span className="text-muted-foreground">{label}:</span>
       <div className="flex items-center gap-1.5">
-        <span
-          className={highlight ? "font-bold text-primary" : "font-medium"}
-        >
+        <span className={highlight ? "font-bold text-primary" : "font-medium"}>
           {value}
         </span>
         <button
