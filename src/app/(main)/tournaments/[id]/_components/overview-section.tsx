@@ -2,7 +2,6 @@
 
 import {
   Calendar,
-  DollarSign,
   Trophy,
   Clock,
   MapPin,
@@ -103,22 +102,9 @@ export default function OverviewSection({
           </div>
 
           {/* --- CỘT PHẢI: Thông tin khác (chiều dọc) --- */}
+          {/* Bỏ mục "Lệ phí" ở Tổng quan: cá nhân lấy phí theo hạng mục, CLB lấy phí theo giải —
+              không có lệ phí chung ở cấp tournament nên trước đây luôn hiển thị "Miễn phí". */}
           <div className="lg:col-span-1 flex flex-col gap-4">
-            <InfoItem
-              icon={
-                <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
-              }
-              label="Lệ phí"
-              value={
-                tournament.fee
-                  ? tournament.fee.toLocaleString("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    })
-                  : "Miễn phí"
-              }
-            />
-
             <InfoItem
               icon={
                 <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
