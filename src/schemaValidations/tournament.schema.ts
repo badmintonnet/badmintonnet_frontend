@@ -724,9 +724,9 @@ export function canAdminApproveClub(status: ClubTournamentStatus): boolean {
 }
 
 export function canAdminRejectClub(status: ClubTournamentStatus): boolean {
-  return (["PENDING", "PAYMENT_REQUIRED", "PAID"] as ClubTournamentStatus[]).includes(
-    status,
-  );
+  return (
+    ["PENDING", "PAYMENT_REQUIRED", "PAID"] as ClubTournamentStatus[]
+  ).includes(status);
 }
 
 export const ClubRosterMemberSchema = z.object({

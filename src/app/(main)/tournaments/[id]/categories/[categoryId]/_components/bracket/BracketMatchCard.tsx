@@ -15,14 +15,11 @@ const STATUS_BG: Record<string, string> = {
 };
 
 const STATUS_PILL: Record<string, string> = {
-  NOT_STARTED:
-    "bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300",
+  NOT_STARTED: "bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300",
   IN_PROGRESS:
     "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 animate-pulse",
-  FINISHED:
-    "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-  CANCELLED:
-    "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300",
+  FINISHED: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  CANCELLED: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300",
 };
 
 const STATUS_LABEL: Record<string, string> = {

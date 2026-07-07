@@ -546,7 +546,9 @@ export default function ClubBracketView({
 }: ClubBracketViewProps) {
   const router = useRouter();
 
-  const [bracket, setBracket] = useState<ClubBracketResponse | null>(initialData ?? null);
+  const [bracket, setBracket] = useState<ClubBracketResponse | null>(
+    initialData ?? null,
+  );
   const [loading, setLoading] = useState(!initialData);
 
   const loadBracket = useCallback(() => {

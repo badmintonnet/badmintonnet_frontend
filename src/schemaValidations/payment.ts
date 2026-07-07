@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const PaymentStatus = z.enum(["PENDING", "SUCCESS", "FAILED", "EXPIRED"]);
+export const PaymentStatus = z.enum([
+  "PENDING",
+  "SUCCESS",
+  "FAILED",
+  "EXPIRED",
+]);
 
 export type PaymentStatus = z.infer<typeof PaymentStatus>;
 

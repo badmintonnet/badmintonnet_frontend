@@ -298,9 +298,13 @@ export default function ClubCategorySection({
                   {/* Admin Actions — điều kiện khớp backend & màn duyệt theo category (A2) */}
                   {isAdmin &&
                     (canAdminApproveClub(club.status as ClubTournamentStatus) ||
-                      canAdminRejectClub(club.status as ClubTournamentStatus)) && (
+                      canAdminRejectClub(
+                        club.status as ClubTournamentStatus,
+                      )) && (
                       <div className="flex items-center gap-2">
-                        {canAdminApproveClub(club.status as ClubTournamentStatus) && (
+                        {canAdminApproveClub(
+                          club.status as ClubTournamentStatus,
+                        ) && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -318,7 +322,9 @@ export default function ClubCategorySection({
                             )}
                           </Button>
                         )}
-                        {canAdminRejectClub(club.status as ClubTournamentStatus) && (
+                        {canAdminRejectClub(
+                          club.status as ClubTournamentStatus,
+                        ) && (
                           <Button
                             size="sm"
                             variant="outline"

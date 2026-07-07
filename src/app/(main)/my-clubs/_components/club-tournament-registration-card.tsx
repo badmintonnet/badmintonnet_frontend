@@ -189,9 +189,7 @@ export default function ClubTournamentRegistrationCard({
     : null;
 
   const createSePayPayment = async () => {
-    const response = await paymentApiRequest.createClubPayment(
-      participant.id,
-    );
+    const response = await paymentApiRequest.createClubPayment(participant.id);
     setSePayData(response.payload.data);
   };
 

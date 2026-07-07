@@ -178,54 +178,57 @@ export function ChatPage() {
     [loadingSessions, sessionTotalPages],
   );
 
-  const handleSend = useCallback(async (overrideQuestion?: string) => {
-    const question = (overrideQuestion ?? input).trim();
-    if (!question || loading) return;
+  const handleSend = useCallback(
+    async (overrideQuestion?: string) => {
+      const question = (overrideQuestion ?? input).trim();
+      if (!question || loading) return;
 
-    setInput("");
-    setLoading(true);
+      setInput("");
+      setLoading(true);
 
-    // Add user message optimistically
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      content: question,
-      createdAt: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
+      // Add user message optimistically
+      const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: question,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, userMessage]);
 
-    try {
-      // Send message to API
-      const res = await chatbotSessionApi.ask({
-        sessionId: activeSessionId || "",
-        question,
-      });
+      try {
+        // Send message to API
+        const res = await chatbotSessionApi.ask({
+          sessionId: activeSessionId || "",
+          question,
+        });
 
-      const responseSessionId = res.payload.sessionId;
+        const responseSessionId = res.payload.sessionId;
 
-      const targetSessionId = responseSessionId || activeSessionId || "";
-      if (!targetSessionId) {
-        throw new Error("Missing session id after sending message");
+        const targetSessionId = responseSessionId || activeSessionId || "";
+        if (!targetSessionId) {
+          throw new Error("Missing session id after sending message");
+        }
+
+        setActiveSessionId(targetSessionId);
+        setSessionPage(0);
+
+        // Reload both session list and first page of messages after each send.
+        await Promise.all([
+          loadSessions(0, targetSessionId, true),
+          loadSessionMessages(targetSessionId, 0, "replace"),
+        ]);
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        toast.error("Gửi tin nhắn thất bại. Vui lòng thử lại.");
+        // Remove user message on error
+        setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
+        setInput(question);
+      } finally {
+        setLoading(false);
       }
-
-      setActiveSessionId(targetSessionId);
-      setSessionPage(0);
-
-      // Reload both session list and first page of messages after each send.
-      await Promise.all([
-        loadSessions(0, targetSessionId, true),
-        loadSessionMessages(targetSessionId, 0, "replace"),
-      ]);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      toast.error("Gửi tin nhắn thất bại. Vui lòng thử lại.");
-      // Remove user message on error
-      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
-      setInput(question);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeSessionId, input, loadSessionMessages, loadSessions, loading]);
+    },
+    [activeSessionId, input, loadSessionMessages, loadSessions, loading],
+  );
 
   const handleLoadMore = useCallback(async () => {
     if (!activeSessionId || loadingMore || !hasMore) return;
