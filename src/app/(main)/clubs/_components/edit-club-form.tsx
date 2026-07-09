@@ -9,8 +9,8 @@ import facilityServiceApi from "@/apiRequest/facility";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { X, Loader2 } from "lucide-react";
-import { ClubResType } from "@/schemaValidations/clubs.schema";
+import { X, Loader2, ImagePlus } from "lucide-react";
+import { ClubMediaType, ClubResType } from "@/schemaValidations/clubs.schema";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -37,6 +37,7 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
   const [formData, setFormData] = useState({
     name: clubDetail.name || "",
     description: clubDetail.description || "",
+    rules: clubDetail.rules || "",
     location: clubDetail.location || "",
     facilityId: clubDetail.facility?.id || "",
     maxMembers: clubDetail.maxMembers || 0,
@@ -57,6 +58,11 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
     !clubDetail.facility && !!clubDetail.location,
   );
   const [tagInput, setTagInput] = useState("");
+  const [existingMedia, setExistingMedia] = useState<ClubMediaType[]>(
+    clubDetail.media || [],
+  );
+  const [newMediaFiles, setNewMediaFiles] = useState<File[]>([]);
+  const [newMediaPreviews, setNewMediaPreviews] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -109,6 +115,35 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
   const handleRemoveImage = () => {
     setLogoFile(null);
     setLogoPreview(clubDetail.logoUrl || null);
+  };
+
+  const handleMediaFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const totalMedia = existingMedia.length + newMediaFiles.length;
+    const remainingSlots = Math.max(0, 10 - totalMedia);
+    if (remainingSlots === 0) {
+      toast.error("Bạn chỉ có thể có tối đa 10 ảnh/video cho CLB");
+      return;
+    }
+
+    const acceptedFiles = files.slice(0, remainingSlots);
+    const newFiles = [...newMediaFiles, ...acceptedFiles];
+    setNewMediaFiles(newFiles);
+    setNewMediaPreviews(newFiles.map((file) => URL.createObjectURL(file)));
+    e.target.value = "";
+  };
+
+  const handleRemoveExistingMedia = (index: number) => {
+    setExistingMedia((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveNewMedia = (index: number) => {
+    URL.revokeObjectURL(newMediaPreviews[index]);
+    setNewMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setNewMediaPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleFacilityChange = (value: string) => {
@@ -177,6 +212,21 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
         setUploadProgress(60);
       }
 
+      let newFileNames: string[] = [];
+      if (newMediaFiles.length > 0) {
+        const mediaFormData = new FormData();
+        newMediaFiles.forEach((file) => mediaFormData.append("files", file));
+
+        const mediaUploadResponse =
+          await clubServiceApi.uploadMedia(mediaFormData);
+        const uploadedData = mediaUploadResponse.payload.data;
+        newFileNames =
+          "fileNames" in uploadedData
+            ? uploadedData.fileNames
+            : [uploadedData.fileName];
+        setUploadProgress(70);
+      }
+
       const updatedClub = {
         ...formData,
         logoUrl: logoUrl || undefined,
@@ -187,6 +237,8 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
           ? undefined
           : formData.facilityId || undefined,
         location: useCustomLocation ? formData.location : undefined,
+        keepFileNames: existingMedia.map((media) => media.fileName),
+        newFileNames,
       };
 
       setUploadProgress(80);
@@ -307,6 +359,106 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
             onChange={(html: string) =>
               setFormData((prev) => ({ ...prev, description: html }))
             }
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="rules" className="text-sm font-medium">
+            Quy định câu lạc bộ
+          </Label>
+          <RichTextEditor
+            value={formData.rules}
+            onChange={(html: string) =>
+              setFormData((prev) => ({ ...prev, rules: html }))
+            }
+          />
+        </div>
+      </div>
+
+      <hr className="border-gray-200 dark:border-gray-700" />
+
+      {/* Media Gallery */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Hình ảnh / Video về CLB
+          </h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Tùy chọn
+          </span>
+        </div>
+
+        {(existingMedia.length > 0 || newMediaPreviews.length > 0) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {existingMedia.map((media, index) => (
+              <div
+                key={media.fileName}
+                className="relative group rounded-lg overflow-hidden h-28 border border-gray-200 dark:border-gray-700"
+              >
+                {media.type === "VIDEO" ? (
+                  <video src={media.url} className="w-full h-full object-cover" />
+                ) : (
+                  <Image
+                    src={media.url}
+                    alt={`Media ${index}`}
+                    fill
+                    className="object-cover"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveExistingMedia(index)}
+                  className="absolute top-1 right-1 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            {newMediaPreviews.map((url, index) => (
+              <div
+                key={url}
+                className="relative group rounded-lg overflow-hidden h-28 border border-gray-200 dark:border-gray-700"
+              >
+                {newMediaFiles[index]?.type.includes("video") ? (
+                  <video src={url} className="w-full h-full object-cover" />
+                ) : (
+                  <Image
+                    src={url}
+                    alt={`New media ${index}`}
+                    fill
+                    className="object-cover"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveNewMedia(index)}
+                  className="absolute top-1 right-1 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div>
+          <Label
+            htmlFor="media-upload"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
+          >
+            <ImagePlus className="h-4 w-4" />
+            Thêm ảnh/video
+          </Label>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            Tối đa 10 ảnh/video
+          </p>
+          <Input
+            id="media-upload"
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            onChange={handleMediaFilesChange}
+            className="hidden"
           />
         </div>
       </div>

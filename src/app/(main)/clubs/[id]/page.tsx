@@ -7,6 +7,8 @@ import {
   Activity,
   MessageCircle,
   Info,
+  ScrollText,
+  Images,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -349,6 +351,69 @@ export default async function ClubDetailPage({
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Rules */}
+              {clubDetail.rules && (
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all rounded-2xl">
+                  <CardHeader>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <ScrollText className="w-5 h-5 text-orange-500" />
+                      Quy định câu lạc bộ
+                    </h3>
+                  </CardHeader>
+                  <CardContent>
+                    {isHTML(clubDetail.rules) ? (
+                      <div
+                        className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-orange-400 pl-3"
+                        dangerouslySetInnerHTML={{
+                          __html: clubDetail.rules,
+                        }}
+                      />
+                    ) : (
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-orange-400 pl-3 whitespace-pre-line">
+                        {clubDetail.rules}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Media Gallery */}
+              {clubDetail.media && clubDetail.media.length > 0 && (
+                <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                  <CardHeader>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                      <Images className="w-5 h-5 text-purple-500" />
+                      Hình ảnh / Video về CLB
+                    </h3>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {clubDetail.media.map((media) => (
+                        <div
+                          key={media.fileName}
+                          className="relative rounded-lg overflow-hidden h-32 border border-gray-200 dark:border-gray-700"
+                        >
+                          {media.type === "VIDEO" ? (
+                            <video
+                              src={media.url}
+                              controls
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={media.url}
+                              alt="Hình ảnh CLB"
+                              fill
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 

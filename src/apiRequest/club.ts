@@ -1,6 +1,7 @@
 import http from "@/lib/http";
 import { MemberScheduleResponse } from "@/schemaValidations/account.schema";
 import {
+  ClubMediaUploadResType,
   ClubMemberDetailResType,
   ClubPageResType,
   ClubResType,
@@ -39,6 +40,9 @@ const buildDashboardQuery = (query: DashboardQuery = {}) => {
 const clubServiceApi = {
   uploadImage: (body: FormData) =>
     http.post<FileResType>("/clubs/upload", body),
+
+  uploadMedia: (body: FormData) =>
+    http.post<ClubMediaUploadResType>("/clubs/media/upload", body),
 
   createClub: (body: CreateClubBodyType) =>
     http.post<ClubResType>("/clubs", body),
