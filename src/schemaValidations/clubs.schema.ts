@@ -10,6 +10,25 @@ const ClubVisibilityEnum = z.enum(["PRIVATE", "PUBLIC"]);
 const RoleEnum = z.enum(["OWNER", "MEMBER"]);
 const MemberStatusEnum = z.enum(["PENDING", "APPROVED", "REJECTED", "BANNED"]);
 const ClubStatusEnum = z.enum(["PENDING", "ACTIVE", "INACTIVE"]);
+const ClubMediaTypeEnum = z.enum(["IMAGE", "VIDEO"]);
+
+export const ClubMediaSchema = z.object({
+  fileName: z.string(),
+  url: z.string(),
+  type: ClubMediaTypeEnum,
+});
+export type ClubMediaType = z.infer<typeof ClubMediaSchema>;
+
+export const ClubMediaUploadRes = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: z.union([
+    z.object({ fileName: z.string() }),
+    z.object({ fileNames: z.array(z.string()) }),
+  ]),
+});
+export type ClubMediaUploadResType = z.infer<typeof ClubMediaUploadRes>;
+
 // Schema for the club creation request
 export const CreateClubBody = z.object({
   name: z
@@ -19,6 +38,10 @@ export const CreateClubBody = z.object({
   description: z
     .string()
     .max(5000, "Mô tả câu lạc bộ không được vượt quá 5000 ký tự")
+    .optional(),
+  rules: z
+    .string()
+    .max(10000, "Quy định câu lạc bộ không được vượt quá 10000 ký tự")
     .optional(),
   logoUrl: z.string().optional(),
   location: z
@@ -45,6 +68,8 @@ export const CreateClubBody = z.object({
     .max(20, "Không được nhập quá 20 tags")
     .optional(),
   facilityId: z.string().optional(),
+  keepFileNames: z.array(z.string()).optional(),
+  newFileNames: z.array(z.string()).optional(),
 });
 export type CreateClubBodyType = z.infer<typeof CreateClubBody>;
 
@@ -65,6 +90,7 @@ export const ClubSchema = z.object({
   slug: z.string(),
   name: z.string(),
   description: z.string(),
+  rules: z.string().nullable().optional(),
   logoUrl: z.string().optional(),
   location: z.string(),
   facility: FacilitySchema,
@@ -82,6 +108,7 @@ export const ClubSchema = z.object({
   invitationId: z.string().nullable(),
   invitationMessage: z.string().nullable(),
   totalEvent: z.number(),
+  media: z.array(ClubMediaSchema).optional(),
 });
 
 export const ClubAdminSchema = z.object({
