@@ -25,7 +25,7 @@ import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import { clientSessionToken } from "@/lib/http";
 import addressApiRequest from "@/apiRequest/address";
-import { MapPin, ChevronDown } from "lucide-react";
+import { MapPin, ChevronDown, ImagePlus, X } from "lucide-react";
 import facilityApiRequest from "@/apiRequest/facility";
 import {
   Select,
@@ -54,6 +54,8 @@ const CreateClubForm = () => {
   const [currentTag, setCurrentTag] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
 
   // Address related states
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -73,6 +75,7 @@ const CreateClubForm = () => {
     defaultValues: {
       name: "",
       description: "",
+      rules: "",
       logoUrl: "",
       location: "",
       maxMembers: 50,
@@ -232,6 +235,30 @@ const CreateClubForm = () => {
     }
   };
 
+  const handleMediaFilesChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const remainingSlots = Math.max(0, 10 - mediaFiles.length);
+    if (remainingSlots === 0) {
+      toast.error("Bạn chỉ có thể có tối đa 10 ảnh/video cho CLB");
+      return;
+    }
+
+    const acceptedFiles = files.slice(0, remainingSlots);
+    const newFiles = [...mediaFiles, ...acceptedFiles];
+    setMediaFiles(newFiles);
+    setMediaPreviews(newFiles.map((file) => URL.createObjectURL(file)));
+    e.target.value = "";
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    URL.revokeObjectURL(mediaPreviews[index]);
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setMediaPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   async function onSubmit(values: CreateClubBodyType) {
     if (loading) return;
     setLoading(true);
@@ -242,9 +269,23 @@ const CreateClubForm = () => {
       }
       const uploadRes = await clubServiceApi.uploadImage(formData);
       const uploadedImageUrl = uploadRes.payload.data.fileName;
+
+      let newFileNames: string[] = [];
+      if (mediaFiles.length > 0) {
+        const mediaFormData = new FormData();
+        mediaFiles.forEach((file) => mediaFormData.append("files", file));
+        const mediaUploadRes = await clubServiceApi.uploadMedia(mediaFormData);
+        const uploadedData = mediaUploadRes.payload.data;
+        newFileNames =
+          "fileNames" in uploadedData
+            ? uploadedData.fileNames
+            : [uploadedData.fileName];
+      }
+
       const club = await clubServiceApi.createClub({
         ...values,
         logoUrl: uploadedImageUrl || "",
+        newFileNames,
         ...(selectedFacility && { facilityId: selectedFacility }),
       });
       toast.success(
@@ -259,6 +300,8 @@ const CreateClubForm = () => {
       form.reset();
       setLogoFile(null);
       setLogoPreview("");
+      setMediaFiles([]);
+      setMediaPreviews([]);
       setSelectedProvinceId("");
       setSelectedWardId("");
       setAdditionalAddress("");
@@ -311,6 +354,26 @@ const CreateClubForm = () => {
               </FormLabel>
               <FormControl>
                 <RichTextEditor value={field.value} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Quy định CLB */}
+        <FormField
+          control={form.control}
+          name="rules"
+          render={({ field }) => (
+            <FormItem className="mb-12">
+              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                Quy định câu lạc bộ
+              </FormLabel>
+              <FormControl>
+                <RichTextEditor
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -378,6 +441,62 @@ const CreateClubForm = () => {
             </FormItem>
           )}
         />
+
+        {/* Media Gallery */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-base font-semibold text-gray-700 dark:text-gray-300">
+              Hình ảnh / Video về CLB
+            </span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Tùy chọn
+            </span>
+          </div>
+
+          {mediaPreviews.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {mediaPreviews.map((url, index) => (
+                <div
+                  key={url}
+                  className="relative group rounded-lg overflow-hidden h-28 border border-gray-200 dark:border-gray-700"
+                >
+                  {mediaFiles[index]?.type.includes("video") ? (
+                    <video src={url} className="w-full h-full object-cover" />
+                  ) : (
+                    <Image
+                      src={url}
+                      alt={`Media ${index}`}
+                      fill
+                      className="object-cover"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMedia(index)}
+                    className="absolute top-1 right-1 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <label className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium">
+            <ImagePlus className="h-4 w-4" />
+            Thêm ảnh/video
+            <input
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              onChange={handleMediaFilesChange}
+              className="hidden"
+            />
+          </label>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Tối đa 10 ảnh/video
+          </p>
+        </div>
 
         {/* Địa điểm - Enhanced with Province/Ward Selection */}
         <div className="space-y-4">
